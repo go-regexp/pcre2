@@ -18,10 +18,12 @@ The foundation is in place: public constants (`consts_gen.go`), internal
 constants, opcodes and tables (`internal*.go`, `tables.go`), the Unicode
 database (`ucd_tables.go`, `ucptables.go`, `ucd.go`), `xclass`, `extuni`,
 `script_run`, error messages, contexts, match data, `PatternInfo`,
-`Config`, the `Substring*` family, UTF-8 validation. `Compile` and `Match`
-delegate to `compileImpl` / `matchImpl`, which the ports of `pcre2_compile.c`
-and `pcre2_match.c` supply (until then `stub_compile.go` and `stub_match.go`
-return `PCRE2_ERROR_INTERNAL`).
+`Config`, the `Substring*` family, UTF-8 validation. `Compile` is the port of
+`pcre2_compile.c` (`compile*.go`, with `auto_possess.go`, `study.go` and
+`printint.go` for `pcre2_printint.c`): it produces the same bytecode and the
+same error codes and offsets as libpcre2 10.44. `Match` delegates to
+`matchImpl`, supplied by the port of `pcre2_match.c` (until then
+`stub_match.go` returns `PCRE2_ERROR_INTERNAL`).
 
 ## Layout and conventions
 
@@ -39,7 +41,15 @@ return `PCRE2_ERROR_INTERNAL`).
 `go test ./...` runs everything; set `PCRE2_SRC` to the `src` directory of the
 pcre2-10.44 tree to also compare the error texts, the default character tables
 and the generated Unicode tables with the C sources. `FuzzValidUTF` has a
-committed seed corpus under `testdata/fuzz`.
+committed seed corpus under `testdata/fuzz`, as does `FuzzCompile` (it must
+never panic or hang).
+
+The compiler is checked against the oracle in two ways. `TestCompileGolden`
+runs the golden cases that need no match (bytecode `/B`, info `/I`, errors).
+`TestCompileOracle` runs every pattern of the corpus, plus random mutations of
+them (`PCRE2_ORACLE_MUTATIONS=n`), through this library and through the real
+`pcre2test` (`PCRE2TEST=/path/to/pcre2test`) and compares the outputs byte for
+byte.
 
 ### Conformance
 

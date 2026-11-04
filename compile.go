@@ -7,9 +7,6 @@ package pcre2
 func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcode *Code, rerrorcode int, rerroroffset uint64) {
 	defer func() {
 		if r := recover(); r != nil {
-			if compileDebugPanic {
-				panic(r)
-			}
 			rcode, rerrorcode, rerroroffset = nil, PCRE2_ERROR_INTERNAL, 0
 		}
 	}()
