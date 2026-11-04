@@ -664,8 +664,8 @@ func TestFindBracket(t *testing.T) {
 }
 
 func TestStubs(t *testing.T) {
-	// until compile.go / match.go replace them, the stubs report an internal error
-	if _, rc, _ := Compile([]byte("a"), 0, nil); rc != PCRE2_ERROR_INTERNAL && rc <= 0 {
+	// compile.go is implemented: a simple pattern compiles.
+	if re, rc, _ := Compile([]byte("a"), 0, nil); re == nil || rc != 0 {
 		t.Errorf("unexpected compile rc %d", rc)
 	}
 }
