@@ -1167,7 +1167,7 @@ mainLoop:
 					if pat[ptr] == CHAR_COLON && ptr+1 < ptrend && pat[ptr+1] == CHAR_RIGHT_PARENTHESIS {
 						ptr++
 					}
-					if int(verbs[i].hasArg) > 0 && pat[ptr] != CHAR_COLON {
+					if verbs[i].has_arg > 0 && pat[ptr] != CHAR_COLON {
 						return fail(ERR66)
 					}
 
@@ -1177,7 +1177,7 @@ mainLoop:
 					skipped := pat[ptr]
 					ptr++
 					if skipped == CHAR_COLON {
-						if int(verbs[i].hasArg) < 0 {
+						if verbs[i].has_arg < 0 {
 							addAfterMark = uint32(verbs[i].meta)
 							put(META_MARK)
 						} else {
