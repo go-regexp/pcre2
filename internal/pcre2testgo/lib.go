@@ -49,6 +49,52 @@ type Code interface {
 	Free()
 }
 
+// The interfaces below are optional: a Code that implements one gets the
+// corresponding pcre2test feature exercised; otherwise cases that need it are
+// reported as unsupported.
+
+// DFAMatcher is implemented by a Code that offers pcre2_dfa_match().
+type DFAMatcher interface {
+	// DFAMatch is pcre2_dfa_match(); workspace has DFAWorkspaceSize ints.
+	DFAMatch(subject []byte, start uint64, options uint32, md MatchData, ms MatchSettings, workspace []int32) int
+}
+
+// DFAWorkspaceSize is DFA_WS_DIMENSION of pcre2test.c.
+const DFAWorkspaceSize = 1000
+
+// CodeDumper is implemented by a Code that can print its compiled form the way
+// pcre2_printint() does (the "bincode" and "fullbincode" modifiers).
+type CodeDumper interface {
+	// PrintInt returns the dump that pcre2test writes after the line of
+	// dashes: the text of pcre2_printint(code, f, full), final line of dashes
+	// included.
+	PrintInt(full bool) string
+}
+
+// Substituter is implemented by a Code that offers pcre2_substitute().
+type Substituter interface {
+	// Substitute is pcre2_substitute(). outCap is the capacity of the output
+	// buffer in code units. It returns the result code, the output (valid when
+	// rc >= 0, and for PCRE2_SUBSTITUTE_OVERFLOW_LENGTH failures nothing) and
+	// the final value of the length argument: the output length on success,
+	// the offset in the replacement for a replacement error, the length
+	// needed for an overflow, or PCRE2_UNSET.
+	Substitute(subject []byte, start uint64, options uint32, md MatchData, ms MatchSettings,
+		replacement []byte, nullReplacement bool, outCap uint64) (rc int, out []byte, outlen uint64)
+}
+
+// Substitute option bits (pcre2.h).
+const (
+	SubstituteGlobal          = 0x00000100
+	SubstituteExtended        = 0x00000200
+	SubstituteUnsetEmpty      = 0x00000400
+	SubstituteUnknownUnset    = 0x00000800
+	SubstituteOverflowLength  = 0x00001000
+	SubstituteLiteral         = 0x00008000
+	SubstituteMatched         = 0x00010000
+	SubstituteReplacementOnly = 0x00020000
+)
+
 // MatchData is a match data block.
 type MatchData interface {
 	Ovector() []uint64

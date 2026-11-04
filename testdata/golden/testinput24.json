@@ -48,14 +48,14 @@
    "kind": "pattern",
    "line": 20,
    "input": "# Can't have separator in a class\n\n\"[ab/cd]\"\n\n",
-   "expected": "# Can't have separator in a class\n\n\"[ab/cd]\"\n(?s)\\A[ab/cd](?\u003c!/)\\z\n\n"
+   "expected": "# Can't have separator in a class\n\n\"[ab/cd]\"\n(?s)\\A[ab/cd](?<!/)\\z\n\n"
   },
   {
    "id": "24:0007",
    "kind": "pattern",
    "line": 24,
    "input": "\"[,-/]\"\n\n",
-   "expected": "\"[,-/]\"\n(?s)\\A[,-/](?\u003c!/)\\z\n\n"
+   "expected": "\"[,-/]\"\n(?s)\\A[,-/](?<!/)\\z\n\n"
   },
   {
    "id": "24:0008",
@@ -265,7 +265,7 @@
    "kind": "pattern",
    "line": 147,
    "input": "/A[+-0]B/\n    A+B\n    A.B\n    A0B\n\\= Expect no match\n    A/B\n\n",
-   "expected": "/A[+-0]B/\n(?s)\\AA[+-0](?\u003c!/)B\\z\n    A+B\n 0: A+B\n    A.B\n 0: A.B\n    A0B\n 0: A0B\n\\= Expect no match\n    A/B\nNo match\n\n"
+   "expected": "/A[+-0]B/\n(?s)\\AA[+-0](?<!/)B\\z\n    A+B\n 0: A+B\n    A.B\n 0: A.B\n    A0B\n 0: A0B\n\\= Expect no match\n    A/B\nNo match\n\n"
   },
   {
    "id": "24:0038",
@@ -286,7 +286,7 @@
    "kind": "pattern",
    "line": 164,
    "input": "\"[,-0]x?z\"\n    ,xyz\n\\= Expect no match\n    /xyz\n    .xyz\n\n",
-   "expected": "\"[,-0]x?z\"\n(?s)\\A[,-0](?\u003c!/)x[^/]z\\z\n    ,xyz\n 0: ,xyz\n\\= Expect no match\n    /xyz\nNo match\n    .xyz\n 0: .xyz\n\n"
+   "expected": "\"[,-0]x?z\"\n(?s)\\A[,-0](?<!/)x[^/]z\\z\n    ,xyz\n 0: ,xyz\n\\= Expect no match\n    /xyz\nNo match\n    .xyz\n 0: .xyz\n\n"
   },
   {
    "id": "24:0041",
@@ -300,14 +300,14 @@
    "kind": "pattern",
    "line": 173,
    "input": "/a[--0]z/\n    a-z\n    a.z\n    a0z\n\\= Expect no match\n    a/z\n    a1z\n\n",
-   "expected": "/a[--0]z/\n(?s)\\Aa[\\--0](?\u003c!/)z\\z\n    a-z\n 0: a-z\n    a.z\n 0: a.z\n    a0z\n 0: a0z\n\\= Expect no match\n    a/z\nNo match\n    a1z\nNo match\n\n"
+   "expected": "/a[--0]z/\n(?s)\\Aa[\\--0](?<!/)z\\z\n    a-z\n 0: a-z\n    a.z\n 0: a.z\n    a0z\n 0: a0z\n\\= Expect no match\n    a/z\nNo match\n    a1z\nNo match\n\n"
   },
   {
    "id": "24:0043",
    "kind": "pattern",
    "line": 181,
-   "input": "/\u003c[a-c-d]\u003e/\n    \u003ca\u003e\n    \u003cb\u003e\n    \u003cc\u003e\n    \u003cd\u003e\n    \u003c-\u003e\n\n",
-   "expected": "/\u003c[a-c-d]\u003e/\n(?s)\\A\u003c[a-c\\-d]\u003e\\z\n    \u003ca\u003e\n 0: \u003ca\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n    \u003cc\u003e\n 0: \u003cc\u003e\n    \u003cd\u003e\n 0: \u003cd\u003e\n    \u003c-\u003e\n 0: \u003c-\u003e\n\n"
+   "input": "/<[a-c-d]>/\n    <a>\n    <b>\n    <c>\n    <d>\n    <->\n\n",
+   "expected": "/<[a-c-d]>/\n(?s)\\A<[a-c\\-d]>\\z\n    <a>\n 0: <a>\n    <b>\n 0: <b>\n    <c>\n 0: <c>\n    <d>\n 0: <d>\n    <->\n 0: <->\n\n"
   },
   {
    "id": "24:0044",
@@ -327,8 +327,8 @@
    "id": "24:0046",
    "kind": "pattern",
    "line": 199,
-   "input": "/\u003c[[:a[:digit:]b]\u003e/\n    \u003c[\u003e\n    \u003c:\u003e\n    \u003ca\u003e\n    \u003c9\u003e\n    \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\n\n",
-   "expected": "/\u003c[[:a[:digit:]b]\u003e/\n(?s)\\A\u003c[\\[:a[:digit:]b]\u003e\\z\n    \u003c[\u003e\n 0: \u003c[\u003e\n    \u003c:\u003e\n 0: \u003c:\u003e\n    \u003ca\u003e\n 0: \u003ca\u003e\n    \u003c9\u003e\n 0: \u003c9\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\nNo match\n\n"
+   "input": "/<[[:a[:digit:]b]>/\n    <[>\n    <:>\n    <a>\n    <9>\n    <b>\n\\= Expect no match\n    <d>\n\n",
+   "expected": "/<[[:a[:digit:]b]>/\n(?s)\\A<[\\[:a[:digit:]b]>\\z\n    <[>\n 0: <[>\n    <:>\n 0: <:>\n    <a>\n 0: <a>\n    <9>\n 0: <9>\n    <b>\n 0: <b>\n\\= Expect no match\n    <d>\nNo match\n\n"
   },
   {
    "id": "24:0047",
@@ -398,14 +398,14 @@
    "kind": "pattern",
    "line": 228,
    "input": "/[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]]/\n\n",
-   "expected": "/[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]]/\n(?s)\\A[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]](?\u003c!/)\\z\n\n"
+   "expected": "/[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]]/\n(?s)\\A[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]](?<!/)\\z\n\n"
   },
   {
    "id": "24:0057",
    "kind": "pattern",
    "line": 230,
    "input": "\"[/-/]\"\n\n",
-   "expected": "\"[/-/]\"\n(?s)\\A[/-/](?\u003c!/)\\z\n\n"
+   "expected": "\"[/-/]\"\n(?s)\\A[/-/](?<!/)\\z\n\n"
   },
   {
    "id": "24:0058",
@@ -440,7 +440,7 @@
    "kind": "pattern",
    "line": 240,
    "input": "/[[:alpha:]][[:punct:]][[:ascii:]]/\n\n",
-   "expected": "/[[:alpha:]][[:punct:]][[:ascii:]]/\n(?s)\\A[[:alpha:]][[:punct:]](?\u003c!/)[[:ascii:]](?\u003c!/)\\z\n\n"
+   "expected": "/[[:alpha:]][[:punct:]][[:ascii:]]/\n(?s)\\A[[:alpha:]][[:punct:]](?<!/)[[:ascii:]](?<!/)\\z\n\n"
   },
   {
    "id": "24:0063",
@@ -517,28 +517,28 @@
    "kind": "pattern",
    "line": 265,
    "input": "/**\\/*a*b*g*n*t/\n  abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txt\n\n",
-   "expected": "/**\\/*a*b*g*n*t/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*?b)(?\u003e[^/]*?g)(?\u003e[^/]*?n)(?\u003e[^/]*?t\\z)\n  abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txt\n 0: /abcdefghijklmnop.txt\n\n"
+   "expected": "/**\\/*a*b*g*n*t/\n(?s)(?:\\A|/)(?>[^/]*?a)(?>[^/]*?b)(?>[^/]*?g)(?>[^/]*?n)(?>[^/]*?t\\z)\n  abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txt\n 0: /abcdefghijklmnop.txt\n\n"
   },
   {
    "id": "24:0074",
    "kind": "pattern",
    "line": 268,
    "input": "/**\\/*a*\\/**/\n  xx/xx/xx/xax/xx/xb\n\n",
-   "expected": "/**\\/*a*\\/**/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*?/)\n  xx/xx/xx/xax/xx/xb\n 0: /xax/\n\n"
+   "expected": "/**\\/*a*\\/**/\n(?s)(?:\\A|/)(?>[^/]*?a)(?>[^/]*?/)\n  xx/xx/xx/xax/xx/xb\n 0: /xax/\n\n"
   },
   {
    "id": "24:0075",
    "kind": "pattern",
    "line": 271,
    "input": "/**\\/*a*/\n  xx/xx/xx/xax\n  xx/xx/xx/xax/xx\n\n",
-   "expected": "/**\\/*a*/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*+\\z)\n  xx/xx/xx/xax\n 0: /xax\n  xx/xx/xx/xax/xx\nNo match\n\n"
+   "expected": "/**\\/*a*/\n(?s)(?:\\A|/)(?>[^/]*?a)(?>[^/]*+\\z)\n  xx/xx/xx/xax\n 0: /xax\n  xx/xx/xx/xax/xx\nNo match\n\n"
   },
   {
    "id": "24:0076",
    "kind": "pattern",
    "line": 275,
    "input": "/**\\/*a*\\/**\\/*b*/\n  xx/xx/xx/xax/xx/xb\n  xx/xx/xx/xax/xx/x\n\n",
-   "expected": "/**\\/*a*\\/**\\/*b*/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*?/)(*COMMIT)(?:.*?/)??(?\u003e[^/]*?b)(?\u003e[^/]*+\\z)\n  xx/xx/xx/xax/xx/xb\n 0: /xax/xx/xb\n  xx/xx/xx/xax/xx/x\nNo match\n\n"
+   "expected": "/**\\/*a*\\/**\\/*b*/\n(?s)(?:\\A|/)(?>[^/]*?a)(?>[^/]*?/)(*COMMIT)(?:.*?/)??(?>[^/]*?b)(?>[^/]*+\\z)\n  xx/xx/xx/xax/xx/xb\n 0: /xax/xx/xb\n  xx/xx/xx/xax/xx/x\nNo match\n\n"
   },
   {
    "id": "24:0077",
@@ -698,8 +698,8 @@
    "id": "24:0099",
    "kind": "pattern",
    "line": 329,
-   "input": "\n/\u003c[[:a[:digit:]b]\u003e/\n    \u003c[\u003e\n    \u003c:\u003e\n    \u003ca\u003e\n    \u003c9\u003e\n    \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\n\n",
-   "expected": "\n/\u003c[[:a[:digit:]b]\u003e/\n(*NUL)\u003c[[:a[:digit:]b]\u003e\n    \u003c[\u003e\n 0: \u003c[\u003e\n    \u003c:\u003e\n 0: \u003c:\u003e\n    \u003ca\u003e\n 0: \u003ca\u003e\n    \u003c9\u003e\n 0: \u003c9\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\nNo match\n\n"
+   "input": "\n/<[[:a[:digit:]b]>/\n    <[>\n    <:>\n    <a>\n    <9>\n    <b>\n\\= Expect no match\n    <d>\n\n",
+   "expected": "\n/<[[:a[:digit:]b]>/\n(*NUL)<[[:a[:digit:]b]>\n    <[>\n 0: <[>\n    <:>\n 0: <:>\n    <a>\n 0: <a>\n    <9>\n 0: <9>\n    <b>\n 0: <b>\n\\= Expect no match\n    <d>\nNo match\n\n"
   },
   {
    "id": "24:0100",
@@ -712,15 +712,15 @@
    "id": "24:0101",
    "kind": "pattern",
    "line": 341,
-   "input": "/\u003c[]bc]\u003e/\n    \u003c]\u003e\n    \u003cb\u003e\n    \u003cc\u003e\n\n",
-   "expected": "/\u003c[]bc]\u003e/\n(*NUL)\u003c[]bc]\u003e\n    \u003c]\u003e\n 0: \u003c]\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n    \u003cc\u003e\n 0: \u003cc\u003e\n\n"
+   "input": "/<[]bc]>/\n    <]>\n    <b>\n    <c>\n\n",
+   "expected": "/<[]bc]>/\n(*NUL)<[]bc]>\n    <]>\n 0: <]>\n    <b>\n 0: <b>\n    <c>\n 0: <c>\n\n"
   },
   {
    "id": "24:0102",
    "kind": "pattern",
    "line": 346,
-   "input": "/\u003c[^]bc]\u003e/\n    \u003c.\u003e\n\\= Expect no match\n    \u003c]\u003e\n    \u003cb\u003e\n\n",
-   "expected": "/\u003c[^]bc]\u003e/\n(*NUL)\u003c[^]bc]\u003e\n    \u003c.\u003e\n 0: \u003c.\u003e\n\\= Expect no match\n    \u003c]\u003e\nNo match\n    \u003cb\u003e\nNo match\n\n"
+   "input": "/<[^]bc]>/\n    <.>\n\\= Expect no match\n    <]>\n    <b>\n\n",
+   "expected": "/<[^]bc]>/\n(*NUL)<[^]bc]>\n    <.>\n 0: <.>\n\\= Expect no match\n    <]>\nNo match\n    <b>\nNo match\n\n"
   },
   {
    "id": "24:0103",

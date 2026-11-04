@@ -26,8 +26,8 @@
    "id": "25:0003",
    "kind": "pattern",
    "line": 12,
-   "input": "\n# The fact that this one works in 13 bytes in the 8-bit library shows that the\n# output is in UTF-8, though pcre2test shows the character as an escape.\n\n/'\u003e' c4 a3 '\u003c'/hex,utf,convert_length=13\n\n",
-   "expected": "\n# The fact that this one works in 13 bytes in the 8-bit library shows that the\n# output is in UTF-8, though pcre2test shows the character as an escape.\n\n/'\u003e' c4 a3 '\u003c'/hex,utf,convert_length=13\n(?s)\\A\u003e\\x{123}\u003c\\z\n\n"
+   "input": "\n# The fact that this one works in 13 bytes in the 8-bit library shows that the\n# output is in UTF-8, though pcre2test shows the character as an escape.\n\n/'>' c4 a3 '<'/hex,utf,convert_length=13\n\n",
+   "expected": "\n# The fact that this one works in 13 bytes in the 8-bit library shows that the\n# output is in UTF-8, though pcre2test shows the character as an escape.\n\n/'>' c4 a3 '<'/hex,utf,convert_length=13\n(?s)\\A>\\x{123}<\\z\n\n"
   },
   {
    "id": "25:0004",

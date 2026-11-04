@@ -215,22 +215,22 @@
    "id": "7:0030",
    "kind": "pattern",
    "line": 163,
-   "input": "/(?\u003c=aXb)cd/utf\n    aXbcd\n\n",
-   "expected": "/(?\u003c=aXb)cd/utf\n    aXbcd\n 0: cd\n\n"
+   "input": "/(?<=aXb)cd/utf\n    aXbcd\n\n",
+   "expected": "/(?<=aXb)cd/utf\n    aXbcd\n 0: cd\n\n"
   },
   {
    "id": "7:0031",
    "kind": "pattern",
    "line": 166,
-   "input": "/(?\u003c=a\\x{100}b)cd/utf\n    a\\x{100}bcd\n\n",
-   "expected": "/(?\u003c=a\\x{100}b)cd/utf\n    a\\x{100}bcd\n 0: cd\n\n"
+   "input": "/(?<=a\\x{100}b)cd/utf\n    a\\x{100}bcd\n\n",
+   "expected": "/(?<=a\\x{100}b)cd/utf\n    a\\x{100}bcd\n 0: cd\n\n"
   },
   {
    "id": "7:0032",
    "kind": "pattern",
    "line": 169,
-   "input": "/(?\u003c=a\\x{100000}b)cd/utf\n    a\\x{100000}bcd\n    \n",
-   "expected": "/(?\u003c=a\\x{100000}b)cd/utf\n    a\\x{100000}bcd\n 0: cd\n    \n"
+   "input": "/(?<=a\\x{100000}b)cd/utf\n    a\\x{100000}bcd\n    \n",
+   "expected": "/(?<=a\\x{100000}b)cd/utf\n    a\\x{100000}bcd\n 0: cd\n    \n"
   },
   {
    "id": "7:0033",
@@ -250,8 +250,8 @@
    "id": "7:0035",
    "kind": "pattern",
    "line": 183,
-   "input": "/(?\u003c=(.))X/utf\n    WXYZ\n    \\x{256}XYZ \n\\= Expect no match\n    XYZ \n\n",
-   "expected": "/(?\u003c=(.))X/utf\n    WXYZ\n 0: X\n    \\x{256}XYZ \n 0: X\n\\= Expect no match\n    XYZ \nNo match\n\n"
+   "input": "/(?<=(.))X/utf\n    WXYZ\n    \\x{256}XYZ \n\\= Expect no match\n    XYZ \n\n",
+   "expected": "/(?<=(.))X/utf\n    WXYZ\n 0: X\n    \\x{256}XYZ \n 0: X\n\\= Expect no match\n    XYZ \nNo match\n\n"
   },
   {
    "id": "7:0036",
@@ -383,8 +383,8 @@
    "id": "7:0054",
    "kind": "pattern",
    "line": 248,
-   "input": "/(?\u003c=a\\x{100}{2}b)X/utf\n    Xyyya\\x{100}\\x{100}bXzzz\n\n",
-   "expected": "/(?\u003c=a\\x{100}{2}b)X/utf\n    Xyyya\\x{100}\\x{100}bXzzz\n 0: X\n\n"
+   "input": "/(?<=a\\x{100}{2}b)X/utf\n    Xyyya\\x{100}\\x{100}bXzzz\n\n",
+   "expected": "/(?<=a\\x{100}{2}b)X/utf\n    Xyyya\\x{100}\\x{100}bXzzz\n 0: X\n\n"
   },
   {
    "id": "7:0055",
@@ -411,8 +411,8 @@
    "id": "7:0058",
    "kind": "pattern",
    "line": 261,
-   "input": "/\u003e\\S/utf\n    \u003e \u003eX Y\n    \u003e \u003e\\x{100} Y\n  \n",
-   "expected": "/\u003e\\S/utf\n    \u003e \u003eX Y\n 0: \u003eX\n    \u003e \u003e\\x{100} Y\n 0: \u003e\\x{100}\n  \n"
+   "input": "/>\\S/utf\n    > >X Y\n    > >\\x{100} Y\n  \n",
+   "expected": "/>\\S/utf\n    > >X Y\n 0: >X\n    > >\\x{100} Y\n 0: >\\x{100}\n  \n"
   },
   {
    "id": "7:0059",
@@ -495,22 +495,22 @@
    "id": "7:0070",
    "kind": "pattern",
    "line": 322,
-   "input": "/\u003e\\s+\u003c/utf\n    12\u003e      \u003c34\n\n",
-   "expected": "/\u003e\\s+\u003c/utf\n    12\u003e      \u003c34\n 0: \u003e      \u003c\n\n"
+   "input": "/>\\s+</utf\n    12>      <34\n\n",
+   "expected": "/>\\s+</utf\n    12>      <34\n 0: >      <\n\n"
   },
   {
    "id": "7:0071",
    "kind": "pattern",
    "line": 325,
-   "input": "/\u003e\\s{2,3}\u003c/utf\n    ab\u003e  \u003ccd\n    ab\u003e   \u003cce\n\\= Expect no match\n    ab\u003e    \u003ccd \n\n",
-   "expected": "/\u003e\\s{2,3}\u003c/utf\n    ab\u003e  \u003ccd\n 0: \u003e  \u003c\n    ab\u003e   \u003cce\n 0: \u003e   \u003c\n\\= Expect no match\n    ab\u003e    \u003ccd \nNo match\n\n"
+   "input": "/>\\s{2,3}</utf\n    ab>  <cd\n    ab>   <ce\n\\= Expect no match\n    ab>    <cd \n\n",
+   "expected": "/>\\s{2,3}</utf\n    ab>  <cd\n 0: >  <\n    ab>   <ce\n 0: >   <\n\\= Expect no match\n    ab>    <cd \nNo match\n\n"
   },
   {
    "id": "7:0072",
    "kind": "pattern",
    "line": 331,
-   "input": "/\u003e\\s{2,3}?\u003c/utf\n    ab\u003e  \u003ccd\n    ab\u003e   \u003cce\n\\= Expect no match\n    ab\u003e    \u003ccd \n\n",
-   "expected": "/\u003e\\s{2,3}?\u003c/utf\n    ab\u003e  \u003ccd\n 0: \u003e  \u003c\n    ab\u003e   \u003cce\n 0: \u003e   \u003c\n\\= Expect no match\n    ab\u003e    \u003ccd \nNo match\n\n"
+   "input": "/>\\s{2,3}?</utf\n    ab>  <cd\n    ab>   <ce\n\\= Expect no match\n    ab>    <cd \n\n",
+   "expected": "/>\\s{2,3}?</utf\n    ab>  <cd\n 0: >  <\n    ab>   <ce\n 0: >   <\n\\= Expect no match\n    ab>    <cd \nNo match\n\n"
   },
   {
    "id": "7:0073",
@@ -642,22 +642,22 @@
    "id": "7:0091",
    "kind": "pattern",
    "line": 436,
-   "input": "/(?\u003c=[\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n    abc\\x{100}X \n\\= Expect no match\n    X  \n\n",
-   "expected": "/(?\u003c=[\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n 0: X\n    abc\\x{100}X \n 0: X\n\\= Expect no match\n    X  \nNo match\n\n"
+   "input": "/(?<=[\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n    abc\\x{100}X \n\\= Expect no match\n    X  \n\n",
+   "expected": "/(?<=[\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n 0: X\n    abc\\x{100}X \n 0: X\n\\= Expect no match\n    X  \nNo match\n\n"
   },
   {
    "id": "7:0092",
    "kind": "pattern",
    "line": 442,
-   "input": "/(?\u003c=[Q\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n    abc\\x{100}X \n    abQX \n\\= Expect no match\n    X  \n\n",
-   "expected": "/(?\u003c=[Q\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n 0: X\n    abc\\x{100}X \n 0: X\n    abQX \n 0: X\n\\= Expect no match\n    X  \nNo match\n\n"
+   "input": "/(?<=[Q\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n    abc\\x{100}X \n    abQX \n\\= Expect no match\n    X  \n\n",
+   "expected": "/(?<=[Q\\x{100}\\x{200}])X/utf\n    abc\\x{200}X\n 0: X\n    abc\\x{100}X \n 0: X\n    abQX \n 0: X\n\\= Expect no match\n    X  \nNo match\n\n"
   },
   {
    "id": "7:0093",
    "kind": "pattern",
    "line": 449,
-   "input": "/(?\u003c=[\\x{100}\\x{200}]{3})X/utf\n    abc\\x{100}\\x{200}\\x{100}X\n\\= Expect no match\n    abc\\x{200}X\n    X  \n\n",
-   "expected": "/(?\u003c=[\\x{100}\\x{200}]{3})X/utf\n    abc\\x{100}\\x{200}\\x{100}X\n 0: X\n\\= Expect no match\n    abc\\x{200}X\nNo match\n    X  \nNo match\n\n"
+   "input": "/(?<=[\\x{100}\\x{200}]{3})X/utf\n    abc\\x{100}\\x{200}\\x{100}X\n\\= Expect no match\n    abc\\x{200}X\n    X  \n\n",
+   "expected": "/(?<=[\\x{100}\\x{200}]{3})X/utf\n    abc\\x{100}\\x{200}\\x{100}X\n 0: X\n\\= Expect no match\n    abc\\x{200}X\nNo match\n    X  \nNo match\n\n"
   },
   {
    "id": "7:0094",
@@ -691,15 +691,15 @@
    "id": "7:0098",
    "kind": "pattern",
    "line": 488,
-   "input": "/[\\xFF]/\n    \u003e\\xff\u003c\n\n",
-   "expected": "/[\\xFF]/\n    \u003e\\xff\u003c\n 0: \\xff\n\n"
+   "input": "/[\\xFF]/\n    >\\xff<\n\n",
+   "expected": "/[\\xFF]/\n    >\\xff<\n 0: \\xff\n\n"
   },
   {
    "id": "7:0099",
    "kind": "pattern",
    "line": 491,
-   "input": "/[\\xff]/utf\n    \u003e\\x{ff}\u003c\n\n",
-   "expected": "/[\\xff]/utf\n    \u003e\\x{ff}\u003c\n 0: \\x{ff}\n\n"
+   "input": "/[\\xff]/utf\n    >\\x{ff}<\n\n",
+   "expected": "/[\\xff]/utf\n    >\\x{ff}<\n 0: \\x{ff}\n\n"
   },
   {
    "id": "7:0100",
@@ -824,15 +824,15 @@
    "id": "7:0117",
    "kind": "pattern",
    "line": 587,
-   "input": "/\\h+\\V?\\v{3,4}/utf,no_auto_possess\n    \u003e\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a\u003c\n\n",
-   "expected": "/\\h+\\V?\\v{3,4}/utf,no_auto_possess\n    \u003e\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a\u003c\n 0: \\x{09} \\x{a0}X\\x{0a}\\x{0a}\\x{0a}\n\n"
+   "input": "/\\h+\\V?\\v{3,4}/utf,no_auto_possess\n    >\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a<\n\n",
+   "expected": "/\\h+\\V?\\v{3,4}/utf,no_auto_possess\n    >\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a<\n 0: \\x{09} \\x{a0}X\\x{0a}\\x{0a}\\x{0a}\n\n"
   },
   {
    "id": "7:0118",
    "kind": "pattern",
    "line": 590,
-   "input": "/\\V?\\v{3,4}/utf,no_auto_possess\n    \u003e\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a\u003c\n\n",
-   "expected": "/\\V?\\v{3,4}/utf,no_auto_possess\n    \u003e\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a\u003c\n 0: X\\x{0a}\\x{0a}\\x{0a}\n\n"
+   "input": "/\\V?\\v{3,4}/utf,no_auto_possess\n    >\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a<\n\n",
+   "expected": "/\\V?\\v{3,4}/utf,no_auto_possess\n    >\\x09\\x20\\x{a0}X\\x0a\\x0a\\x0a<\n 0: X\\x{0a}\\x{0a}\\x{0a}\n\n"
   },
   {
    "id": "7:0119",
@@ -1062,8 +1062,8 @@
    "id": "7:0151",
    "kind": "pattern",
    "line": 783,
-   "input": "/^\\pC\\pL\\pM\\pN\\pP\\pS\\pZ\u003c/utf\n    \\x7f\\x{c0}\\x{30f}\\x{660}\\x{66c}\\x{f01}\\x{1680}\u003c\n    \\np\\x{300}9!\\$ \u003c\n\\= Expect no match\n    ap\\x{300}9!\\$ \u003c\n  \n",
-   "expected": "/^\\pC\\pL\\pM\\pN\\pP\\pS\\pZ\u003c/utf\n    \\x7f\\x{c0}\\x{30f}\\x{660}\\x{66c}\\x{f01}\\x{1680}\u003c\n 0: \\x{7f}\\x{c0}\\x{30f}\\x{660}\\x{66c}\\x{f01}\\x{1680}\u003c\n    \\np\\x{300}9!\\$ \u003c\n 0: \\x{0a}p\\x{300}9!$ \u003c\n\\= Expect no match\n    ap\\x{300}9!\\$ \u003c\nNo match\n  \n"
+   "input": "/^\\pC\\pL\\pM\\pN\\pP\\pS\\pZ</utf\n    \\x7f\\x{c0}\\x{30f}\\x{660}\\x{66c}\\x{f01}\\x{1680}<\n    \\np\\x{300}9!\\$ <\n\\= Expect no match\n    ap\\x{300}9!\\$ <\n  \n",
+   "expected": "/^\\pC\\pL\\pM\\pN\\pP\\pS\\pZ</utf\n    \\x7f\\x{c0}\\x{30f}\\x{660}\\x{66c}\\x{f01}\\x{1680}<\n 0: \\x{7f}\\x{c0}\\x{30f}\\x{660}\\x{66c}\\x{f01}\\x{1680}<\n    \\np\\x{300}9!\\$ <\n 0: \\x{0a}p\\x{300}9!$ <\n\\= Expect no match\n    ap\\x{300}9!\\$ <\nNo match\n  \n"
   },
   {
    "id": "7:0152",
@@ -1293,8 +1293,8 @@
    "id": "7:0184",
    "kind": "pattern",
    "line": 1001,
-   "input": "/^\\p{Sm}+/utf\n    +\u003c|~\\x{ac}\\x{2044}\n\\= Expect no match\n    X\n    \\x{9f2}\n  \n",
-   "expected": "/^\\p{Sm}+/utf\n    +\u003c|~\\x{ac}\\x{2044}\n 0: +\u003c|~\\x{ac}\\x{2044}\n\\= Expect no match\n    X\nNo match\n    \\x{9f2}\nNo match\n  \n"
+   "input": "/^\\p{Sm}+/utf\n    +<|~\\x{ac}\\x{2044}\n\\= Expect no match\n    X\n    \\x{9f2}\n  \n",
+   "expected": "/^\\p{Sm}+/utf\n    +<|~\\x{ac}\\x{2044}\n 0: +<|~\\x{ac}\\x{2044}\n\\= Expect no match\n    X\nNo match\n    \\x{9f2}\nNo match\n  \n"
   },
   {
    "id": "7:0185",
@@ -1447,15 +1447,15 @@
    "id": "7:0206",
    "kind": "pattern",
    "line": 1096,
-   "input": "/(?\u003c=A\\p{Nd})XYZ/utf\n    A2XYZ\n    123A5XYZPQR\n    ABA\\x{660}XYZpqr\n\\= Expect no match\n    AXYZ\n    XYZ\n    \n",
-   "expected": "/(?\u003c=A\\p{Nd})XYZ/utf\n    A2XYZ\n 0: XYZ\n    123A5XYZPQR\n 0: XYZ\n    ABA\\x{660}XYZpqr\n 0: XYZ\n\\= Expect no match\n    AXYZ\nNo match\n    XYZ\nNo match\n    \n"
+   "input": "/(?<=A\\p{Nd})XYZ/utf\n    A2XYZ\n    123A5XYZPQR\n    ABA\\x{660}XYZpqr\n\\= Expect no match\n    AXYZ\n    XYZ\n    \n",
+   "expected": "/(?<=A\\p{Nd})XYZ/utf\n    A2XYZ\n 0: XYZ\n    123A5XYZPQR\n 0: XYZ\n    ABA\\x{660}XYZpqr\n 0: XYZ\n\\= Expect no match\n    AXYZ\nNo match\n    XYZ\nNo match\n    \n"
   },
   {
    "id": "7:0207",
    "kind": "pattern",
    "line": 1104,
-   "input": "/(?\u003c!\\pL)XYZ/utf\n    1XYZ\n    AB=XYZ..\n    XYZ\n\\= Expect no match\n    WXYZ\n\n",
-   "expected": "/(?\u003c!\\pL)XYZ/utf\n    1XYZ\n 0: XYZ\n    AB=XYZ..\n 0: XYZ\n    XYZ\n 0: XYZ\n\\= Expect no match\n    WXYZ\nNo match\n\n"
+   "input": "/(?<!\\pL)XYZ/utf\n    1XYZ\n    AB=XYZ..\n    XYZ\n\\= Expect no match\n    WXYZ\n\n",
+   "expected": "/(?<!\\pL)XYZ/utf\n    1XYZ\n 0: XYZ\n    AB=XYZ..\n 0: XYZ\n    XYZ\n 0: XYZ\n\\= Expect no match\n    WXYZ\nNo match\n\n"
   },
   {
    "id": "7:0208",
@@ -1874,57 +1874,57 @@
    "id": "7:0267",
    "kind": "pattern",
    "line": 1439,
-   "input": "/^\\p{L\u0026}X/utf\n     AXY\n     aXY\n     \\x{1c5}XY\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
-   "expected": "/^\\p{L\u0026}X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     \\x{1c5}XY\n 0: \\x{1c5}X\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
+   "input": "/^\\p{L&}X/utf\n     AXY\n     aXY\n     \\x{1c5}XY\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
+   "expected": "/^\\p{L&}X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     \\x{1c5}XY\n 0: \\x{1c5}X\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
   },
   {
    "id": "7:0268",
    "kind": "pattern",
    "line": 1448,
-   "input": "/^[\\p{L\u0026}]X/utf\n     AXY\n     aXY\n     \\x{1c5}XY\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
-   "expected": "/^[\\p{L\u0026}]X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     \\x{1c5}XY\n 0: \\x{1c5}X\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
+   "input": "/^[\\p{L&}]X/utf\n     AXY\n     aXY\n     \\x{1c5}XY\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
+   "expected": "/^[\\p{L&}]X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     \\x{1c5}XY\n 0: \\x{1c5}X\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
   },
   {
    "id": "7:0269",
    "kind": "pattern",
    "line": 1457,
-   "input": "/^\\p{L\u0026}+X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
-   "expected": "/^\\p{L\u0026}+X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
+   "input": "/^\\p{L&}+X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
+   "expected": "/^\\p{L&}+X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
   },
   {
    "id": "7:0270",
    "kind": "pattern",
    "line": 1468,
-   "input": "/^[\\p{L\u0026}]+X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
-   "expected": "/^[\\p{L\u0026}]+X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
+   "input": "/^[\\p{L&}]+X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
+   "expected": "/^[\\p{L&}]+X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
   },
   {
    "id": "7:0271",
    "kind": "pattern",
    "line": 1479,
-   "input": "/^\\p{L\u0026}+?X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
-   "expected": "/^\\p{L\u0026}+?X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
+   "input": "/^\\p{L&}+?X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
+   "expected": "/^\\p{L&}+?X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
   },
   {
    "id": "7:0272",
    "kind": "pattern",
    "line": 1490,
-   "input": "/^[\\p{L\u0026}]+?X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
-   "expected": "/^[\\p{L\u0026}]+?X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
+   "input": "/^[\\p{L&}]+?X/utf\n     AXY\n     aXY\n     AbcdeXyz\n     \\x{1c5}AbXY\n     abcDEXypqreXlmn\n\\= Expect no match\n     \\x{1bb}XY\n     \\x{2b0}XY\n     !XY\n\n",
+   "expected": "/^[\\p{L&}]+?X/utf\n     AXY\n 0: AX\n     aXY\n 0: aX\n     AbcdeXyz\n 0: AbcdeX\n     \\x{1c5}AbXY\n 0: \\x{1c5}AbX\n     abcDEXypqreXlmn\n 0: abcDEXypqreX\n 1: abcDEX\n\\= Expect no match\n     \\x{1bb}XY\nNo match\n     \\x{2b0}XY\nNo match\n     !XY\nNo match\n\n"
   },
   {
    "id": "7:0273",
    "kind": "pattern",
    "line": 1501,
-   "input": "/^\\P{L\u0026}X/utf\n     !XY\n     \\x{1bb}XY\n     \\x{2b0}XY\n\\= Expect no match\n     \\x{1c5}XY\n     AXY\n\n",
-   "expected": "/^\\P{L\u0026}X/utf\n     !XY\n 0: !X\n     \\x{1bb}XY\n 0: \\x{1bb}X\n     \\x{2b0}XY\n 0: \\x{2b0}X\n\\= Expect no match\n     \\x{1c5}XY\nNo match\n     AXY\nNo match\n\n"
+   "input": "/^\\P{L&}X/utf\n     !XY\n     \\x{1bb}XY\n     \\x{2b0}XY\n\\= Expect no match\n     \\x{1c5}XY\n     AXY\n\n",
+   "expected": "/^\\P{L&}X/utf\n     !XY\n 0: !X\n     \\x{1bb}XY\n 0: \\x{1bb}X\n     \\x{2b0}XY\n 0: \\x{2b0}X\n\\= Expect no match\n     \\x{1c5}XY\nNo match\n     AXY\nNo match\n\n"
   },
   {
    "id": "7:0274",
    "kind": "pattern",
    "line": 1509,
-   "input": "/^[\\P{L\u0026}]X/utf\n     !XY\n     \\x{1bb}XY\n     \\x{2b0}XY\n\\= Expect no match\n     \\x{1c5}XY\n     AXY\n\n",
-   "expected": "/^[\\P{L\u0026}]X/utf\n     !XY\n 0: !X\n     \\x{1bb}XY\n 0: \\x{1bb}X\n     \\x{2b0}XY\n 0: \\x{2b0}X\n\\= Expect no match\n     \\x{1c5}XY\nNo match\n     AXY\nNo match\n\n"
+   "input": "/^[\\P{L&}]X/utf\n     !XY\n     \\x{1bb}XY\n     \\x{2b0}XY\n\\= Expect no match\n     \\x{1c5}XY\n     AXY\n\n",
+   "expected": "/^[\\P{L&}]X/utf\n     !XY\n 0: !X\n     \\x{1bb}XY\n 0: \\x{1bb}X\n     \\x{2b0}XY\n 0: \\x{2b0}X\n\\= Expect no match\n     \\x{1c5}XY\nNo match\n     AXY\nNo match\n\n"
   },
   {
    "id": "7:0275",
@@ -2028,99 +2028,99 @@
    "id": "7:0289",
    "kind": "pattern",
    "line": 1581,
-   "input": "/^\u003e\\p{Xsp}/utf\n    \u003e\\x{1680}\\x{2028}\\x{0b}\n\\= Expect no match\n    \\x{0b}\n\n",
-   "expected": "/^\u003e\\p{Xsp}/utf\n    \u003e\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e\\x{1680}\n\\= Expect no match\n    \\x{0b}\nNo match\n\n"
+   "input": "/^>\\p{Xsp}/utf\n    >\\x{1680}\\x{2028}\\x{0b}\n\\= Expect no match\n    \\x{0b}\n\n",
+   "expected": "/^>\\p{Xsp}/utf\n    >\\x{1680}\\x{2028}\\x{0b}\n 0: >\\x{1680}\n\\= Expect no match\n    \\x{0b}\nNo match\n\n"
   },
   {
    "id": "7:0290",
    "kind": "pattern",
    "line": 1586,
-   "input": "/^\u003e\\p{Xsp}+/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
-   "expected": "/^\u003e\\p{Xsp}+/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: \u003e \\x{09}\\x{0a}\\x{0c}\n 6: \u003e \\x{09}\\x{0a}\n 7: \u003e \\x{09}\n 8: \u003e \n\n"
+   "input": "/^>\\p{Xsp}+/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
+   "expected": "/^>\\p{Xsp}+/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: > \\x{09}\\x{0a}\\x{0c}\n 6: > \\x{09}\\x{0a}\n 7: > \\x{09}\n 8: > \n\n"
   },
   {
    "id": "7:0291",
    "kind": "pattern",
    "line": 1589,
-   "input": "/^\u003e\\p{Xsp}*/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
-   "expected": "/^\u003e\\p{Xsp}*/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: \u003e \\x{09}\\x{0a}\\x{0c}\n 6: \u003e \\x{09}\\x{0a}\n 7: \u003e \\x{09}\n 8: \u003e \n 9: \u003e\n    \n"
+   "input": "/^>\\p{Xsp}*/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
+   "expected": "/^>\\p{Xsp}*/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: > \\x{09}\\x{0a}\\x{0c}\n 6: > \\x{09}\\x{0a}\n 7: > \\x{09}\n 8: > \n 9: >\n    \n"
   },
   {
    "id": "7:0292",
    "kind": "pattern",
    "line": 1592,
-   "input": "/^\u003e\\p{Xsp}{2,9}/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
-   "expected": "/^\u003e\\p{Xsp}{2,9}/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: \u003e \\x{09}\\x{0a}\\x{0c}\n 6: \u003e \\x{09}\\x{0a}\n 7: \u003e \\x{09}\n    \n"
+   "input": "/^>\\p{Xsp}{2,9}/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
+   "expected": "/^>\\p{Xsp}{2,9}/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: > \\x{09}\\x{0a}\\x{0c}\n 6: > \\x{09}\\x{0a}\n 7: > \\x{09}\n    \n"
   },
   {
    "id": "7:0293",
    "kind": "pattern",
    "line": 1595,
-   "input": "/^\u003e[\\p{Xsp}]/utf,no_auto_possess\n    \u003e\\x{2028}\\x{0b}\n \n",
-   "expected": "/^\u003e[\\p{Xsp}]/utf,no_auto_possess\n    \u003e\\x{2028}\\x{0b}\n 0: \u003e\\x{2028}\n \n"
+   "input": "/^>[\\p{Xsp}]/utf,no_auto_possess\n    >\\x{2028}\\x{0b}\n \n",
+   "expected": "/^>[\\p{Xsp}]/utf,no_auto_possess\n    >\\x{2028}\\x{0b}\n 0: >\\x{2028}\n \n"
   },
   {
    "id": "7:0294",
    "kind": "pattern",
    "line": 1598,
-   "input": "/^\u003e[\\p{Xsp}]+/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
-   "expected": "/^\u003e[\\p{Xsp}]+/utf,no_auto_possess\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: \u003e \\x{09}\\x{0a}\\x{0c}\n 6: \u003e \\x{09}\\x{0a}\n 7: \u003e \\x{09}\n 8: \u003e \n\n"
+   "input": "/^>[\\p{Xsp}]+/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
+   "expected": "/^>[\\p{Xsp}]+/utf,no_auto_possess\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: > \\x{09}\\x{0a}\\x{0c}\n 6: > \\x{09}\\x{0a}\n 7: > \\x{09}\n 8: > \n\n"
   },
   {
    "id": "7:0295",
    "kind": "pattern",
    "line": 1601,
-   "input": "/^\u003e\\p{Xps}/utf\n    \u003e\\x{1680}\\x{2028}\\x{0b}\n    \u003e\\x{a0}\n\\= Expect no match\n    \\x{0b}\n\n",
-   "expected": "/^\u003e\\p{Xps}/utf\n    \u003e\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e\\x{1680}\n    \u003e\\x{a0}\n 0: \u003e\\x{a0}\n\\= Expect no match\n    \\x{0b}\nNo match\n\n"
+   "input": "/^>\\p{Xps}/utf\n    >\\x{1680}\\x{2028}\\x{0b}\n    >\\x{a0}\n\\= Expect no match\n    \\x{0b}\n\n",
+   "expected": "/^>\\p{Xps}/utf\n    >\\x{1680}\\x{2028}\\x{0b}\n 0: >\\x{1680}\n    >\\x{a0}\n 0: >\\x{a0}\n\\= Expect no match\n    \\x{0b}\nNo match\n\n"
   },
   {
    "id": "7:0296",
    "kind": "pattern",
    "line": 1607,
-   "input": "/^\u003e\\p{Xps}+/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
-   "expected": "/^\u003e\\p{Xps}+/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n"
+   "input": "/^>\\p{Xps}+/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
+   "expected": "/^>\\p{Xps}+/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n"
   },
   {
    "id": "7:0297",
    "kind": "pattern",
    "line": 1610,
-   "input": "/^\u003e\\p{Xps}+?/utf\n    \u003e\\x{1680}\\x{2028}\\x{0b}\n\n",
-   "expected": "/^\u003e\\p{Xps}+?/utf\n    \u003e\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e\\x{1680}\\x{2028}\\x{0b}\n 1: \u003e\\x{1680}\\x{2028}\n 2: \u003e\\x{1680}\n\n"
+   "input": "/^>\\p{Xps}+?/utf\n    >\\x{1680}\\x{2028}\\x{0b}\n\n",
+   "expected": "/^>\\p{Xps}+?/utf\n    >\\x{1680}\\x{2028}\\x{0b}\n 0: >\\x{1680}\\x{2028}\\x{0b}\n 1: >\\x{1680}\\x{2028}\n 2: >\\x{1680}\n\n"
   },
   {
    "id": "7:0298",
    "kind": "pattern",
    "line": 1613,
-   "input": "/^\u003e\\p{Xps}*/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
-   "expected": "/^\u003e\\p{Xps}*/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n"
+   "input": "/^>\\p{Xps}*/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
+   "expected": "/^>\\p{Xps}*/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n"
   },
   {
    "id": "7:0299",
    "kind": "pattern",
    "line": 1616,
-   "input": "/^\u003e\\p{Xps}{2,9}/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
-   "expected": "/^\u003e\\p{Xps}{2,9}/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n"
+   "input": "/^>\\p{Xps}{2,9}/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
+   "expected": "/^>\\p{Xps}{2,9}/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n"
   },
   {
    "id": "7:0300",
    "kind": "pattern",
    "line": 1619,
-   "input": "/^\u003e\\p{Xps}{2,9}?/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
-   "expected": "/^\u003e\\p{Xps}{2,9}?/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: \u003e \\x{09}\\x{0a}\\x{0c}\n 6: \u003e \\x{09}\\x{0a}\n 7: \u003e \\x{09}\n    \n"
+   "input": "/^>\\p{Xps}{2,9}?/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n    \n",
+   "expected": "/^>\\p{Xps}{2,9}?/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 1: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\n 2: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\n 3: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\n 4: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\n 5: > \\x{09}\\x{0a}\\x{0c}\n 6: > \\x{09}\\x{0a}\n 7: > \\x{09}\n    \n"
   },
   {
    "id": "7:0301",
    "kind": "pattern",
    "line": 1622,
-   "input": "/^\u003e[\\p{Xps}]/utf\n    \u003e\\x{2028}\\x{0b}\n \n",
-   "expected": "/^\u003e[\\p{Xps}]/utf\n    \u003e\\x{2028}\\x{0b}\n 0: \u003e\\x{2028}\n \n"
+   "input": "/^>[\\p{Xps}]/utf\n    >\\x{2028}\\x{0b}\n \n",
+   "expected": "/^>[\\p{Xps}]/utf\n    >\\x{2028}\\x{0b}\n 0: >\\x{2028}\n \n"
   },
   {
    "id": "7:0302",
    "kind": "pattern",
    "line": 1625,
-   "input": "/^\u003e[\\p{Xps}]+/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
-   "expected": "/^\u003e[\\p{Xps}]+/utf\n    \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: \u003e \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n"
+   "input": "/^>[\\p{Xps}]+/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n",
+   "expected": "/^>[\\p{Xps}]+/utf\n    > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n 0: > \\x{09}\\x{0a}\\x{0c}\\x{0d}\\x{a0}\\x{1680}\\x{2028}\\x{0b}\n\n"
   },
   {
    "id": "7:0303",
@@ -2175,22 +2175,22 @@
    "id": "7:0310",
    "kind": "pattern",
    "line": 1669,
-   "input": "# Without PCRE_UCP, non-ASCII always fail, even if \u003c 256  \n\n/\\b...\\B/utf\n    abc_\n\\= Expect no match\n    \\x{37e}abc\\x{376}\n    \\x{37e}\\x{376}\\x{371}\\x{393}\\x{394}\n    !\\x{c0}++\\x{c1}\\x{c2}\n    !\\x{c0}+++++\n\n",
-   "expected": "# Without PCRE_UCP, non-ASCII always fail, even if \u003c 256  \n\n/\\b...\\B/utf\n    abc_\n 0: abc\n\\= Expect no match\n    \\x{37e}abc\\x{376}\nNo match\n    \\x{37e}\\x{376}\\x{371}\\x{393}\\x{394}\nNo match\n    !\\x{c0}++\\x{c1}\\x{c2}\nNo match\n    !\\x{c0}+++++\nNo match\n\n"
+   "input": "# Without PCRE_UCP, non-ASCII always fail, even if < 256  \n\n/\\b...\\B/utf\n    abc_\n\\= Expect no match\n    \\x{37e}abc\\x{376}\n    \\x{37e}\\x{376}\\x{371}\\x{393}\\x{394}\n    !\\x{c0}++\\x{c1}\\x{c2}\n    !\\x{c0}+++++\n\n",
+   "expected": "# Without PCRE_UCP, non-ASCII always fail, even if < 256  \n\n/\\b...\\B/utf\n    abc_\n 0: abc\n\\= Expect no match\n    \\x{37e}abc\\x{376}\nNo match\n    \\x{37e}\\x{376}\\x{371}\\x{393}\\x{394}\nNo match\n    !\\x{c0}++\\x{c1}\\x{c2}\nNo match\n    !\\x{c0}+++++\nNo match\n\n"
   },
   {
    "id": "7:0311",
    "kind": "pattern",
    "line": 1679,
-   "input": "# With PCRE_UCP, non-UTF8 chars that are \u003c 256 still check properties  \n\n/\\b...\\B/ucp\n    abc_\n    !\\x{c0}++\\x{c1}\\x{c2}\n    !\\x{c0}+++++\n    \n",
-   "expected": "# With PCRE_UCP, non-UTF8 chars that are \u003c 256 still check properties  \n\n/\\b...\\B/ucp\n    abc_\n 0: abc\n    !\\x{c0}++\\x{c1}\\x{c2}\n 0: ++\\xc1\n    !\\x{c0}+++++\n 0: \\xc0++\n    \n"
+   "input": "# With PCRE_UCP, non-UTF8 chars that are < 256 still check properties  \n\n/\\b...\\B/ucp\n    abc_\n    !\\x{c0}++\\x{c1}\\x{c2}\n    !\\x{c0}+++++\n    \n",
+   "expected": "# With PCRE_UCP, non-UTF8 chars that are < 256 still check properties  \n\n/\\b...\\B/ucp\n    abc_\n 0: abc\n    !\\x{c0}++\\x{c1}\\x{c2}\n 0: ++\\xc1\n    !\\x{c0}+++++\n 0: \\xc0++\n    \n"
   },
   {
    "id": "7:0312",
    "kind": "pattern",
    "line": 1686,
-   "input": "# Caseless single negated characters \u003e 127 need UCP support \n\n/[^\\x{100}]/i,utf\n    \\x{100}\\x{101}X\n\n",
-   "expected": "# Caseless single negated characters \u003e 127 need UCP support \n\n/[^\\x{100}]/i,utf\n    \\x{100}\\x{101}X\n 0: X\n\n"
+   "input": "# Caseless single negated characters > 127 need UCP support \n\n/[^\\x{100}]/i,utf\n    \\x{100}\\x{101}X\n\n",
+   "expected": "# Caseless single negated characters > 127 need UCP support \n\n/[^\\x{100}]/i,utf\n    \\x{100}\\x{101}X\n 0: X\n\n"
   },
   {
    "id": "7:0313",
@@ -2245,8 +2245,8 @@
    "id": "7:0320",
    "kind": "pattern",
    "line": 1775,
-   "input": "/^(?\u003e\\X{2})X/utf,aftertext\n    \\x{1111}\\x{ae4c}\\x{1111}\\x{ae4c}X\n    \n",
-   "expected": "/^(?\u003e\\X{2})X/utf,aftertext\n    \\x{1111}\\x{ae4c}\\x{1111}\\x{ae4c}X\n 0: \\x{1111}\\x{ae4c}\\x{1111}\\x{ae4c}X\n 0+ \n    \n"
+   "input": "/^(?>\\X{2})X/utf,aftertext\n    \\x{1111}\\x{ae4c}\\x{1111}\\x{ae4c}X\n    \n",
+   "expected": "/^(?>\\X{2})X/utf,aftertext\n    \\x{1111}\\x{ae4c}\\x{1111}\\x{ae4c}X\n 0: \\x{1111}\\x{ae4c}\\x{1111}\\x{ae4c}X\n 0+ \n    \n"
   },
   {
    "id": "7:0321",
@@ -2875,232 +2875,232 @@
    "id": "7:0410",
    "kind": "pattern",
    "line": 2093,
-   "input": "/(?\u003c=\\x{100})\\x{200}(?=\\x{300})/utf,allusedtext\n    \\x{100}\\x{200}\\x{300}\n\n",
-   "expected": "/(?\u003c=\\x{100})\\x{200}(?=\\x{300})/utf,allusedtext\n    \\x{100}\\x{200}\\x{300}\n 0: \\x{100}\\x{200}\\x{300}\n    \u003c\u003c\u003c\u003c\u003c\u003c\u003c       \u003e\u003e\u003e\u003e\u003e\u003e\u003e\n\n"
+   "input": "/(?<=\\x{100})\\x{200}(?=\\x{300})/utf,allusedtext\n    \\x{100}\\x{200}\\x{300}\n\n",
+   "expected": "/(?<=\\x{100})\\x{200}(?=\\x{300})/utf,allusedtext\n    \\x{100}\\x{200}\\x{300}\n 0: \\x{100}\\x{200}\\x{300}\n    <<<<<<<       >>>>>>>\n\n"
   },
   {
    "id": "7:0411",
    "kind": "pattern",
    "line": 2096,
-   "input": "# -----------------------------------------------------------------------------\n# Tests for bidi control and bidi class properties\n\n/\\p{ bidi_control }/utf\n    --\u003e\\x{202c}\u003c--\n\n",
-   "expected": "# -----------------------------------------------------------------------------\n# Tests for bidi control and bidi class properties\n\n/\\p{ bidi_control }/utf\n    --\u003e\\x{202c}\u003c--\n 0: \\x{202c}\n\n"
+   "input": "# -----------------------------------------------------------------------------\n# Tests for bidi control and bidi class properties\n\n/\\p{ bidi_control }/utf\n    -->\\x{202c}<--\n\n",
+   "expected": "# -----------------------------------------------------------------------------\n# Tests for bidi control and bidi class properties\n\n/\\p{ bidi_control }/utf\n    -->\\x{202c}<--\n 0: \\x{202c}\n\n"
   },
   {
    "id": "7:0412",
    "kind": "pattern",
    "line": 2102,
-   "input": "/\\p{bidicontrol}+/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/\\p{bidicontrol}+/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
+   "input": "/\\p{bidicontrol}+/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/\\p{bidicontrol}+/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
   },
   {
    "id": "7:0413",
    "kind": "pattern",
    "line": 2106,
-   "input": "/\\p{bidicontrol}+?/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/\\p{bidicontrol}+?/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n 1: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\n 2: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\n 3: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\n 4: \\x{61c}\\x{200e}\\x{200f}\n 5: \\x{61c}\\x{200e}\n 6: \\x{61c}\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n 1: \\x{2066}\\x{2067}\\x{2068}\n 2: \\x{2066}\\x{2067}\n 3: \\x{2066}\n\n"
+   "input": "/\\p{bidicontrol}+?/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/\\p{bidicontrol}+?/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n 1: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\n 2: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\n 3: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\n 4: \\x{61c}\\x{200e}\\x{200f}\n 5: \\x{61c}\\x{200e}\n 6: \\x{61c}\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n 1: \\x{2066}\\x{2067}\\x{2068}\n 2: \\x{2066}\\x{2067}\n 3: \\x{2066}\n\n"
   },
   {
    "id": "7:0414",
    "kind": "pattern",
    "line": 2110,
-   "input": "/\\p{bidicontrol}++/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/\\p{bidicontrol}++/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
+   "input": "/\\p{bidicontrol}++/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/\\p{bidicontrol}++/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
   },
   {
    "id": "7:0415",
    "kind": "pattern",
    "line": 2114,
-   "input": "/[\\p{bidi_control}]/utf\n    --\u003e\\x{202c}\u003c--\n\n",
-   "expected": "/[\\p{bidi_control}]/utf\n    --\u003e\\x{202c}\u003c--\n 0: \\x{202c}\n\n"
+   "input": "/[\\p{bidi_control}]/utf\n    -->\\x{202c}<--\n\n",
+   "expected": "/[\\p{bidi_control}]/utf\n    -->\\x{202c}<--\n 0: \\x{202c}\n\n"
   },
   {
    "id": "7:0416",
    "kind": "pattern",
    "line": 2117,
-   "input": "/[\\p{bidicontrol}]+/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/[\\p{bidicontrol}]+/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
+   "input": "/[\\p{bidicontrol}]+/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/[\\p{bidicontrol}]+/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
   },
   {
    "id": "7:0417",
    "kind": "pattern",
    "line": 2121,
-   "input": "/[\\p{bidicontrol}]+?/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/[\\p{bidicontrol}]+?/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n 1: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\n 2: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\n 3: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\n 4: \\x{61c}\\x{200e}\\x{200f}\n 5: \\x{61c}\\x{200e}\n 6: \\x{61c}\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n 1: \\x{2066}\\x{2067}\\x{2068}\n 2: \\x{2066}\\x{2067}\n 3: \\x{2066}\n\n"
+   "input": "/[\\p{bidicontrol}]+?/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/[\\p{bidicontrol}]+?/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n 1: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\n 2: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\n 3: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\n 4: \\x{61c}\\x{200e}\\x{200f}\n 5: \\x{61c}\\x{200e}\n 6: \\x{61c}\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n 1: \\x{2066}\\x{2067}\\x{2068}\n 2: \\x{2066}\\x{2067}\n 3: \\x{2066}\n\n"
   },
   {
    "id": "7:0418",
    "kind": "pattern",
    "line": 2125,
-   "input": "/[\\p{bidicontrol}]++/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/[\\p{bidicontrol}]++/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
+   "input": "/[\\p{bidicontrol}]++/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/[\\p{bidicontrol}]++/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: \\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: \\x{2066}\\x{2067}\\x{2068}\\x{2069}\n\n"
   },
   {
    "id": "7:0419",
    "kind": "pattern",
    "line": 2129,
-   "input": "/[\\p{bidicontrol}\u003c\u003e]+/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/[\\p{bidicontrol}\u003c\u003e]+/utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: \u003e\\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: \u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c\n\n"
+   "input": "/[\\p{bidicontrol}<>]+/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/[\\p{bidicontrol}<>]+/utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: >\\x{61c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: >\\x{2066}\\x{2067}\\x{2068}\\x{2069}<\n\n"
   },
   {
    "id": "7:0420",
    "kind": "pattern",
    "line": 2133,
-   "input": "/\\P{bidicontrol}+/g,utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/\\P{bidicontrol}+/g,utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: --\u003e\n 0: \u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: --\u003e\n 0: \u003c--\n\n"
+   "input": "/\\P{bidicontrol}+/g,utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/\\P{bidicontrol}+/g,utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: -->\n 0: <--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: -->\n 0: <--\n\n"
   },
   {
    "id": "7:0421",
    "kind": "pattern",
    "line": 2137,
-   "input": "/\\p{^bidicontrol}+/g,utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n\n",
-   "expected": "/\\p{^bidicontrol}+/g,utf\n    --\u003e\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}\u003c--\n 0: --\u003e\n 0: \u003c--\n    --\u003e\\x{2066}\\x{2067}\\x{2068}\\x{2069}\u003c--\n 0: --\u003e\n 0: \u003c--\n\n"
+   "input": "/\\p{^bidicontrol}+/g,utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n\n",
+   "expected": "/\\p{^bidicontrol}+/g,utf\n    -->\\x{061c}\\x{200e}\\x{200f}\\x{202a}\\x{202b}\\x{202c}\\x{202d}<--\n 0: -->\n 0: <--\n    -->\\x{2066}\\x{2067}\\x{2068}\\x{2069}<--\n 0: -->\n 0: <--\n\n"
   },
   {
    "id": "7:0422",
    "kind": "pattern",
    "line": 2141,
-   "input": "/\\p{bidi class = al}/utf\n    --\u003e\\x{061D}\u003c--\n\n",
-   "expected": "/\\p{bidi class = al}/utf\n    --\u003e\\x{061D}\u003c--\n 0: \\x{61d}\n\n"
+   "input": "/\\p{bidi class = al}/utf\n    -->\\x{061D}<--\n\n",
+   "expected": "/\\p{bidi class = al}/utf\n    -->\\x{061D}<--\n 0: \\x{61d}\n\n"
   },
   {
    "id": "7:0423",
    "kind": "pattern",
    "line": 2144,
-   "input": "/\\p{bidi class = al}+/utf\n    --\u003e\\x{061D}\\x{061e}\\x{061f}\u003c--\n\n",
-   "expected": "/\\p{bidi class = al}+/utf\n    --\u003e\\x{061D}\\x{061e}\\x{061f}\u003c--\n 0: \\x{61d}\\x{61e}\\x{61f}\n\n"
+   "input": "/\\p{bidi class = al}+/utf\n    -->\\x{061D}\\x{061e}\\x{061f}<--\n\n",
+   "expected": "/\\p{bidi class = al}+/utf\n    -->\\x{061D}\\x{061e}\\x{061f}<--\n 0: \\x{61d}\\x{61e}\\x{61f}\n\n"
   },
   {
    "id": "7:0424",
    "kind": "pattern",
    "line": 2147,
-   "input": "/\\p{bidi_class : AL}+?/utf\n    --\u003e\\x{061D}\\x{061e}\\x{061f}\u003c--\n\n",
-   "expected": "/\\p{bidi_class : AL}+?/utf\n    --\u003e\\x{061D}\\x{061e}\\x{061f}\u003c--\n 0: \\x{61d}\\x{61e}\\x{61f}\n 1: \\x{61d}\\x{61e}\n 2: \\x{61d}\n\n"
+   "input": "/\\p{bidi_class : AL}+?/utf\n    -->\\x{061D}\\x{061e}\\x{061f}<--\n\n",
+   "expected": "/\\p{bidi_class : AL}+?/utf\n    -->\\x{061D}\\x{061e}\\x{061f}<--\n 0: \\x{61d}\\x{61e}\\x{61f}\n 1: \\x{61d}\\x{61e}\n 2: \\x{61d}\n\n"
   },
   {
    "id": "7:0425",
    "kind": "pattern",
    "line": 2150,
-   "input": "/\\p{Bidi_Class : AL}++/utf\n    --\u003e\\x{061D}\\x{061e}\\x{061f}\u003c--\n\n",
-   "expected": "/\\p{Bidi_Class : AL}++/utf\n    --\u003e\\x{061D}\\x{061e}\\x{061f}\u003c--\n 0: \\x{61d}\\x{61e}\\x{61f}\n\n"
+   "input": "/\\p{Bidi_Class : AL}++/utf\n    -->\\x{061D}\\x{061e}\\x{061f}<--\n\n",
+   "expected": "/\\p{Bidi_Class : AL}++/utf\n    -->\\x{061D}\\x{061e}\\x{061f}<--\n 0: \\x{61d}\\x{61e}\\x{61f}\n\n"
   },
   {
    "id": "7:0426",
    "kind": "pattern",
    "line": 2153,
-   "input": "/\\p{bidi class = aN}+/utf\n    --\u003e\\x{061D}\\x{0602}\\x{0604}\\x{061f}\u003c--\n\n",
-   "expected": "/\\p{bidi class = aN}+/utf\n    --\u003e\\x{061D}\\x{0602}\\x{0604}\\x{061f}\u003c--\n 0: \\x{602}\\x{604}\n\n"
+   "input": "/\\p{bidi class = aN}+/utf\n    -->\\x{061D}\\x{0602}\\x{0604}\\x{061f}<--\n\n",
+   "expected": "/\\p{bidi class = aN}+/utf\n    -->\\x{061D}\\x{0602}\\x{0604}\\x{061f}<--\n 0: \\x{602}\\x{604}\n\n"
   },
   {
    "id": "7:0427",
    "kind": "pattern",
    "line": 2156,
-   "input": "/\\p{bidi class = B}+/utf\n    --\u003e\\x{0a}\\x{0d}\\x{01c}\\x{01e}\\x{085}\\x{2029}\u003c--\n\n",
-   "expected": "/\\p{bidi class = B}+/utf\n    --\u003e\\x{0a}\\x{0d}\\x{01c}\\x{01e}\\x{085}\\x{2029}\u003c--\n 0: \\x{0a}\\x{0d}\\x{1c}\\x{1e}\\x{85}\\x{2029}\n\n"
+   "input": "/\\p{bidi class = B}+/utf\n    -->\\x{0a}\\x{0d}\\x{01c}\\x{01e}\\x{085}\\x{2029}<--\n\n",
+   "expected": "/\\p{bidi class = B}+/utf\n    -->\\x{0a}\\x{0d}\\x{01c}\\x{01e}\\x{085}\\x{2029}<--\n 0: \\x{0a}\\x{0d}\\x{1c}\\x{1e}\\x{85}\\x{2029}\n\n"
   },
   {
    "id": "7:0428",
    "kind": "pattern",
    "line": 2159,
-   "input": "/\\p{bidi class:BN}+/utf\n    --\u003e\\x{0}\\x{08}\\x{200c}\\x{fffe}\\x{dfffe}\\x{10ffff}\u003c--\n\n",
-   "expected": "/\\p{bidi class:BN}+/utf\n    --\u003e\\x{0}\\x{08}\\x{200c}\\x{fffe}\\x{dfffe}\\x{10ffff}\u003c--\n 0: \\x{00}\\x{08}\\x{200c}\\x{fffe}\\x{dfffe}\\x{10ffff}\n\n"
+   "input": "/\\p{bidi class:BN}+/utf\n    -->\\x{0}\\x{08}\\x{200c}\\x{fffe}\\x{dfffe}\\x{10ffff}<--\n\n",
+   "expected": "/\\p{bidi class:BN}+/utf\n    -->\\x{0}\\x{08}\\x{200c}\\x{fffe}\\x{dfffe}\\x{10ffff}<--\n 0: \\x{00}\\x{08}\\x{200c}\\x{fffe}\\x{dfffe}\\x{10ffff}\n\n"
   },
   {
    "id": "7:0429",
    "kind": "pattern",
    "line": 2162,
-   "input": "/\\p{bidiclass:cs}+/utf\n    --\u003e,.\\x{060c}\\x{ff1a}\u003c--\n\n",
-   "expected": "/\\p{bidiclass:cs}+/utf\n    --\u003e,.\\x{060c}\\x{ff1a}\u003c--\n 0: ,.\\x{60c}\\x{ff1a}\n\n"
+   "input": "/\\p{bidiclass:cs}+/utf\n    -->,.\\x{060c}\\x{ff1a}<--\n\n",
+   "expected": "/\\p{bidiclass:cs}+/utf\n    -->,.\\x{060c}\\x{ff1a}<--\n 0: ,.\\x{60c}\\x{ff1a}\n\n"
   },
   {
    "id": "7:0430",
    "kind": "pattern",
    "line": 2165,
-   "input": "/\\p{bidiclass:En}+/utf\n    --\u003e09\\x{b2}\\x{2074}\\x{1fbf9}\u003c--\n\n",
-   "expected": "/\\p{bidiclass:En}+/utf\n    --\u003e09\\x{b2}\\x{2074}\\x{1fbf9}\u003c--\n 0: 09\\x{b2}\\x{2074}\\x{1fbf9}\n\n"
+   "input": "/\\p{bidiclass:En}+/utf\n    -->09\\x{b2}\\x{2074}\\x{1fbf9}<--\n\n",
+   "expected": "/\\p{bidiclass:En}+/utf\n    -->09\\x{b2}\\x{2074}\\x{1fbf9}<--\n 0: 09\\x{b2}\\x{2074}\\x{1fbf9}\n\n"
   },
   {
    "id": "7:0431",
    "kind": "pattern",
    "line": 2168,
-   "input": "/\\p{bidiclass:es}+/utf\n    ==\u003e+-\\x{207a}\\x{ff0d}\u003c==\n\n",
-   "expected": "/\\p{bidiclass:es}+/utf\n    ==\u003e+-\\x{207a}\\x{ff0d}\u003c==\n 0: +-\\x{207a}\\x{ff0d}\n\n"
+   "input": "/\\p{bidiclass:es}+/utf\n    ==>+-\\x{207a}\\x{ff0d}<==\n\n",
+   "expected": "/\\p{bidiclass:es}+/utf\n    ==>+-\\x{207a}\\x{ff0d}<==\n 0: +-\\x{207a}\\x{ff0d}\n\n"
   },
   {
    "id": "7:0432",
    "kind": "pattern",
    "line": 2171,
-   "input": "/\\p{bidiclass:et}+/utf\n    --\u003e#\\{24}%\\x{a2}\\x{A838}\\x{1e2ff}\u003c--\n\n",
-   "expected": "/\\p{bidiclass:et}+/utf\n    --\u003e#\\{24}%\\x{a2}\\x{A838}\\x{1e2ff}\u003c--\n 0: #\n\n"
+   "input": "/\\p{bidiclass:et}+/utf\n    -->#\\{24}%\\x{a2}\\x{A838}\\x{1e2ff}<--\n\n",
+   "expected": "/\\p{bidiclass:et}+/utf\n    -->#\\{24}%\\x{a2}\\x{A838}\\x{1e2ff}<--\n 0: #\n\n"
   },
   {
    "id": "7:0433",
    "kind": "pattern",
    "line": 2174,
-   "input": "/\\p{bidiclass:FSI}+/utf\n    --\u003e\\x{2068}\u003c--\n\n",
-   "expected": "/\\p{bidiclass:FSI}+/utf\n    --\u003e\\x{2068}\u003c--\n 0: \\x{2068}\n\n"
+   "input": "/\\p{bidiclass:FSI}+/utf\n    -->\\x{2068}<--\n\n",
+   "expected": "/\\p{bidiclass:FSI}+/utf\n    -->\\x{2068}<--\n 0: \\x{2068}\n\n"
   },
   {
    "id": "7:0434",
    "kind": "pattern",
    "line": 2177,
-   "input": "/\\p{bidi class:L}+/utf\n    --\u003eABC\u003c--\n\n",
-   "expected": "/\\p{bidi class:L}+/utf\n    --\u003eABC\u003c--\n 0: ABC\n\n"
+   "input": "/\\p{bidi class:L}+/utf\n    -->ABC<--\n\n",
+   "expected": "/\\p{bidi class:L}+/utf\n    -->ABC<--\n 0: ABC\n\n"
   },
   {
    "id": "7:0435",
    "kind": "pattern",
    "line": 2180,
-   "input": "/\\P{bidi class:L}+/utf\n    --\u003eABC\u003c--\n\n",
-   "expected": "/\\P{bidi class:L}+/utf\n    --\u003eABC\u003c--\n 0: --\u003e\n\n"
+   "input": "/\\P{bidi class:L}+/utf\n    -->ABC<--\n\n",
+   "expected": "/\\P{bidi class:L}+/utf\n    -->ABC<--\n 0: -->\n\n"
   },
   {
    "id": "7:0436",
    "kind": "pattern",
    "line": 2183,
-   "input": "/\\p{bidi class:LRE}+\\p{bidiclass=lri}*\\p{bidiclass:lro}/utf\n    --\u003e\\x{202a}\\x{2066}\\x{202d}\u003c--\n\n",
-   "expected": "/\\p{bidi class:LRE}+\\p{bidiclass=lri}*\\p{bidiclass:lro}/utf\n    --\u003e\\x{202a}\\x{2066}\\x{202d}\u003c--\n 0: \\x{202a}\\x{2066}\\x{202d}\n\n"
+   "input": "/\\p{bidi class:LRE}+\\p{bidiclass=lri}*\\p{bidiclass:lro}/utf\n    -->\\x{202a}\\x{2066}\\x{202d}<--\n\n",
+   "expected": "/\\p{bidi class:LRE}+\\p{bidiclass=lri}*\\p{bidiclass:lro}/utf\n    -->\\x{202a}\\x{2066}\\x{202d}<--\n 0: \\x{202a}\\x{2066}\\x{202d}\n\n"
   },
   {
    "id": "7:0437",
    "kind": "pattern",
    "line": 2186,
-   "input": "/\\p{bidi class:NSM}+/utf\n    --\u003e\\x{9bc}\\x{a71}\\x{e31}\u003c--\n\n",
-   "expected": "/\\p{bidi class:NSM}+/utf\n    --\u003e\\x{9bc}\\x{a71}\\x{e31}\u003c--\n 0: \\x{9bc}\\x{a71}\\x{e31}\n\n"
+   "input": "/\\p{bidi class:NSM}+/utf\n    -->\\x{9bc}\\x{a71}\\x{e31}<--\n\n",
+   "expected": "/\\p{bidi class:NSM}+/utf\n    -->\\x{9bc}\\x{a71}\\x{e31}<--\n 0: \\x{9bc}\\x{a71}\\x{e31}\n\n"
   },
   {
    "id": "7:0438",
    "kind": "pattern",
    "line": 2189,
-   "input": "/\\p{bidi class:ON}+/utf\n    --\u003e\\x{21}'()*;@\\x{384}\\x{2039}\u003c=-\n\n",
-   "expected": "/\\p{bidi class:ON}+/utf\n    --\u003e\\x{21}'()*;@\\x{384}\\x{2039}\u003c=-\n 0: \u003e!'()*;@\\x{384}\\x{2039}\u003c=\n\n"
+   "input": "/\\p{bidi class:ON}+/utf\n    -->\\x{21}'()*;@\\x{384}\\x{2039}<=-\n\n",
+   "expected": "/\\p{bidi class:ON}+/utf\n    -->\\x{21}'()*;@\\x{384}\\x{2039}<=-\n 0: >!'()*;@\\x{384}\\x{2039}<=\n\n"
   },
   {
    "id": "7:0439",
    "kind": "pattern",
    "line": 2192,
-   "input": "/\\p{bidiclass:pdf}\\p{bidiclass:pdi}/utf\n    --\u003e\\x{202c}\\x{2069}\u003c--\n\n",
-   "expected": "/\\p{bidiclass:pdf}\\p{bidiclass:pdi}/utf\n    --\u003e\\x{202c}\\x{2069}\u003c--\n 0: \\x{202c}\\x{2069}\n\n"
+   "input": "/\\p{bidiclass:pdf}\\p{bidiclass:pdi}/utf\n    -->\\x{202c}\\x{2069}<--\n\n",
+   "expected": "/\\p{bidiclass:pdf}\\p{bidiclass:pdi}/utf\n    -->\\x{202c}\\x{2069}<--\n 0: \\x{202c}\\x{2069}\n\n"
   },
   {
    "id": "7:0440",
    "kind": "pattern",
    "line": 2195,
-   "input": "/\\p{bidi class:R}+/utf\n    --\u003e\\x{590}\\x{5c6}\\x{200f}\\x{10805}\u003c--\n\n",
-   "expected": "/\\p{bidi class:R}+/utf\n    --\u003e\\x{590}\\x{5c6}\\x{200f}\\x{10805}\u003c--\n 0: \\x{590}\\x{5c6}\\x{200f}\\x{10805}\n\n"
+   "input": "/\\p{bidi class:R}+/utf\n    -->\\x{590}\\x{5c6}\\x{200f}\\x{10805}<--\n\n",
+   "expected": "/\\p{bidi class:R}+/utf\n    -->\\x{590}\\x{5c6}\\x{200f}\\x{10805}<--\n 0: \\x{590}\\x{5c6}\\x{200f}\\x{10805}\n\n"
   },
   {
    "id": "7:0441",
    "kind": "pattern",
    "line": 2198,
-   "input": "/\\p{bidi class:RLE}+\\p{bidi class:RLI}*\\p{bidi class:RLO}+/utf\n    --\u003e\\x{202b}\\x{2067}\\x{202e}\u003c-- \n    \n",
-   "expected": "/\\p{bidi class:RLE}+\\p{bidi class:RLI}*\\p{bidi class:RLO}+/utf\n    --\u003e\\x{202b}\\x{2067}\\x{202e}\u003c-- \n 0: \\x{202b}\\x{2067}\\x{202e}\n    \n"
+   "input": "/\\p{bidi class:RLE}+\\p{bidi class:RLI}*\\p{bidi class:RLO}+/utf\n    -->\\x{202b}\\x{2067}\\x{202e}<-- \n    \n",
+   "expected": "/\\p{bidi class:RLE}+\\p{bidi class:RLI}*\\p{bidi class:RLO}+/utf\n    -->\\x{202b}\\x{2067}\\x{202e}<-- \n 0: \\x{202b}\\x{2067}\\x{202e}\n    \n"
   },
   {
    "id": "7:0442",
    "kind": "pattern",
    "line": 2201,
-   "input": "/\\p{bidi class:S}+\\p{bidiclass:WS}+/utf\n    --\u003e\\x{9}\\x{b}\\x{1f}  \\x{c} \\x{2000} \\x{3000}\u003c--\n\n",
-   "expected": "/\\p{bidi class:S}+\\p{bidiclass:WS}+/utf\n    --\u003e\\x{9}\\x{b}\\x{1f}  \\x{c} \\x{2000} \\x{3000}\u003c--\n 0: \\x{09}\\x{0b}\\x{1f}  \\x{0c} \\x{2000} \\x{3000}\n\n"
+   "input": "/\\p{bidi class:S}+\\p{bidiclass:WS}+/utf\n    -->\\x{9}\\x{b}\\x{1f}  \\x{c} \\x{2000} \\x{3000}<--\n\n",
+   "expected": "/\\p{bidi class:S}+\\p{bidiclass:WS}+/utf\n    -->\\x{9}\\x{b}\\x{1f}  \\x{c} \\x{2000} \\x{3000}<--\n 0: \\x{09}\\x{0b}\\x{1f}  \\x{0c} \\x{2000} \\x{3000}\n\n"
   },
   {
    "id": "7:0443",
@@ -3407,57 +3407,57 @@
    "id": "7:0486",
    "kind": "pattern",
    "line": 2371,
-   "input": "# SPACES\n\n/\u003e\\s+\u003c/i,utf\n    \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\n\n",
-   "expected": "# SPACES\n\n/\u003e\\s+\u003c/i,utf\n    \u003e  \u003c\n 0: \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\nNo match\n\n"
+   "input": "# SPACES\n\n/>\\s+</i,utf\n    >  <\n\\= Expect no match     \n    >\\x{a0} <\n\n",
+   "expected": "# SPACES\n\n/>\\s+</i,utf\n    >  <\n 0: >  <\n\\= Expect no match     \n    >\\x{a0} <\nNo match\n\n"
   },
   {
    "id": "7:0487",
    "kind": "pattern",
    "line": 2378,
-   "input": "/\u003e\\s+\u003c/i,utf,ucp\n    \u003e  \u003c\n    \u003e\\x{a0} \u003c\n\n",
-   "expected": "/\u003e\\s+\u003c/i,utf,ucp\n    \u003e  \u003c\n 0: \u003e  \u003c\n    \u003e\\x{a0} \u003c\n 0: \u003e\\x{a0} \u003c\n\n"
+   "input": "/>\\s+</i,utf,ucp\n    >  <\n    >\\x{a0} <\n\n",
+   "expected": "/>\\s+</i,utf,ucp\n    >  <\n 0: >  <\n    >\\x{a0} <\n 0: >\\x{a0} <\n\n"
   },
   {
    "id": "7:0488",
    "kind": "pattern",
    "line": 2382,
-   "input": "/\u003e\\s+\u003c/i,utf,ucp,ascii_bss\n    \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\n\n",
-   "expected": "/\u003e\\s+\u003c/i,utf,ucp,ascii_bss\n    \u003e  \u003c\n 0: \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\nNo match\n\n"
+   "input": "/>\\s+</i,utf,ucp,ascii_bss\n    >  <\n\\= Expect no match     \n    >\\x{a0} <\n\n",
+   "expected": "/>\\s+</i,utf,ucp,ascii_bss\n    >  <\n 0: >  <\n\\= Expect no match     \n    >\\x{a0} <\nNo match\n\n"
   },
   {
    "id": "7:0489",
    "kind": "pattern",
    "line": 2387,
-   "input": "/\u003e[\\s]+\u003c/i,utf\n    \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\n\n",
-   "expected": "/\u003e[\\s]+\u003c/i,utf\n    \u003e  \u003c\n 0: \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\nNo match\n\n"
+   "input": "/>[\\s]+</i,utf\n    >  <\n\\= Expect no match     \n    >\\x{a0} <\n\n",
+   "expected": "/>[\\s]+</i,utf\n    >  <\n 0: >  <\n\\= Expect no match     \n    >\\x{a0} <\nNo match\n\n"
   },
   {
    "id": "7:0490",
    "kind": "pattern",
    "line": 2392,
-   "input": "/\u003e[\\s]+\u003c/i,utf,ucp\n    \u003e  \u003c\n    \u003e\\x{a0} \u003c\n\n",
-   "expected": "/\u003e[\\s]+\u003c/i,utf,ucp\n    \u003e  \u003c\n 0: \u003e  \u003c\n    \u003e\\x{a0} \u003c\n 0: \u003e\\x{a0} \u003c\n\n"
+   "input": "/>[\\s]+</i,utf,ucp\n    >  <\n    >\\x{a0} <\n\n",
+   "expected": "/>[\\s]+</i,utf,ucp\n    >  <\n 0: >  <\n    >\\x{a0} <\n 0: >\\x{a0} <\n\n"
   },
   {
    "id": "7:0491",
    "kind": "pattern",
    "line": 2396,
-   "input": "/\u003e[\\s]+\u003c/i,utf,ucp,ascii_bss\n    \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\n\n",
-   "expected": "/\u003e[\\s]+\u003c/i,utf,ucp,ascii_bss\n    \u003e  \u003c\n 0: \u003e  \u003c\n\\= Expect no match     \n    \u003e\\x{a0} \u003c\nNo match\n\n"
+   "input": "/>[\\s]+</i,utf,ucp,ascii_bss\n    >  <\n\\= Expect no match     \n    >\\x{a0} <\n\n",
+   "expected": "/>[\\s]+</i,utf,ucp,ascii_bss\n    >  <\n 0: >  <\n\\= Expect no match     \n    >\\x{a0} <\nNo match\n\n"
   },
   {
    "id": "7:0492",
    "kind": "pattern",
    "line": 2401,
-   "input": "/\u003e\\s(?aS)\\s(?-aS)\\s\u003c/utf,ucp\n    \u003e\\x{a0} \\x{a0}\u003c\n\\= Expect no match     \n    \u003e\\x{a0}\\x{a0}\\x{a0}\u003c\n\n",
-   "expected": "/\u003e\\s(?aS)\\s(?-aS)\\s\u003c/utf,ucp\n    \u003e\\x{a0} \\x{a0}\u003c\n 0: \u003e\\x{a0} \\x{a0}\u003c\n\\= Expect no match     \n    \u003e\\x{a0}\\x{a0}\\x{a0}\u003c\nNo match\n\n"
+   "input": "/>\\s(?aS)\\s(?-aS)\\s</utf,ucp\n    >\\x{a0} \\x{a0}<\n\\= Expect no match     \n    >\\x{a0}\\x{a0}\\x{a0}<\n\n",
+   "expected": "/>\\s(?aS)\\s(?-aS)\\s</utf,ucp\n    >\\x{a0} \\x{a0}<\n 0: >\\x{a0} \\x{a0}<\n\\= Expect no match     \n    >\\x{a0}\\x{a0}\\x{a0}<\nNo match\n\n"
   },
   {
    "id": "7:0493",
    "kind": "pattern",
    "line": 2406,
-   "input": "/\u003e\\s(?a)\\s(?-a)\\s\u003c/utf,ucp\n    \u003e\\x{a0} \\x{a0}\u003c\n\\= Expect no match     \n    \u003e\\x{a0}\\x{a0}\\x{a0}\u003c\n    \n",
-   "expected": "/\u003e\\s(?a)\\s(?-a)\\s\u003c/utf,ucp\n    \u003e\\x{a0} \\x{a0}\u003c\n 0: \u003e\\x{a0} \\x{a0}\u003c\n\\= Expect no match     \n    \u003e\\x{a0}\\x{a0}\\x{a0}\u003c\nNo match\n    \n"
+   "input": "/>\\s(?a)\\s(?-a)\\s</utf,ucp\n    >\\x{a0} \\x{a0}<\n\\= Expect no match     \n    >\\x{a0}\\x{a0}\\x{a0}<\n    \n",
+   "expected": "/>\\s(?a)\\s(?-a)\\s</utf,ucp\n    >\\x{a0} \\x{a0}<\n 0: >\\x{a0} \\x{a0}<\n\\= Expect no match     \n    >\\x{a0}\\x{a0}\\x{a0}<\nNo match\n    \n"
   },
   {
    "id": "7:0494",
@@ -3589,15 +3589,15 @@
    "id": "7:0512",
    "kind": "pattern",
    "line": 2494,
-   "input": "/\u003e[[:space:]]+\u003c/utf,ucp\n    \u003e\\x{a0} \\x{a0}\u003c\n    \u003e\\x{a0}\\x{a0}\\x{a0}\u003c\n\n",
-   "expected": "/\u003e[[:space:]]+\u003c/utf,ucp\n    \u003e\\x{a0} \\x{a0}\u003c\n 0: \u003e\\x{a0} \\x{a0}\u003c\n    \u003e\\x{a0}\\x{a0}\\x{a0}\u003c\n 0: \u003e\\x{a0}\\x{a0}\\x{a0}\u003c\n\n"
+   "input": "/>[[:space:]]+</utf,ucp\n    >\\x{a0} \\x{a0}<\n    >\\x{a0}\\x{a0}\\x{a0}<\n\n",
+   "expected": "/>[[:space:]]+</utf,ucp\n    >\\x{a0} \\x{a0}<\n 0: >\\x{a0} \\x{a0}<\n    >\\x{a0}\\x{a0}\\x{a0}<\n 0: >\\x{a0}\\x{a0}\\x{a0}<\n\n"
   },
   {
    "id": "7:0513",
    "kind": "pattern",
    "line": 2498,
-   "input": "/\u003e[[:space:]]+\u003c/utf,ucp,ascii_posix\n\\= Expect no match     \n    \u003e\\x{a0} \\x{a0}\u003c\n\n",
-   "expected": "/\u003e[[:space:]]+\u003c/utf,ucp,ascii_posix\n\\= Expect no match     \n    \u003e\\x{a0} \\x{a0}\u003c\nNo match\n\n"
+   "input": "/>[[:space:]]+</utf,ucp,ascii_posix\n\\= Expect no match     \n    >\\x{a0} \\x{a0}<\n\n",
+   "expected": "/>[[:space:]]+</utf,ucp,ascii_posix\n\\= Expect no match     \n    >\\x{a0} \\x{a0}<\nNo match\n\n"
   },
   {
    "id": "7:0514",

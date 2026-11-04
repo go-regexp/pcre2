@@ -271,7 +271,7 @@ func (s *splitter) command(l []byte) error {
 	case "pattern":
 		for _, t := range modTokens(args) {
 			switch t.name {
-			case "push", "pushcopy", "pushtablescopy":
+			case "push": // pushcopy and pushtablescopy keep the pattern for data
 				s.defPush = !t.off
 			}
 		}
@@ -329,7 +329,7 @@ func (s *splitter) pattern() error {
 	push := s.defPush
 	for _, t := range modTokens(string(rest)) {
 		switch t.name {
-		case "push", "pushcopy", "pushtablescopy":
+		case "push":
 			push = !t.off
 		}
 	}

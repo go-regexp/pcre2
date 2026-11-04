@@ -40,8 +40,8 @@
    "id": "21:0005",
    "kind": "pattern",
    "line": 13,
-   "input": "/(?\u003c=ab\\Cde)X/\n    abZdeX\n\n",
-   "expected": "/(?\u003c=ab\\Cde)X/\n    abZdeX\n 0: X\n\n"
+   "input": "/(?<=ab\\Cde)X/\n    abZdeX\n\n",
+   "expected": "/(?<=ab\\Cde)X/\n    abZdeX\n 0: X\n\n"
   },
   {
    "id": "21:0006",

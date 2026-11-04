@@ -35,10 +35,11 @@ type bench struct {
 	Pattern string // pattern text, without delimiters
 	Flags   string // pcre2test pattern modifiers
 	// Subject = Prefix + Unit*Count + Suffix
-	Prefix, Unit, Suffix string
-	Count                int
-	Match                bool // the subject must match
-	Iterations           int  // timing repetitions (-t n)
+	Prefix, Unit string
+	Count        int
+	Suffix       string
+	Match        bool // the subject must match
+	Iterations   int  // timing repetitions (-t n)
 }
 
 func (b bench) subject() []byte {

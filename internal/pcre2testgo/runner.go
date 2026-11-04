@@ -121,6 +121,8 @@ type Runner struct {
 
 	// current pattern
 	code         Code
+	dfaMatched   int
+	dfaWS        []int32
 	patCtl       mods.PatCtl
 	cc           mods.CompileCtx
 	utf          bool
@@ -551,7 +553,16 @@ func (r *Runner) processPattern(first []byte) int {
 		useForbid = 0
 	}
 
-	cs := CompileSettings{CompileCtx: r.cc, Null: pc.Control&mods.CTL_NULLCONTEXT != 0, NullPattern: pc.Control2&mods.CTL2_NULL_PATTERN != 0}
+	// null_pattern passes a NULL pattern; with a zero-terminated pattern (the
+	// default) C reports "NULL with non-zero length", which a nil Go slice
+	// stands for. With use_length or hex the length is given (0 here) and NULL
+	// is accepted as an empty pattern, which an empty non-nil slice stands for.
+	if pc.Control2&mods.CTL2_NULL_PATTERN != 0 && pc.Control&(mods.CTL_HEXPAT|mods.CTL_USE_LENGTH) != 0 && len(pat) > 0 {
+		r.unsup("NULL pattern with non-zero length (null_pattern)")
+		return prSkip
+	}
+	cs := CompileSettings{CompileCtx: r.cc, Null: pc.Control&mods.CTL_NULLCONTEXT != 0,
+		NullPattern: pc.Control2&mods.CTL2_NULL_PATTERN != 0 && pc.Control&(mods.CTL_HEXPAT|mods.CTL_USE_LENGTH) == 0}
 	code, errorcode, erroroffset := r.lib.Compile(pat, pc.Options|useForbid, cs)
 
 	jitrc := 0
@@ -573,6 +584,7 @@ func (r *Runner) processPattern(first []byte) int {
 		return prSkip
 	}
 	r.code = code
+	r.dfaMatched = 0
 	r.utf = false
 	if v, rc := code.Info(infoAllOptions); rc == 0 {
 		r.utf = uint32(v)&mods.UTF != 0
@@ -792,7 +804,11 @@ func (r *Runner) showPatternInfo(jitrc int) int {
 	pc := &r.patCtl
 	if pc.Control&(mods.CTL_BINCODE|mods.CTL_FULLBINCODE) != 0 {
 		r.printf("------------------------------------------------------------------\n")
-		r.unsup("compiled code dump (bincode/fullbincode)")
+		if d, ok := r.code.(CodeDumper); ok {
+			r.printf("%s", d.PrintInt(pc.Control&mods.CTL_FULLBINCODE != 0))
+		} else {
+			r.unsup("compiled code dump (bincode/fullbincode)")
+		}
 	}
 	if pc.Control&mods.CTL_INFO != 0 {
 		var heapLimit, matchLimit, depthLimit uint64

@@ -300,13 +300,13 @@ func (r *Runner) processData(line []byte) int {
 		r.printf("** Ignored for DFA matching: replace\n")
 		dat.Replacement = ""
 	}
-	if dat.Replacement != "" {
-		r.unsup("substitution (replace)")
-		return prOK
-	}
+	var dfa DFAMatcher
 	if dat.Control&mods.CTL_DFA != 0 {
-		r.unsup("DFA matching (dfa)")
-		return prOK
+		var ok bool
+		if dfa, ok = r.code.(DFAMatcher); !ok {
+			r.unsup("DFA matching (dfa)")
+			return prOK
+		}
 	}
 	if dat.Control&(mods.CTL_FINDLIMITS|mods.CTL_FINDLIMITS_NOHEAP) != 0 {
 		r.unsup("limit finding (find_limits)")
@@ -320,6 +320,12 @@ func (r *Runner) processData(line []byte) int {
 	}
 
 	var subject []byte
+	if dat.Control2&mods.CTL2_NULL_SUBJECT != 0 && ulen > 0 {
+		// A nil Go slice has length 0; "NULL with a non-zero length" cannot be
+		// expressed through the API.
+		r.unsup("NULL subject with non-zero length (null_subject)")
+		return prOK
+	}
 	if dat.Control2&mods.CTL2_NULL_SUBJECT == 0 {
 		subject = d
 		if subject == nil {
@@ -338,6 +344,10 @@ func (r *Runner) processData(line []byte) int {
 
 	ms := MatchSettings{MatchCtx: mc, Null: dat.Control&mods.CTL_NULLCONTEXT != 0}
 
+	if dat.Replacement != "" {
+		return r.substitute(&dat, ms, subject, false, md, utf)
+	}
+
 	var gnotempty uint32
 	ovecsave := [3]uint64{unsetSize, unsetSize, unsetSize}
 	subj := subject
@@ -347,10 +357,26 @@ func (r *Runner) processData(line []byte) int {
 		for j := range ovector {
 			ovector[j] = junkOffset
 		}
-		capcount := r.code.Match(subj, uint64(dat.Offset), dat.Options|gnotempty, md, ms)
-		if capcount == 0 {
-			r.printf("Matched, but too many substrings\n")
-			capcount = int(dat.Oveccount)
+		var capcount int
+		if dfa != nil {
+			if r.dfaWS == nil {
+				r.dfaWS = make([]int32, DFAWorkspaceSize)
+			}
+			if r.dfaMatched == 0 {
+				r.dfaWS[0] = -1 // to catch a bad restart
+			}
+			r.dfaMatched++
+			capcount = dfa.DFAMatch(subj, uint64(dat.Offset), dat.Options|gnotempty, md, ms, r.dfaWS)
+			if capcount == 0 {
+				r.printf("Matched, but offsets vector is too small to show all matches\n")
+				capcount = int(dat.Oveccount)
+			}
+		} else {
+			capcount = r.code.Match(subj, uint64(dat.Offset), dat.Options|gnotempty, md, ms)
+			if capcount == 0 {
+				r.printf("Matched, but too many substrings\n")
+				capcount = int(dat.Oveccount)
+			}
 		}
 		ovector = md.Ovector()
 
@@ -396,7 +422,7 @@ func (r *Runner) processData(line []byte) int {
 					continue
 				}
 				if start > ulen || end > ulen {
-					if i >= int(2*r.maxCapCount+2) && start == junkOffset && end == junkOffset {
+					if (dat.Control&mods.CTL_DFA != 0 || i >= int(2*r.maxCapCount+2)) && start == junkOffset && end == junkOffset {
 						r.printf("<unchanged>\n")
 					} else {
 						r.printf("ERROR: bad value(s) for offset(s): 0x%x 0x%x\n", start, end)

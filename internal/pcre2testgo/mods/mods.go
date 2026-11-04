@@ -164,6 +164,11 @@ const Unset = ^uint64(0)
 // CforeUnset is CFORE_UNSET of pcre2test.c (data callout fields).
 const CforeUnset = 0xffffffff
 
+// DefaultOveccount is DEFAULT_OVECCOUNT: the ovector size used for data lines
+// unless "ovector=n" says otherwise (ovector=0 means "exactly as many as the
+// pattern needs").
+const DefaultOveccount = 15
+
 // Limits of the copy/get fields.
 const (
 	MaxCpyGet  = 10
@@ -501,6 +506,7 @@ func NewPatCtl() PatCtl { return PatCtl{ConvertType: ConvertUnset} }
 // NewDatCtl returns the initial default data controls (def_datctl).
 func NewDatCtl() DatCtl {
 	d := DatCtl{}
+	d.Oveccount = DefaultOveccount
 	d.Startend = [2]uint32{CforeUnset, CforeUnset}
 	d.Cerror = [2]uint32{CforeUnset, CforeUnset}
 	d.Cfail = [2]uint32{CforeUnset, CforeUnset}

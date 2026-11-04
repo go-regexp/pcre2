@@ -76,7 +76,7 @@
    "kind": "pattern",
    "line": 31,
    "input": "/.*((abc)$|(def))/\n    defabc\n    defabc\\=noteol\n\n",
-   "expected": "/.*((abc)$|(def))/\n    defabc\n 0: defabc\n 1: abc\n 2: abc\n    defabc\\=noteol\n 0: def\n 1: def\n 2: \u003cunset\u003e\n 3: def\n\n"
+   "expected": "/.*((abc)$|(def))/\n    defabc\n 0: defabc\n 1: abc\n 2: abc\n    defabc\\=noteol\n 0: def\n 1: def\n 2: <unset>\n 3: def\n\n"
   },
   {
    "id": "18:0011",
@@ -152,8 +152,8 @@
    "id": "18:0021",
    "kind": "pattern",
    "line": 78,
-   "input": "/a(?P\u003cname\u003eb)c/posix_nosub\n    abc\n\n",
-   "expected": "/a(?P\u003cname\u003eb)c/posix_nosub\n    abc\nMatched with REG_NOSUB\n\n"
+   "input": "/a(?P<name>b)c/posix_nosub\n    abc\n\n",
+   "expected": "/a(?P<name>b)c/posix_nosub\n    abc\nMatched with REG_NOSUB\n\n"
   },
   {
    "id": "18:0022",
@@ -286,7 +286,7 @@
    "kind": "pattern",
    "line": 134,
    "input": "/((a)(b)?(c))/posix\n    123ace\n    123ace\\=posix_startend=2:6\n\n",
-   "expected": "/((a)(b)?(c))/posix\n    123ace\n 0: ac\n 1: ac\n 2: a\n 3: \u003cunset\u003e\n 4: c\n    123ace\\=posix_startend=2:6\n 0: ac\n 1: ac\n 2: a\n 3: \u003cunset\u003e\n 4: c\n\n"
+   "expected": "/((a)(b)?(c))/posix\n    123ace\n 0: ac\n 1: ac\n 2: a\n 3: <unset>\n 4: c\n    123ace\\=posix_startend=2:6\n 0: ac\n 1: ac\n 2: a\n 3: <unset>\n 4: c\n\n"
   },
   {
    "id": "18:0041",

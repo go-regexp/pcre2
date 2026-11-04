@@ -40,8 +40,8 @@
    "id": "14:0005",
    "kind": "pattern",
    "line": 40,
-   "input": "# ---------------------------------------------------- \n# UCP and casing tests - except for the first two, these will all fail in 8-bit\n# mode because they are testing UCP without UTF and use characters \u003e 255.\n\n/\\x{c1}/i,no_start_optimize\n\\= Expect no match\n    \\x{e1}\n\n",
-   "expected": "# ---------------------------------------------------- \n# UCP and casing tests - except for the first two, these will all fail in 8-bit\n# mode because they are testing UCP without UTF and use characters \u003e 255.\n\n/\\x{c1}/i,no_start_optimize\n\\= Expect no match\n    \\x{e1}\nNo match\n\n"
+   "input": "# ---------------------------------------------------- \n# UCP and casing tests - except for the first two, these will all fail in 8-bit\n# mode because they are testing UCP without UTF and use characters > 255.\n\n/\\x{c1}/i,no_start_optimize\n\\= Expect no match\n    \\x{e1}\n\n",
+   "expected": "# ---------------------------------------------------- \n# UCP and casing tests - except for the first two, these will all fail in 8-bit\n# mode because they are testing UCP without UTF and use characters > 255.\n\n/\\x{c1}/i,no_start_optimize\n\\= Expect no match\n    \\x{e1}\nNo match\n\n"
   },
   {
    "id": "14:0006",

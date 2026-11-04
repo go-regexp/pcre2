@@ -208,8 +208,8 @@
    "included": true,
    "reason": "RunTest test 20: serialization and code copy tests",
    "golden": "testinput20.json",
-   "cases": 43,
-   "counted": 32,
+   "cases": 41,
+   "counted": 30,
    "features": [
     "serialize"
    ]

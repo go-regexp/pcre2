@@ -40,8 +40,8 @@
    "id": "15:0005",
    "kind": "pattern",
    "line": 27,
-   "input": "/^(?\u003ea)++/\n    aa\\=find_limits_noheap\n    aaaaaaaaa\\=find_limits_noheap\n\n",
-   "expected": "/^(?\u003ea)++/\n    aa\\=find_limits_noheap\nMinimum match limit = 5\nMinimum depth limit = 3\n 0: aa\n    aaaaaaaaa\\=find_limits_noheap\nMinimum match limit = 12\nMinimum depth limit = 3\n 0: aaaaaaaaa\n\n"
+   "input": "/^(?>a)++/\n    aa\\=find_limits_noheap\n    aaaaaaaaa\\=find_limits_noheap\n\n",
+   "expected": "/^(?>a)++/\n    aa\\=find_limits_noheap\nMinimum match limit = 5\nMinimum depth limit = 3\n 0: aa\n    aaaaaaaaa\\=find_limits_noheap\nMinimum match limit = 12\nMinimum depth limit = 3\n 0: aaaaaaaaa\n\n"
   },
   {
    "id": "15:0006",
@@ -75,22 +75,22 @@
    "id": "15:0010",
    "kind": "pattern",
    "line": 44,
-   "input": "/^(?\u003ea+)(?\u003eb+)(?\u003ec+)(?\u003ed+)(?\u003ee+)/\n     aabbccddee\\=find_limits_noheap\n\n",
-   "expected": "/^(?\u003ea+)(?\u003eb+)(?\u003ec+)(?\u003ed+)(?\u003ee+)/\n     aabbccddee\\=find_limits_noheap\nMinimum match limit = 7\nMinimum depth limit = 7\n 0: aabbccddee\n\n"
+   "input": "/^(?>a+)(?>b+)(?>c+)(?>d+)(?>e+)/\n     aabbccddee\\=find_limits_noheap\n\n",
+   "expected": "/^(?>a+)(?>b+)(?>c+)(?>d+)(?>e+)/\n     aabbccddee\\=find_limits_noheap\nMinimum match limit = 7\nMinimum depth limit = 7\n 0: aabbccddee\n\n"
   },
   {
    "id": "15:0011",
    "kind": "pattern",
    "line": 47,
-   "input": "/^(?\u003e(a+))(?\u003e(b+))(?\u003e(c+))(?\u003e(d+))(?\u003e(e+))/\n     aabbccddee\\=find_limits_noheap\n\n",
-   "expected": "/^(?\u003e(a+))(?\u003e(b+))(?\u003e(c+))(?\u003e(d+))(?\u003e(e+))/\n     aabbccddee\\=find_limits_noheap\nMinimum match limit = 12\nMinimum depth limit = 12\n 0: aabbccddee\n 1: aa\n 2: bb\n 3: cc\n 4: dd\n 5: ee\n\n"
+   "input": "/^(?>(a+))(?>(b+))(?>(c+))(?>(d+))(?>(e+))/\n     aabbccddee\\=find_limits_noheap\n\n",
+   "expected": "/^(?>(a+))(?>(b+))(?>(c+))(?>(d+))(?>(e+))/\n     aabbccddee\\=find_limits_noheap\nMinimum match limit = 12\nMinimum depth limit = 12\n 0: aabbccddee\n 1: aa\n 2: bb\n 3: cc\n 4: dd\n 5: ee\n\n"
   },
   {
    "id": "15:0012",
    "kind": "pattern",
    "line": 50,
-   "input": "/^(?\u003e(a+))(?\u003eb+)(?\u003e(c+))(?\u003ed+)(?\u003e(e+))/\n     aabbccddee\\=find_limits_noheap\n\n",
-   "expected": "/^(?\u003e(a+))(?\u003eb+)(?\u003e(c+))(?\u003ed+)(?\u003e(e+))/\n     aabbccddee\\=find_limits_noheap\nMinimum match limit = 10\nMinimum depth limit = 10\n 0: aabbccddee\n 1: aa\n 2: cc\n 3: ee\n\n"
+   "input": "/^(?>(a+))(?>b+)(?>(c+))(?>d+)(?>(e+))/\n     aabbccddee\\=find_limits_noheap\n\n",
+   "expected": "/^(?>(a+))(?>b+)(?>(c+))(?>d+)(?>(e+))/\n     aabbccddee\\=find_limits_noheap\nMinimum match limit = 10\nMinimum depth limit = 10\n 0: aabbccddee\n 1: aa\n 2: cc\n 3: ee\n\n"
   },
   {
    "id": "15:0013",
@@ -195,42 +195,42 @@
    "kind": "pattern",
    "line": 112,
    "input": "# The allusedtext modifier does not work with JIT, which does not maintain\n# the leftchar/rightchar data.\n\n/abc(?=xyz)/allusedtext\n    abcxyzpqr\n    abcxyzpqr\\=aftertext\n\n",
-   "expected": "# The allusedtext modifier does not work with JIT, which does not maintain\n# the leftchar/rightchar data.\n\n/abc(?=xyz)/allusedtext\n    abcxyzpqr\n 0: abcxyz\n       \u003e\u003e\u003e\n    abcxyzpqr\\=aftertext\n 0: abcxyz\n       \u003e\u003e\u003e\n 0+ xyzpqr\n\n"
+   "expected": "# The allusedtext modifier does not work with JIT, which does not maintain\n# the leftchar/rightchar data.\n\n/abc(?=xyz)/allusedtext\n    abcxyzpqr\n 0: abcxyz\n       >>>\n    abcxyzpqr\\=aftertext\n 0: abcxyz\n       >>>\n 0+ xyzpqr\n\n"
   },
   {
    "id": "15:0028",
    "kind": "pattern",
    "line": 119,
-   "input": "/(?\u003c=pqr)abc(?=xyz)/allusedtext\n    xyzpqrabcxyzpqr\n    xyzpqrabcxyzpqr\\=aftertext\n\n",
-   "expected": "/(?\u003c=pqr)abc(?=xyz)/allusedtext\n    xyzpqrabcxyzpqr\n 0: pqrabcxyz\n    \u003c\u003c\u003c   \u003e\u003e\u003e\n    xyzpqrabcxyzpqr\\=aftertext\n 0: pqrabcxyz\n    \u003c\u003c\u003c   \u003e\u003e\u003e\n 0+ xyzpqr\n\n"
+   "input": "/(?<=pqr)abc(?=xyz)/allusedtext\n    xyzpqrabcxyzpqr\n    xyzpqrabcxyzpqr\\=aftertext\n\n",
+   "expected": "/(?<=pqr)abc(?=xyz)/allusedtext\n    xyzpqrabcxyzpqr\n 0: pqrabcxyz\n    <<<   >>>\n    xyzpqrabcxyzpqr\\=aftertext\n 0: pqrabcxyz\n    <<<   >>>\n 0+ xyzpqr\n\n"
   },
   {
    "id": "15:0029",
    "kind": "pattern",
    "line": 123,
    "input": "/a\\b/\n    a.\\=allusedtext\n    a\\=allusedtext\n\n",
-   "expected": "/a\\b/\n    a.\\=allusedtext\n 0: a.\n     \u003e\n    a\\=allusedtext\n 0: a\n\n"
+   "expected": "/a\\b/\n    a.\\=allusedtext\n 0: a.\n     >\n    a\\=allusedtext\n 0: a\n\n"
   },
   {
    "id": "15:0030",
    "kind": "pattern",
    "line": 127,
    "input": "/abc\\Kxyz/\n    abcxyz\\=allusedtext\n\n",
-   "expected": "/abc\\Kxyz/\n    abcxyz\\=allusedtext\n 0: abcxyz\n    \u003c\u003c\u003c   \n\n"
+   "expected": "/abc\\Kxyz/\n    abcxyz\\=allusedtext\n 0: abcxyz\n    <<<   \n\n"
   },
   {
    "id": "15:0031",
    "kind": "pattern",
    "line": 130,
    "input": "/abc(?=xyz(*ACCEPT))/\n    abcxyz\\=allusedtext\n\n",
-   "expected": "/abc(?=xyz(*ACCEPT))/\n    abcxyz\\=allusedtext\n 0: abcxyz\n       \u003e\u003e\u003e\n\n"
+   "expected": "/abc(?=xyz(*ACCEPT))/\n    abcxyz\\=allusedtext\n 0: abcxyz\n       >>>\n\n"
   },
   {
    "id": "15:0032",
    "kind": "pattern",
    "line": 133,
    "input": "/abc(?=abcde)(?=ab)/allusedtext\n    abcabcdefg\n\n",
-   "expected": "/abc(?=abcde)(?=ab)/allusedtext\n    abcabcdefg\n 0: abcabcde\n       \u003e\u003e\u003e\u003e\u003e\n\n"
+   "expected": "/abc(?=abcde)(?=ab)/allusedtext\n    abcabcdefg\n 0: abcabcde\n       >>>>>\n\n"
   },
   {
    "id": "15:0033",
@@ -243,85 +243,85 @@
    "id": "15:0034",
    "kind": "pattern",
    "line": 137,
-   "input": "\n/(?\u003c=abc)123/\n    xyzabc123pqr\n    xyzabc12\\=ps\n    xyzabc12\\=ph\n\n",
-   "expected": "\n/(?\u003c=abc)123/\n    xyzabc123pqr\n 0: abc123\n    \u003c\u003c\u003c   \n    xyzabc12\\=ps\nPartial match: abc12\n               \u003c\u003c\u003c\n    xyzabc12\\=ph\nPartial match: abc12\n               \u003c\u003c\u003c\n\n"
+   "input": "\n/(?<=abc)123/\n    xyzabc123pqr\n    xyzabc12\\=ps\n    xyzabc12\\=ph\n\n",
+   "expected": "\n/(?<=abc)123/\n    xyzabc123pqr\n 0: abc123\n    <<<   \n    xyzabc12\\=ps\nPartial match: abc12\n               <<<\n    xyzabc12\\=ph\nPartial match: abc12\n               <<<\n\n"
   },
   {
    "id": "15:0035",
    "kind": "pattern",
    "line": 143,
    "input": "/\\babc\\b/\n    +++abc+++\n    +++ab\\=ps\n    +++ab\\=ph\n\n",
-   "expected": "/\\babc\\b/\n    +++abc+++\n 0: +abc+\n    \u003c   \u003e\n    +++ab\\=ps\nPartial match: +ab\n               \u003c\n    +++ab\\=ph\nPartial match: +ab\n               \u003c\n\n"
+   "expected": "/\\babc\\b/\n    +++abc+++\n 0: +abc+\n    <   >\n    +++ab\\=ps\nPartial match: +ab\n               <\n    +++ab\\=ph\nPartial match: +ab\n               <\n\n"
   },
   {
    "id": "15:0036",
    "kind": "pattern",
    "line": 148,
-   "input": "/(?\u003c=abc)def/\n    abc\\=ph\n\n",
-   "expected": "/(?\u003c=abc)def/\n    abc\\=ph\nPartial match: abc\n               \u003c\u003c\u003c\n\n"
+   "input": "/(?<=abc)def/\n    abc\\=ph\n\n",
+   "expected": "/(?<=abc)def/\n    abc\\=ph\nPartial match: abc\n               <<<\n\n"
   },
   {
    "id": "15:0037",
    "kind": "pattern",
    "line": 151,
-   "input": "/(?\u003c=123)(*MARK:xx)abc/mark\n    xxxx123a\\=ph\n    xxxx123a\\=ps\n\n",
-   "expected": "/(?\u003c=123)(*MARK:xx)abc/mark\n    xxxx123a\\=ph\nPartial match, mark=xx: 123a\n                        \u003c\u003c\u003c\n    xxxx123a\\=ps\nPartial match, mark=xx: 123a\n                        \u003c\u003c\u003c\n\n"
+   "input": "/(?<=123)(*MARK:xx)abc/mark\n    xxxx123a\\=ph\n    xxxx123a\\=ps\n\n",
+   "expected": "/(?<=123)(*MARK:xx)abc/mark\n    xxxx123a\\=ph\nPartial match, mark=xx: 123a\n                        <<<\n    xxxx123a\\=ps\nPartial match, mark=xx: 123a\n                        <<<\n\n"
   },
   {
    "id": "15:0038",
    "kind": "pattern",
    "line": 155,
-   "input": "/(?\u003c=(?\u003c=a)b)c.*/I\n    abc\\=ph\n\\= Expect no match\n    xbc\\=ph\n\n",
-   "expected": "/(?\u003c=(?\u003c=a)b)c.*/I\nCapture group count = 0\nMax lookbehind = 1\nFirst code unit = 'c'\nSubject length lower bound = 1\n    abc\\=ph\nPartial match: abc\n               \u003c\u003c\n\\= Expect no match\n    xbc\\=ph\nNo match\n\n"
+   "input": "/(?<=(?<=a)b)c.*/I\n    abc\\=ph\n\\= Expect no match\n    xbc\\=ph\n\n",
+   "expected": "/(?<=(?<=a)b)c.*/I\nCapture group count = 0\nMax lookbehind = 1\nFirst code unit = 'c'\nSubject length lower bound = 1\n    abc\\=ph\nPartial match: abc\n               <<\n\\= Expect no match\n    xbc\\=ph\nNo match\n\n"
   },
   {
    "id": "15:0039",
    "kind": "pattern",
    "line": 160,
-   "input": "/(?\u003c=ab)c.*/I\n    abc\\=ph\n\\= Expect no match\n    xbc\\=ph\n\n",
-   "expected": "/(?\u003c=ab)c.*/I\nCapture group count = 0\nMax lookbehind = 2\nFirst code unit = 'c'\nSubject length lower bound = 1\n    abc\\=ph\nPartial match: abc\n               \u003c\u003c\n\\= Expect no match\n    xbc\\=ph\nNo match\n\n"
+   "input": "/(?<=ab)c.*/I\n    abc\\=ph\n\\= Expect no match\n    xbc\\=ph\n\n",
+   "expected": "/(?<=ab)c.*/I\nCapture group count = 0\nMax lookbehind = 2\nFirst code unit = 'c'\nSubject length lower bound = 1\n    abc\\=ph\nPartial match: abc\n               <<\n\\= Expect no match\n    xbc\\=ph\nNo match\n\n"
   },
   {
    "id": "15:0040",
    "kind": "pattern",
    "line": 165,
-   "input": "/abc(?\u003c=bc)def/\n    xxxabcd\\=ph\n\n",
-   "expected": "/abc(?\u003c=bc)def/\n    xxxabcd\\=ph\nPartial match: abcd\n\n"
+   "input": "/abc(?<=bc)def/\n    xxxabcd\\=ph\n\n",
+   "expected": "/abc(?<=bc)def/\n    xxxabcd\\=ph\nPartial match: abcd\n\n"
   },
   {
    "id": "15:0041",
    "kind": "pattern",
    "line": 168,
-   "input": "/(?\u003c=ab)cdef/\n    xxabcd\\=ph\n\n",
-   "expected": "/(?\u003c=ab)cdef/\n    xxabcd\\=ph\nPartial match: abcd\n               \u003c\u003c\n\n"
+   "input": "/(?<=ab)cdef/\n    xxabcd\\=ph\n\n",
+   "expected": "/(?<=ab)cdef/\n    xxabcd\\=ph\nPartial match: abcd\n               <<\n\n"
   },
   {
    "id": "15:0042",
    "kind": "pattern",
    "line": 171,
-   "input": "/(?\u003c=(?\u003c=(?\u003c=a)b)c)./I\n    123abcXYZ\n\n",
-   "expected": "/(?\u003c=(?\u003c=(?\u003c=a)b)c)./I\nCapture group count = 0\nMax lookbehind = 1\nSubject length lower bound = 1\n    123abcXYZ\n 0: abcX\n    \u003c\u003c\u003c \n\n"
+   "input": "/(?<=(?<=(?<=a)b)c)./I\n    123abcXYZ\n\n",
+   "expected": "/(?<=(?<=(?<=a)b)c)./I\nCapture group count = 0\nMax lookbehind = 1\nSubject length lower bound = 1\n    123abcXYZ\n 0: abcX\n    <<< \n\n"
   },
   {
    "id": "15:0043",
    "kind": "pattern",
    "line": 174,
-   "input": "/(?\u003c=ab(cd(?\u003c=...)))./I\n    abcdX\n\n",
-   "expected": "/(?\u003c=ab(cd(?\u003c=...)))./I\nCapture group count = 1\nMax lookbehind = 4\nSubject length lower bound = 1\n    abcdX\n 0: abcdX\n    \u003c\u003c\u003c\u003c \n 1: cd\n\n"
+   "input": "/(?<=ab(cd(?<=...)))./I\n    abcdX\n\n",
+   "expected": "/(?<=ab(cd(?<=...)))./I\nCapture group count = 1\nMax lookbehind = 4\nSubject length lower bound = 1\n    abcdX\n 0: abcdX\n    <<<< \n 1: cd\n\n"
   },
   {
    "id": "15:0044",
    "kind": "pattern",
    "line": 177,
-   "input": "/(?\u003c=ab((?\u003c=...)cd))./I\n    ZabcdX\n\n",
-   "expected": "/(?\u003c=ab((?\u003c=...)cd))./I\nCapture group count = 1\nMax lookbehind = 4\nSubject length lower bound = 1\n    ZabcdX\n 0: ZabcdX\n    \u003c\u003c\u003c\u003c\u003c \n 1: cd\n\n"
+   "input": "/(?<=ab((?<=...)cd))./I\n    ZabcdX\n\n",
+   "expected": "/(?<=ab((?<=...)cd))./I\nCapture group count = 1\nMax lookbehind = 4\nSubject length lower bound = 1\n    ZabcdX\n 0: ZabcdX\n    <<<<< \n 1: cd\n\n"
   },
   {
    "id": "15:0045",
    "kind": "pattern",
    "line": 180,
-   "input": "/(?\u003c=((?\u003c=(?\u003c=ab).))(?1)(?1))./I\n    abxZ\n\n",
-   "expected": "/(?\u003c=((?\u003c=(?\u003c=ab).))(?1)(?1))./I\nCapture group count = 1\nMax lookbehind = 2\nSubject length lower bound = 1\n    abxZ\n 0: abxZ\n    \u003c\u003c\u003c \n 1: \n\n"
+   "input": "/(?<=((?<=(?<=ab).))(?1)(?1))./I\n    abxZ\n\n",
+   "expected": "/(?<=((?<=(?<=ab).))(?1)(?1))./I\nCapture group count = 1\nMax lookbehind = 2\nSubject length lower bound = 1\n    abxZ\n 0: abxZ\n    <<< \n 1: \n\n"
   },
   {
    "id": "15:0046",
@@ -383,15 +383,15 @@
    "id": "15:0054",
    "kind": "pattern",
    "line": 216,
-   "input": "/(?\u003c!\\w)(?R)/\n    abcd\n\n",
-   "expected": "/(?\u003c!\\w)(?R)/\n    abcd\nFailed: error -52: nested recursion at the same subject position\n\n"
+   "input": "/(?<!\\w)(?R)/\n    abcd\n\n",
+   "expected": "/(?<!\\w)(?R)/\n    abcd\nFailed: error -52: nested recursion at the same subject position\n\n"
   },
   {
    "id": "15:0055",
    "kind": "pattern",
    "line": 219,
-   "input": "/(?\u003c=\\w)(?R)/\n    abcd\n\n",
-   "expected": "/(?\u003c=\\w)(?R)/\n    abcd\nFailed: error -52: nested recursion at the same subject position\n\n"
+   "input": "/(?<=\\w)(?R)/\n    abcd\n\n",
+   "expected": "/(?<=\\w)(?R)/\n    abcd\nFailed: error -52: nested recursion at the same subject position\n\n"
   },
   {
    "id": "15:0056",
@@ -412,14 +412,14 @@
    "kind": "pattern",
    "line": 229,
    "input": "# These tests don't behave the same with JIT\n\n/\\w+(?C1)/BI,no_auto_possess\n    abc\\=callout_fail=1\n\n",
-   "expected": "# These tests don't behave the same with JIT\n\n/\\w+(?C1)/BI,no_auto_possess\n------------------------------------------------------------------\n        Bra\n        \\w+\n        Callout 1 8 0\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: no_auto_possess\nStarting code units: 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P \n  Q R S T U V W X Y Z _ a b c d e f g h i j k l m n o p q r s t u v w x y z \nSubject length lower bound = 1\n    abc\\=callout_fail=1\n---\u003eabc\n  1 ^  ^    End of pattern\n  1 ^ ^     End of pattern\n  1 ^^      End of pattern\n  1  ^ ^    End of pattern\n  1  ^^     End of pattern\n  1   ^^    End of pattern\nNo match\n\n"
+   "expected": "# These tests don't behave the same with JIT\n\n/\\w+(?C1)/BI,no_auto_possess\n------------------------------------------------------------------\n        Bra\n        \\w+\n        Callout 1 8 0\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: no_auto_possess\nStarting code units: 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P \n  Q R S T U V W X Y Z _ a b c d e f g h i j k l m n o p q r s t u v w x y z \nSubject length lower bound = 1\n    abc\\=callout_fail=1\n--->abc\n  1 ^  ^    End of pattern\n  1 ^ ^     End of pattern\n  1 ^^      End of pattern\n  1  ^ ^    End of pattern\n  1  ^^     End of pattern\n  1   ^^    End of pattern\nNo match\n\n"
   },
   {
    "id": "15:0059",
    "kind": "pattern",
    "line": 234,
    "input": "/(*NO_AUTO_POSSESS)\\w+(?C1)/BI\n    abc\\=callout_fail=1\n\n",
-   "expected": "/(*NO_AUTO_POSSESS)\\w+(?C1)/BI\n------------------------------------------------------------------\n        Bra\n        \\w+\n        Callout 1 26 0\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nCompile options: \u003cnone\u003e\nOverall options: no_auto_possess\nStarting code units: 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P \n  Q R S T U V W X Y Z _ a b c d e f g h i j k l m n o p q r s t u v w x y z \nSubject length lower bound = 1\n    abc\\=callout_fail=1\n---\u003eabc\n  1 ^  ^    End of pattern\n  1 ^ ^     End of pattern\n  1 ^^      End of pattern\n  1  ^ ^    End of pattern\n  1  ^^     End of pattern\n  1   ^^    End of pattern\nNo match\n\n"
+   "expected": "/(*NO_AUTO_POSSESS)\\w+(?C1)/BI\n------------------------------------------------------------------\n        Bra\n        \\w+\n        Callout 1 26 0\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nCompile options: <none>\nOverall options: no_auto_possess\nStarting code units: 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P \n  Q R S T U V W X Y Z _ a b c d e f g h i j k l m n o p q r s t u v w x y z \nSubject length lower bound = 1\n    abc\\=callout_fail=1\n--->abc\n  1 ^  ^    End of pattern\n  1 ^ ^     End of pattern\n  1 ^^      End of pattern\n  1  ^ ^    End of pattern\n  1  ^^     End of pattern\n  1   ^^    End of pattern\nNo match\n\n"
   },
   {
    "id": "15:0060",
@@ -432,8 +432,8 @@
    "id": "15:0061",
    "kind": "pattern",
    "line": 242,
-   "input": "/b(?\u003c!ax)(?!cx)/allusedtext\n    abc\n    abcz\n\n",
-   "expected": "/b(?\u003c!ax)(?!cx)/allusedtext\n    abc\n 0: abc\n    \u003c \u003e\n    abcz\n 0: abcz\n    \u003c \u003e\u003e\n\n"
+   "input": "/b(?<!ax)(?!cx)/allusedtext\n    abc\n    abcz\n\n",
+   "expected": "/b(?<!ax)(?!cx)/allusedtext\n    abc\n 0: abc\n    < >\n    abcz\n 0: abcz\n    < >>\n\n"
   },
   {
    "id": "15:0062",

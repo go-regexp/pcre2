@@ -248,7 +248,7 @@ func (s Source) Build(e ManifestEntry) (*Golden, error) {
 
 // MarshalGolden encodes a golden file (stable, indented, trailing newline).
 func MarshalGolden(g *Golden) ([]byte, error) {
-	b, err := json.MarshalIndent(g, "", " ")
+	b, err := encodeNoHTML(g, " ")
 	if err != nil {
 		return nil, err
 	}
