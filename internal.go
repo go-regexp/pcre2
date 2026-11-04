@@ -343,6 +343,8 @@ type MatchData struct {
 	oveccount     uint16
 	rc            int
 	ovector       []uint64 // 2*oveccount entries
+
+	calloutBlock *CalloutBlock // reused by every match (pcre2_match.c:6950)
 }
 
 // CalloutBlock is pcre2_callout_block (versions 0, 1 and 2).

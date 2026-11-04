@@ -1,0 +1,5 @@
+go test fuzz v1
+uint8(90)
+[]byte("cáf")
+uint64(0)
+uint32(2147483648)
