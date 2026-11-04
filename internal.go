@@ -340,7 +340,7 @@ type MatchData struct {
 	startchar     uint64
 	matchedby     uint8
 	flags         uint32 // PCRE2_MD_*
-	oveccount    uint16
+	oveccount     uint16
 	rc            int
 	ovector       []uint64 // 2*oveccount entries
 }

@@ -93,12 +93,12 @@ var ucp_gbtable = [...]uint32{
 	gbESZ, //  5 SpacingMark
 	gbESZ | 1<<ucp_gbL | 1<<ucp_gbV | 1<<ucp_gbLV | //  6 L
 		1<<ucp_gbLVT,
-	gbESZ | 1<<ucp_gbV | 1<<ucp_gbT,                 //  7 V
-	gbESZ | 1<<ucp_gbT,                              //  8 T
-	gbESZ | 1<<ucp_gbV | 1<<ucp_gbT,                 //  9 LV
-	gbESZ | 1<<ucp_gbT,                              // 10 LVT
-	1 << ucp_gbRegional_Indicator,                   // 11 Regional Indicator
-	gbESZ,                                           // 12 Other
-	gbESZ | 1<<ucp_gbExtended_Pictographic,          // 13 ZWJ
-	gbESZ,                                           // 14 Extended Pictographic
+	gbESZ | 1<<ucp_gbV | 1<<ucp_gbT,        //  7 V
+	gbESZ | 1<<ucp_gbT,                     //  8 T
+	gbESZ | 1<<ucp_gbV | 1<<ucp_gbT,        //  9 LV
+	gbESZ | 1<<ucp_gbT,                     // 10 LVT
+	1 << ucp_gbRegional_Indicator,          // 11 Regional Indicator
+	gbESZ,                                  // 12 Other
+	gbESZ | 1<<ucp_gbExtended_Pictographic, // 13 ZWJ
+	gbESZ,                                  // 14 Extended Pictographic
 }

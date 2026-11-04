@@ -225,7 +225,7 @@ var trueConditions = map[string]bool{
 var knownFalse = map[string]bool{
 	"PCRE2_CODE_UNIT_WIDTH == 16": true, "PCRE2_CODE_UNIT_WIDTH == 32": true,
 	"PCRE2_CODE_UNIT_WIDTH == 0": true, "LINK_SIZE == 3": true, "LINK_SIZE == 4": true,
-	"defined EBCDIC && PCRE2_CODE_UNIT_WIDTH != 8": true,
+	"defined EBCDIC && PCRE2_CODE_UNIT_WIDTH != 8":                                             true,
 	"PCRE2_CODE_UNIT_WIDTH == 8 || PCRE2_CODE_UNIT_WIDTH == 16 || PCRE2_CODE_UNIT_WIDTH == 32": false,
 }
 
