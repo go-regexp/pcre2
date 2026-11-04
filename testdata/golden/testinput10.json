@@ -1,0 +1,1153 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput10",
+ "testoutput": "testoutput10",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "10:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# This set of tests is for UTF-8 support and Unicode property support, with\n# relevance only for the 8-bit library.\n\n#newline_default lf any anycrlf\n",
+   "expected": "# This set of tests is for UTF-8 support and Unicode property support, with\n# relevance only for the 8-bit library.\n\n#newline_default lf any anycrlf\n"
+  },
+  {
+   "id": "10:0002",
+   "kind": "pattern",
+   "line": 5,
+   "input": "\n# The next 5 patterns have UTF-8 errors\n\n/[�]/utf\n\n",
+   "expected": "\n# The next 5 patterns have UTF-8 errors\n\n/[�]/utf\nFailed: error -8 at offset 1: UTF-8 error: byte 2 top bits not 0x80\n\n"
+  },
+  {
+   "id": "10:0003",
+   "kind": "pattern",
+   "line": 10,
+   "input": "/�/utf\n\n",
+   "expected": "/�/utf\nFailed: error -3 at offset 0: UTF-8 error: 1 byte missing at end\n\n"
+  },
+  {
+   "id": "10:0004",
+   "kind": "pattern",
+   "line": 12,
+   "input": "/���xxx/utf\n\n",
+   "expected": "/���xxx/utf\nFailed: error -8 at offset 0: UTF-8 error: byte 2 top bits not 0x80\n\n"
+  },
+  {
+   "id": "10:0005",
+   "kind": "pattern",
+   "line": 14,
+   "input": "/Â��������/utf\n\n",
+   "expected": "/Â��������/utf\nFailed: error -22 at offset 2: UTF-8 error: isolated byte with 0x80 bit set\n\n"
+  },
+  {
+   "id": "10:0006",
+   "kind": "pattern",
+   "line": 16,
+   "input": "/Â��������/match_invalid_utf\n\n",
+   "expected": "/Â��������/match_invalid_utf\nFailed: error -22 at offset 2: UTF-8 error: isolated byte with 0x80 bit set\n\n"
+  },
+  {
+   "id": "10:0007",
+   "kind": "pattern",
+   "line": 18,
+   "input": "# Now test subjects\n\n/badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdf\n    XX\\xef\n    XXX\\xef\\x80\n    X\\xf7\n    XX\\xf7\\x80\n    XXX\\xf7\\x80\\x80\n    \\xfb\n    \\xfb\\x80\n    \\xfb\\x80\\x80\n    \\xfb\\x80\\x80\\x80\n    \\xfd\n    \\xfd\\x80\n    \\xfd\\x80\\x80\n    \\xfd\\x80\\x80\\x80\n    \\xfd\\x80\\x80\\x80\\x80\n    \\xdf\\x7f\n    \\xef\\x7f\\x80\n    \\xef\\x80\\x7f\n    \\xf7\\x7f\\x80\\x80\n    \\xf7\\x80\\x7f\\x80\n    \\xf7\\x80\\x80\\x7f\n    \\xfb\\x7f\\x80\\x80\\x80\n    \\xfb\\x80\\x7f\\x80\\x80\n    \\xfb\\x80\\x80\\x7f\\x80\n    \\xfb\\x80\\x80\\x80\\x7f\n    \\xfd\\x7f\\x80\\x80\\x80\\x80\n    \\xfd\\x80\\x7f\\x80\\x80\\x80\n    \\xfd\\x80\\x80\\x7f\\x80\\x80\n    \\xfd\\x80\\x80\\x80\\x7f\\x80\n    \\xfd\\x80\\x80\\x80\\x80\\x7f\n    \\xed\\xa0\\x80\n    \\xc0\\x8f\n    \\xe0\\x80\\x8f\n    \\xf0\\x80\\x80\\x8f\n    \\xf8\\x80\\x80\\x80\\x8f\n    \\xfc\\x80\\x80\\x80\\x80\\x8f\n    \\x80\n    \\xfe\n    \\xff\n\n",
+   "expected": "# Now test subjects\n\n/badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdf\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 1\n    XX\\xef\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 2\n    XXX\\xef\\x80\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 3\n    X\\xf7\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 1\n    XX\\xf7\\x80\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 2\n    XXX\\xf7\\x80\\x80\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 3\n    \\xfb\nFailed: error -6: UTF-8 error: 4 bytes missing at end at offset 0\n    \\xfb\\x80\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 0\n    \\xfb\\x80\\x80\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 0\n    \\xfb\\x80\\x80\\x80\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 0\n    \\xfd\nFailed: error -7: UTF-8 error: 5 bytes missing at end at offset 0\n    \\xfd\\x80\nFailed: error -6: UTF-8 error: 4 bytes missing at end at offset 0\n    \\xfd\\x80\\x80\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 0\n    \\xfd\\x80\\x80\\x80\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 0\n    \\xfd\\x80\\x80\\x80\\x80\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 0\n    \\xdf\\x7f\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 0\n    \\xef\\x7f\\x80\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 0\n    \\xef\\x80\\x7f\nFailed: error -9: UTF-8 error: byte 3 top bits not 0x80 at offset 0\n    \\xf7\\x7f\\x80\\x80\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 0\n    \\xf7\\x80\\x7f\\x80\nFailed: error -9: UTF-8 error: byte 3 top bits not 0x80 at offset 0\n    \\xf7\\x80\\x80\\x7f\nFailed: error -10: UTF-8 error: byte 4 top bits not 0x80 at offset 0\n    \\xfb\\x7f\\x80\\x80\\x80\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 0\n    \\xfb\\x80\\x7f\\x80\\x80\nFailed: error -9: UTF-8 error: byte 3 top bits not 0x80 at offset 0\n    \\xfb\\x80\\x80\\x7f\\x80\nFailed: error -10: UTF-8 error: byte 4 top bits not 0x80 at offset 0\n    \\xfb\\x80\\x80\\x80\\x7f\nFailed: error -11: UTF-8 error: byte 5 top bits not 0x80 at offset 0\n    \\xfd\\x7f\\x80\\x80\\x80\\x80\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 0\n    \\xfd\\x80\\x7f\\x80\\x80\\x80\nFailed: error -9: UTF-8 error: byte 3 top bits not 0x80 at offset 0\n    \\xfd\\x80\\x80\\x7f\\x80\\x80\nFailed: error -10: UTF-8 error: byte 4 top bits not 0x80 at offset 0\n    \\xfd\\x80\\x80\\x80\\x7f\\x80\nFailed: error -11: UTF-8 error: byte 5 top bits not 0x80 at offset 0\n    \\xfd\\x80\\x80\\x80\\x80\\x7f\nFailed: error -12: UTF-8 error: byte 6 top bits not 0x80 at offset 0\n    \\xed\\xa0\\x80\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 0\n    \\xc0\\x8f\nFailed: error -17: UTF-8 error: overlong 2-byte sequence at offset 0\n    \\xe0\\x80\\x8f\nFailed: error -18: UTF-8 error: overlong 3-byte sequence at offset 0\n    \\xf0\\x80\\x80\\x8f\nFailed: error -19: UTF-8 error: overlong 4-byte sequence at offset 0\n    \\xf8\\x80\\x80\\x80\\x8f\nFailed: error -20: UTF-8 error: overlong 5-byte sequence at offset 0\n    \\xfc\\x80\\x80\\x80\\x80\\x8f\nFailed: error -21: UTF-8 error: overlong 6-byte sequence at offset 0\n    \\x80\nFailed: error -22: UTF-8 error: isolated byte with 0x80 bit set at offset 0\n    \\xfe\nFailed: error -23: UTF-8 error: illegal byte (0xfe or 0xff) at offset 0\n    \\xff\nFailed: error -23: UTF-8 error: illegal byte (0xfe or 0xff) at offset 0\n\n"
+  },
+  {
+   "id": "10:0008",
+   "kind": "pattern",
+   "line": 62,
+   "input": "/badutf/utf\n\\= Expect UTF-8 errors\n    XX\\xfb\\x80\\x80\\x80\\x80\n    XX\\xfd\\x80\\x80\\x80\\x80\\x80\n    XX\\xf7\\xbf\\xbf\\xbf\n\n",
+   "expected": "/badutf/utf\n\\= Expect UTF-8 errors\n    XX\\xfb\\x80\\x80\\x80\\x80\nFailed: error -13: UTF-8 error: 5-byte character is not allowed (RFC 3629) at offset 2\n    XX\\xfd\\x80\\x80\\x80\\x80\\x80\nFailed: error -14: UTF-8 error: 6-byte character is not allowed (RFC 3629) at offset 2\n    XX\\xf7\\xbf\\xbf\\xbf\nFailed: error -15: UTF-8 error: code points greater than 0x10ffff are not defined at offset 2\n\n"
+  },
+  {
+   "id": "10:0009",
+   "kind": "pattern",
+   "line": 68,
+   "input": "/shortutf/utf\n\\= Expect UTF-8 errors\n    XX\\xdf\\=ph\n    XX\\xef\\=ph\n    XX\\xef\\x80\\=ph\n    \\xf7\\=ph\n    \\xf7\\x80\\=ph\n    \\xf7\\x80\\x80\\=ph\n    \\xfb\\=ph\n    \\xfb\\x80\\=ph\n    \\xfb\\x80\\x80\\=ph\n    \\xfb\\x80\\x80\\x80\\=ph\n    \\xfd\\=ph\n    \\xfd\\x80\\=ph\n    \\xfd\\x80\\x80\\=ph\n    \\xfd\\x80\\x80\\x80\\=ph\n    \\xfd\\x80\\x80\\x80\\x80\\=ph\n\n",
+   "expected": "/shortutf/utf\n\\= Expect UTF-8 errors\n    XX\\xdf\\=ph\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 2\n    XX\\xef\\=ph\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 2\n    XX\\xef\\x80\\=ph\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 2\n    \\xf7\\=ph\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 0\n    \\xf7\\x80\\=ph\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 0\n    \\xf7\\x80\\x80\\=ph\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 0\n    \\xfb\\=ph\nFailed: error -6: UTF-8 error: 4 bytes missing at end at offset 0\n    \\xfb\\x80\\=ph\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 0\n    \\xfb\\x80\\x80\\=ph\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 0\n    \\xfb\\x80\\x80\\x80\\=ph\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 0\n    \\xfd\\=ph\nFailed: error -7: UTF-8 error: 5 bytes missing at end at offset 0\n    \\xfd\\x80\\=ph\nFailed: error -6: UTF-8 error: 4 bytes missing at end at offset 0\n    \\xfd\\x80\\x80\\=ph\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 0\n    \\xfd\\x80\\x80\\x80\\=ph\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 0\n    \\xfd\\x80\\x80\\x80\\x80\\=ph\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 0\n\n"
+  },
+  {
+   "id": "10:0010",
+   "kind": "pattern",
+   "line": 86,
+   "input": "/anything/utf\n\\= Expect UTF-8 errors\n    X\\xc0\\x80\n    XX\\xc1\\x8f\n    XXX\\xe0\\x9f\\x80\n    \\xf0\\x8f\\x80\\x80\n    \\xf8\\x87\\x80\\x80\\x80\n    \\xfc\\x83\\x80\\x80\\x80\\x80\n    \\xfe\\x80\\x80\\x80\\x80\\x80\n    \\xff\\x80\\x80\\x80\\x80\\x80\n    \\xf8\\x88\\x80\\x80\\x80\n    \\xf9\\x87\\x80\\x80\\x80\n    \\xfc\\x84\\x80\\x80\\x80\\x80\n    \\xfd\\x83\\x80\\x80\\x80\\x80\n\\= Expect no match\n    \\xc3\\x8f\n    \\xe0\\xaf\\x80\n    \\xe1\\x80\\x80\n    \\xf0\\x9f\\x80\\x80\n    \\xf1\\x8f\\x80\\x80\n    \\xf8\\x88\\x80\\x80\\x80\\=no_utf_check\n    \\xf9\\x87\\x80\\x80\\x80\\=no_utf_check\n    \\xfc\\x84\\x80\\x80\\x80\\x80\\=no_utf_check\n    \\xfd\\x83\\x80\\x80\\x80\\x80\\=no_utf_check\n    \n",
+   "expected": "/anything/utf\n\\= Expect UTF-8 errors\n    X\\xc0\\x80\nFailed: error -17: UTF-8 error: overlong 2-byte sequence at offset 1\n    XX\\xc1\\x8f\nFailed: error -17: UTF-8 error: overlong 2-byte sequence at offset 2\n    XXX\\xe0\\x9f\\x80\nFailed: error -18: UTF-8 error: overlong 3-byte sequence at offset 3\n    \\xf0\\x8f\\x80\\x80\nFailed: error -19: UTF-8 error: overlong 4-byte sequence at offset 0\n    \\xf8\\x87\\x80\\x80\\x80\nFailed: error -20: UTF-8 error: overlong 5-byte sequence at offset 0\n    \\xfc\\x83\\x80\\x80\\x80\\x80\nFailed: error -21: UTF-8 error: overlong 6-byte sequence at offset 0\n    \\xfe\\x80\\x80\\x80\\x80\\x80\nFailed: error -23: UTF-8 error: illegal byte (0xfe or 0xff) at offset 0\n    \\xff\\x80\\x80\\x80\\x80\\x80\nFailed: error -23: UTF-8 error: illegal byte (0xfe or 0xff) at offset 0\n    \\xf8\\x88\\x80\\x80\\x80\nFailed: error -13: UTF-8 error: 5-byte character is not allowed (RFC 3629) at offset 0\n    \\xf9\\x87\\x80\\x80\\x80\nFailed: error -13: UTF-8 error: 5-byte character is not allowed (RFC 3629) at offset 0\n    \\xfc\\x84\\x80\\x80\\x80\\x80\nFailed: error -14: UTF-8 error: 6-byte character is not allowed (RFC 3629) at offset 0\n    \\xfd\\x83\\x80\\x80\\x80\\x80\nFailed: error -14: UTF-8 error: 6-byte character is not allowed (RFC 3629) at offset 0\n\\= Expect no match\n    \\xc3\\x8f\nNo match\n    \\xe0\\xaf\\x80\nNo match\n    \\xe1\\x80\\x80\nNo match\n    \\xf0\\x9f\\x80\\x80\nNo match\n    \\xf1\\x8f\\x80\\x80\nNo match\n    \\xf8\\x88\\x80\\x80\\x80\\=no_utf_check\nNo match\n    \\xf9\\x87\\x80\\x80\\x80\\=no_utf_check\nNo match\n    \\xfc\\x84\\x80\\x80\\x80\\x80\\=no_utf_check\nNo match\n    \\xfd\\x83\\x80\\x80\\x80\\x80\\=no_utf_check\nNo match\n    \n"
+  },
+  {
+   "id": "10:0011",
+   "kind": "pattern",
+   "line": 111,
+   "input": "# Similar tests with offsets\n\n/badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\n    X\\xdfabcd\\=offset=1\n\\= Expect no match\n    X\\xdfabcd\\=offset=2\n\n",
+   "expected": "# Similar tests with offsets\n\n/badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=1\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n\\= Expect no match\n    X\\xdfabcd\\=offset=2\nNo match\n\n"
+  },
+  {
+   "id": "10:0012",
+   "kind": "pattern",
+   "line": 120,
+   "input": "/(?\u003c=x)badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\n    X\\xdfabcd\\=offset=1\n    X\\xdfabcd\\=offset=2\n    X\\xdfabcd\\xdf\\=offset=3\n\\= Expect no match\n    X\\xdfabcd\\=offset=3\n\n",
+   "expected": "/(?\u003c=x)badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=1\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=2\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\xdf\\=offset=3\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 6\n\\= Expect no match\n    X\\xdfabcd\\=offset=3\nNo match\n\n"
+  },
+  {
+   "id": "10:0013",
+   "kind": "pattern",
+   "line": 129,
+   "input": "/(?\u003c=xx)badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\n    X\\xdfabcd\\=offset=1\n    X\\xdfabcd\\=offset=2\n    X\\xdfabcd\\=offset=3\n\n",
+   "expected": "/(?\u003c=xx)badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=1\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=2\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=3\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n\n"
+  },
+  {
+   "id": "10:0014",
+   "kind": "pattern",
+   "line": 136,
+   "input": "/(?\u003c=xxxx)badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\n    X\\xdfabcd\\=offset=1\n    X\\xdfabcd\\=offset=2\n    X\\xdfabcd\\=offset=3\n    X\\xdfabc\\xdf\\=offset=6\n    X\\xdfabc\\xdf\\=offset=7\n\\= Expect no match\n    X\\xdfabcd\\=offset=6\n \n",
+   "expected": "/(?\u003c=xxxx)badutf/utf\n\\= Expect UTF-8 errors\n    X\\xdfabcd\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=1\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=2\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabcd\\=offset=3\nFailed: error -8: UTF-8 error: byte 2 top bits not 0x80 at offset 1\n    X\\xdfabc\\xdf\\=offset=6\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 5\n    X\\xdfabc\\xdf\\=offset=7\nFailed: error -33: bad offset value\n\\= Expect no match\n    X\\xdfabcd\\=offset=6\nNo match\n \n"
+  },
+  {
+   "id": "10:0015",
+   "kind": "pattern",
+   "line": 147,
+   "input": "/\\x{100}/IB,utf\n\n",
+   "expected": "/\\x{100}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0016",
+   "kind": "pattern",
+   "line": 149,
+   "input": "/\\x{1000}/IB,utf\n\n",
+   "expected": "/\\x{1000}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{1000}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xe1\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0017",
+   "kind": "pattern",
+   "line": 151,
+   "input": "/\\x{10000}/IB,utf\n\n",
+   "expected": "/\\x{10000}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{10000}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xf0\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0018",
+   "kind": "pattern",
+   "line": 153,
+   "input": "/\\x{100000}/IB,utf\n\n",
+   "expected": "/\\x{100000}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100000}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xf4\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0019",
+   "kind": "pattern",
+   "line": 155,
+   "input": "/\\x{10ffff}/IB,utf\n\n",
+   "expected": "/\\x{10ffff}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{10ffff}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xf4\nLast code unit = \\xbf\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0020",
+   "kind": "pattern",
+   "line": 157,
+   "input": "/[\\x{ff}]/IB,utf\n\n",
+   "expected": "/[\\x{ff}]/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{ff}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc3\nLast code unit = \\xbf\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0021",
+   "kind": "pattern",
+   "line": 159,
+   "input": "/[\\x{100}]/IB,utf\n\n",
+   "expected": "/[\\x{100}]/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0022",
+   "kind": "pattern",
+   "line": 161,
+   "input": "/\\x80/IB,utf\n\n",
+   "expected": "/\\x80/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{80}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc2\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0023",
+   "kind": "pattern",
+   "line": 163,
+   "input": "/\\xff/IB,utf\n\n",
+   "expected": "/\\xff/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{ff}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc3\nLast code unit = \\xbf\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0024",
+   "kind": "pattern",
+   "line": 165,
+   "input": "/\\x{D55c}\\x{ad6d}\\x{C5B4}/IB,utf\n    \\x{D55c}\\x{ad6d}\\x{C5B4}\n\n",
+   "expected": "/\\x{D55c}\\x{ad6d}\\x{C5B4}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{d55c}\\x{ad6d}\\x{c5b4}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xed\nLast code unit = \\xb4\nSubject length lower bound = 3\n    \\x{D55c}\\x{ad6d}\\x{C5B4}\n 0: \\x{d55c}\\x{ad6d}\\x{c5b4}\n\n"
+  },
+  {
+   "id": "10:0025",
+   "kind": "pattern",
+   "line": 168,
+   "input": "/\\x{65e5}\\x{672c}\\x{8a9e}/IB,utf\n    \\x{65e5}\\x{672c}\\x{8a9e}\n\n",
+   "expected": "/\\x{65e5}\\x{672c}\\x{8a9e}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{65e5}\\x{672c}\\x{8a9e}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xe6\nLast code unit = \\x9e\nSubject length lower bound = 3\n    \\x{65e5}\\x{672c}\\x{8a9e}\n 0: \\x{65e5}\\x{672c}\\x{8a9e}\n\n"
+  },
+  {
+   "id": "10:0026",
+   "kind": "pattern",
+   "line": 171,
+   "input": "/\\x{80}/IB,utf\n\n",
+   "expected": "/\\x{80}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{80}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc2\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0027",
+   "kind": "pattern",
+   "line": 173,
+   "input": "/\\x{084}/IB,utf\n\n",
+   "expected": "/\\x{084}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{84}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc2\nLast code unit = \\x84\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0028",
+   "kind": "pattern",
+   "line": 175,
+   "input": "/\\x{104}/IB,utf\n\n",
+   "expected": "/\\x{104}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{104}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = \\x84\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0029",
+   "kind": "pattern",
+   "line": 177,
+   "input": "/\\x{861}/IB,utf\n\n",
+   "expected": "/\\x{861}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{861}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xe0\nLast code unit = \\xa1\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0030",
+   "kind": "pattern",
+   "line": 179,
+   "input": "/\\x{212ab}/IB,utf\n\n",
+   "expected": "/\\x{212ab}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{212ab}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xf0\nLast code unit = \\xab\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0031",
+   "kind": "pattern",
+   "line": 181,
+   "input": "/[^ab\\xC0-\\xF0]/IB,utf\n    \\x{f1}\n    \\x{bf}\n    \\x{100}\n    \\x{1000}\n\\= Expect no match\n    \\x{c0}\n    \\x{f0}\n\n",
+   "expected": "/[^ab\\xC0-\\xF0]/IB,utf\n------------------------------------------------------------------\n        Bra\n        [\\x00-`c-\\xbf\\xf1-\\xff] (neg)\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: \\x00 \\x01 \\x02 \\x03 \\x04 \\x05 \\x06 \\x07 \\x08 \\x09 \\x0a \n  \\x0b \\x0c \\x0d \\x0e \\x0f \\x10 \\x11 \\x12 \\x13 \\x14 \\x15 \\x16 \\x17 \\x18 \\x19 \n  \\x1a \\x1b \\x1c \\x1d \\x1e \\x1f \\x20 ! \" # $ % \u0026 ' ( ) * + , - . / 0 1 2 3 4 \n  5 6 7 8 9 : ; \u003c = \u003e ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y \n  Z [ \\ ] ^ _ ` c d e f g h i j k l m n o p q r s t u v w x y z { | } ~ \\x7f \n  \\xc2 \\xc3 \\xc4 \\xc5 \\xc6 \\xc7 \\xc8 \\xc9 \\xca \\xcb \\xcc \\xcd \\xce \\xcf \\xd0 \n  \\xd1 \\xd2 \\xd3 \\xd4 \\xd5 \\xd6 \\xd7 \\xd8 \\xd9 \\xda \\xdb \\xdc \\xdd \\xde \\xdf \n  \\xe0 \\xe1 \\xe2 \\xe3 \\xe4 \\xe5 \\xe6 \\xe7 \\xe8 \\xe9 \\xea \\xeb \\xec \\xed \\xee \n  \\xef \\xf0 \\xf1 \\xf2 \\xf3 \\xf4 \\xf5 \\xf6 \\xf7 \\xf8 \\xf9 \\xfa \\xfb \\xfc \\xfd \n  \\xfe \\xff \nSubject length lower bound = 1\n    \\x{f1}\n 0: \\x{f1}\n    \\x{bf}\n 0: \\x{bf}\n    \\x{100}\n 0: \\x{100}\n    \\x{1000}\n 0: \\x{1000}\n\\= Expect no match\n    \\x{c0}\nNo match\n    \\x{f0}\nNo match\n\n"
+  },
+  {
+   "id": "10:0032",
+   "kind": "pattern",
+   "line": 190,
+   "input": "/Ā{3,4}/IB,utf\n  \\x{100}\\x{100}\\x{100}\\x{100\\x{100}\n\n",
+   "expected": "/Ā{3,4}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}{3}\n        \\x{100}?+\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = \\x80\nSubject length lower bound = 3\n  \\x{100}\\x{100}\\x{100}\\x{100\\x{100}\n 0: \\x{100}\\x{100}\\x{100}\n\n"
+  },
+  {
+   "id": "10:0033",
+   "kind": "pattern",
+   "line": 193,
+   "input": "/(\\x{100}+|x)/IB,utf\n\n",
+   "expected": "/(\\x{100}+|x)/IB,utf\n------------------------------------------------------------------\n        Bra\n        CBra 1\n        \\x{100}++\n        Alt\n        x\n        Ket\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 1\nOptions: utf\nStarting code units: x \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0034",
+   "kind": "pattern",
+   "line": 195,
+   "input": "/(\\x{100}*a|x)/IB,utf\n\n",
+   "expected": "/(\\x{100}*a|x)/IB,utf\n------------------------------------------------------------------\n        Bra\n        CBra 1\n        \\x{100}*+\n        a\n        Alt\n        x\n        Ket\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 1\nOptions: utf\nStarting code units: a x \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0035",
+   "kind": "pattern",
+   "line": 197,
+   "input": "/(\\x{100}{0,2}a|x)/IB,utf\n\n",
+   "expected": "/(\\x{100}{0,2}a|x)/IB,utf\n------------------------------------------------------------------\n        Bra\n        CBra 1\n        \\x{100}{0,2}+\n        a\n        Alt\n        x\n        Ket\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 1\nOptions: utf\nStarting code units: a x \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0036",
+   "kind": "pattern",
+   "line": 199,
+   "input": "/(\\x{100}{1,2}a|x)/IB,utf\n\n",
+   "expected": "/(\\x{100}{1,2}a|x)/IB,utf\n------------------------------------------------------------------\n        Bra\n        CBra 1\n        \\x{100}\n        \\x{100}{0,1}+\n        a\n        Alt\n        x\n        Ket\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 1\nOptions: utf\nStarting code units: x \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0037",
+   "kind": "pattern",
+   "line": 201,
+   "input": "/\\x{100}/IB,utf\n\n",
+   "expected": "/\\x{100}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = \\x80\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0038",
+   "kind": "pattern",
+   "line": 203,
+   "input": "/a\\x{100}\\x{101}*/IB,utf\n\n",
+   "expected": "/a\\x{100}\\x{101}*/IB,utf\n------------------------------------------------------------------\n        Bra\n        a\\x{100}\n        \\x{101}*+\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = 'a'\nLast code unit = \\x80\nSubject length lower bound = 2\n\n"
+  },
+  {
+   "id": "10:0039",
+   "kind": "pattern",
+   "line": 205,
+   "input": "/a\\x{100}\\x{101}+/IB,utf\n\n",
+   "expected": "/a\\x{100}\\x{101}+/IB,utf\n------------------------------------------------------------------\n        Bra\n        a\\x{100}\n        \\x{101}++\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = 'a'\nLast code unit = \\x81\nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "10:0040",
+   "kind": "pattern",
+   "line": 207,
+   "input": "/[^\\x{c4}]/IB\n\n",
+   "expected": "/[^\\x{c4}]/IB\n------------------------------------------------------------------\n        Bra\n        [^\\x{c4}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0041",
+   "kind": "pattern",
+   "line": 209,
+   "input": "/[\\x{100}]/IB,utf\n    \\x{100}\n    Z\\x{100}\n    \\x{100}Z\n\n",
+   "expected": "/[\\x{100}]/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = \\x80\nSubject length lower bound = 1\n    \\x{100}\n 0: \\x{100}\n    Z\\x{100}\n 0: \\x{100}\n    \\x{100}Z\n 0: \\x{100}\n\n"
+  },
+  {
+   "id": "10:0042",
+   "kind": "pattern",
+   "line": 214,
+   "input": "/[\\xff]/IB,utf\n    \u003e\\x{ff}\u003c\n\n",
+   "expected": "/[\\xff]/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{ff}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc3\nLast code unit = \\xbf\nSubject length lower bound = 1\n    \u003e\\x{ff}\u003c\n 0: \\x{ff}\n\n"
+  },
+  {
+   "id": "10:0043",
+   "kind": "pattern",
+   "line": 217,
+   "input": "/[^\\xff]/IB,utf\n\n",
+   "expected": "/[^\\xff]/IB,utf\n------------------------------------------------------------------\n        Bra\n        [^\\x{ff}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0044",
+   "kind": "pattern",
+   "line": 219,
+   "input": "/\\x{100}abc(xyz(?1))/IB,utf\n\n",
+   "expected": "/\\x{100}abc(xyz(?1))/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}abc\n        CBra 1\n        xyz\n        Recurse\n        Ket\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 1\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = 'z'\nSubject length lower bound = 7\n\n"
+  },
+  {
+   "id": "10:0045",
+   "kind": "pattern",
+   "line": 221,
+   "input": "/\\777/I,utf\n  \\x{1ff}\n  \\777\n\n",
+   "expected": "/\\777/I,utf\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc7\nLast code unit = \\xbf\nSubject length lower bound = 1\n  \\x{1ff}\n 0: \\x{1ff}\n  \\777\n 0: \\x{1ff}\n\n"
+  },
+  {
+   "id": "10:0046",
+   "kind": "pattern",
+   "line": 225,
+   "input": "/\\x{100}+\\x{200}/IB,utf\n\n",
+   "expected": "/\\x{100}+\\x{200}/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}++\n        \\x{200}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = \\x80\nSubject length lower bound = 2\n\n"
+  },
+  {
+   "id": "10:0047",
+   "kind": "pattern",
+   "line": 227,
+   "input": "/\\x{100}+X/IB,utf\n\n",
+   "expected": "/\\x{100}+X/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}++\n        X\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc4\nLast code unit = 'X'\nSubject length lower bound = 2\n\n"
+  },
+  {
+   "id": "10:0048",
+   "kind": "pattern",
+   "line": 229,
+   "input": "/^[\\QĀ\\E-\\QŐ\\E/B,utf\n\n",
+   "expected": "/^[\\QĀ\\E-\\QŐ\\E/B,utf\nFailed: error 106 at offset 15: missing terminating ] for character class\n\n"
+  },
+  {
+   "id": "10:0049",
+   "kind": "pattern",
+   "line": 231,
+   "input": "# This tests the stricter UTF-8 check according to RFC 3629.\n\n/X/utf\n\\= Expect UTF-8 errors\n    \\x{d800}\n    \\x{da00}\n    \\x{dfff}\n    \\x{110000}\n    \\x{2000000}\n    \\x{7fffffff}\n\\= Expect no match\n    \\x{d800}\\=no_utf_check\n    \\x{da00}\\=no_utf_check\n    \\x{dfff}\\=no_utf_check\n    \\x{110000}\\=no_utf_check\n    \\x{2000000}\\=no_utf_check\n    \\x{7fffffff}\\=no_utf_check\n\n",
+   "expected": "# This tests the stricter UTF-8 check according to RFC 3629.\n\n/X/utf\n\\= Expect UTF-8 errors\n    \\x{d800}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 0\n    \\x{da00}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 0\n    \\x{dfff}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 0\n    \\x{110000}\nFailed: error -15: UTF-8 error: code points greater than 0x10ffff are not defined at offset 0\n    \\x{2000000}\nFailed: error -13: UTF-8 error: 5-byte character is not allowed (RFC 3629) at offset 0\n    \\x{7fffffff}\nFailed: error -14: UTF-8 error: 6-byte character is not allowed (RFC 3629) at offset 0\n\\= Expect no match\n    \\x{d800}\\=no_utf_check\nNo match\n    \\x{da00}\\=no_utf_check\nNo match\n    \\x{dfff}\\=no_utf_check\nNo match\n    \\x{110000}\\=no_utf_check\nNo match\n    \\x{2000000}\\=no_utf_check\nNo match\n    \\x{7fffffff}\\=no_utf_check\nNo match\n\n"
+  },
+  {
+   "id": "10:0050",
+   "kind": "pattern",
+   "line": 249,
+   "input": "/(*UTF8)\\x{1234}/\n    abcd\\x{1234}pqr\n\n",
+   "expected": "/(*UTF8)\\x{1234}/\n    abcd\\x{1234}pqr\n 0: \\x{1234}\n\n"
+  },
+  {
+   "id": "10:0051",
+   "kind": "pattern",
+   "line": 252,
+   "input": "/(*CRLF)(*UTF)(*BSR_UNICODE)a\\Rb/I\n\n",
+   "expected": "/(*CRLF)(*UTF)(*BSR_UNICODE)a\\Rb/I\nCapture group count = 0\nCompile options: \u003cnone\u003e\nOverall options: utf\n\\R matches any Unicode newline\nForced newline is CRLF\nFirst code unit = 'a'\nLast code unit = 'b'\nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "10:0052",
+   "kind": "pattern",
+   "line": 254,
+   "input": "/\\h/I,utf\n    ABC\\x{09}\n    ABC\\x{20}\n    ABC\\x{a0}\n    ABC\\x{1680}\n    ABC\\x{180e}\n    ABC\\x{2000}\n    ABC\\x{202f}\n    ABC\\x{205f}\n    ABC\\x{3000}\n\n",
+   "expected": "/\\h/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\x09 \\x20 \\xc2 \\xe1 \\xe2 \\xe3 \nSubject length lower bound = 1\n    ABC\\x{09}\n 0: \\x{09}\n    ABC\\x{20}\n 0:  \n    ABC\\x{a0}\n 0: \\x{a0}\n    ABC\\x{1680}\n 0: \\x{1680}\n    ABC\\x{180e}\n 0: \\x{180e}\n    ABC\\x{2000}\n 0: \\x{2000}\n    ABC\\x{202f}\n 0: \\x{202f}\n    ABC\\x{205f}\n 0: \\x{205f}\n    ABC\\x{3000}\n 0: \\x{3000}\n\n"
+  },
+  {
+   "id": "10:0053",
+   "kind": "pattern",
+   "line": 265,
+   "input": "/\\v/I,utf\n    ABC\\x{0a}\n    ABC\\x{0b}\n    ABC\\x{0c}\n    ABC\\x{0d}\n    ABC\\x{85}\n    ABC\\x{2028}\n\n",
+   "expected": "/\\v/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\x0a \\x0b \\x0c \\x0d \\xc2 \\xe2 \nSubject length lower bound = 1\n    ABC\\x{0a}\n 0: \\x{0a}\n    ABC\\x{0b}\n 0: \\x{0b}\n    ABC\\x{0c}\n 0: \\x{0c}\n    ABC\\x{0d}\n 0: \\x{0d}\n    ABC\\x{85}\n 0: \\x{85}\n    ABC\\x{2028}\n 0: \\x{2028}\n\n"
+  },
+  {
+   "id": "10:0054",
+   "kind": "pattern",
+   "line": 273,
+   "input": "/\\h*A/I,utf\n    CDBABC\n\n",
+   "expected": "/\\h*A/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\x09 \\x20 A \\xc2 \\xe1 \\xe2 \\xe3 \nLast code unit = 'A'\nSubject length lower bound = 1\n    CDBABC\n 0: A\n\n"
+  },
+  {
+   "id": "10:0055",
+   "kind": "pattern",
+   "line": 276,
+   "input": "/\\v+A/I,utf\n\n",
+   "expected": "/\\v+A/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\x0a \\x0b \\x0c \\x0d \\xc2 \\xe2 \nLast code unit = 'A'\nSubject length lower bound = 2\n\n"
+  },
+  {
+   "id": "10:0056",
+   "kind": "pattern",
+   "line": 278,
+   "input": "/\\s?xxx\\s/I,utf\n\n",
+   "expected": "/\\s?xxx\\s/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\x09 \\x0a \\x0b \\x0c \\x0d \\x20 x \nLast code unit = 'x'\nSubject length lower bound = 4\n\n"
+  },
+  {
+   "id": "10:0057",
+   "kind": "pattern",
+   "line": 280,
+   "input": "/\\sxxx\\s/I,utf,tables=2\n    AB\\x{85}xxx\\x{a0}XYZ\n    AB\\x{a0}xxx\\x{85}XYZ\n\n",
+   "expected": "/\\sxxx\\s/I,utf,tables=2\nCapture group count = 0\nOptions: utf\nStarting code units: \\x09 \\x0a \\x0b \\x0c \\x0d \\x20 \\xc2 \nLast code unit = 'x'\nSubject length lower bound = 5\n    AB\\x{85}xxx\\x{a0}XYZ\n 0: \\x{85}xxx\\x{a0}\n    AB\\x{a0}xxx\\x{85}XYZ\n 0: \\x{a0}xxx\\x{85}\n\n"
+  },
+  {
+   "id": "10:0058",
+   "kind": "pattern",
+   "line": 284,
+   "input": "/\\S \\S/I,utf,tables=2\n    \\x{a2} \\x{84}\n    A Z\n\n",
+   "expected": "/\\S \\S/I,utf,tables=2\nCapture group count = 0\nOptions: utf\nStarting code units: \\x00 \\x01 \\x02 \\x03 \\x04 \\x05 \\x06 \\x07 \\x08 \\x0e \\x0f \n  \\x10 \\x11 \\x12 \\x13 \\x14 \\x15 \\x16 \\x17 \\x18 \\x19 \\x1a \\x1b \\x1c \\x1d \\x1e \n  \\x1f ! \" # $ % \u0026 ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; \u003c = \u003e ? @ A B C \n  D E F G H I J K L M N O P Q R S T U V W X Y Z [ \\ ] ^ _ ` a b c d e f g h \n  i j k l m n o p q r s t u v w x y z { | } ~ \\x7f \\xc0 \\xc1 \\xc2 \\xc3 \\xc4 \n  \\xc5 \\xc6 \\xc7 \\xc8 \\xc9 \\xca \\xcb \\xcc \\xcd \\xce \\xcf \\xd0 \\xd1 \\xd2 \\xd3 \n  \\xd4 \\xd5 \\xd6 \\xd7 \\xd8 \\xd9 \\xda \\xdb \\xdc \\xdd \\xde \\xdf \\xe0 \\xe1 \\xe2 \n  \\xe3 \\xe4 \\xe5 \\xe6 \\xe7 \\xe8 \\xe9 \\xea \\xeb \\xec \\xed \\xee \\xef \\xf0 \\xf1 \n  \\xf2 \\xf3 \\xf4 \\xf5 \\xf6 \\xf7 \\xf8 \\xf9 \\xfa \\xfb \\xfc \\xfd \\xfe \\xff \nLast code unit = ' '\nSubject length lower bound = 3\n    \\x{a2} \\x{84}\n 0: \\x{a2} \\x{84}\n    A Z\n 0: A Z\n\n"
+  },
+  {
+   "id": "10:0059",
+   "kind": "pattern",
+   "line": 288,
+   "input": "/a+/utf\n    a\\x{123}aa\\=offset=1\n    a\\x{123}aa\\=offset=3\n    a\\x{123}aa\\=offset=4\n\\= Expect bad offset value\n    a\\x{123}aa\\=offset=6\n\\= Expect bad UTF-8 offset     \n    a\\x{123}aa\\=offset=2\n\\= Expect no match\n    a\\x{123}aa\\=offset=5\n\n",
+   "expected": "/a+/utf\n    a\\x{123}aa\\=offset=1\n 0: aa\n    a\\x{123}aa\\=offset=3\n 0: aa\n    a\\x{123}aa\\=offset=4\n 0: a\n\\= Expect bad offset value\n    a\\x{123}aa\\=offset=6\nFailed: error -33: bad offset value\n\\= Expect bad UTF-8 offset     \n    a\\x{123}aa\\=offset=2\nError -36 (bad UTF-8 offset)\n\\= Expect no match\n    a\\x{123}aa\\=offset=5\nNo match\n\n"
+  },
+  {
+   "id": "10:0060",
+   "kind": "pattern",
+   "line": 299,
+   "input": "/\\x{1234}+/Ii,utf\n\n",
+   "expected": "/\\x{1234}+/Ii,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: \\xe1 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0061",
+   "kind": "pattern",
+   "line": 301,
+   "input": "/\\x{1234}+?/Ii,utf\n\n",
+   "expected": "/\\x{1234}+?/Ii,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: \\xe1 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0062",
+   "kind": "pattern",
+   "line": 303,
+   "input": "/\\x{1234}++/Ii,utf\n\n",
+   "expected": "/\\x{1234}++/Ii,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: \\xe1 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0063",
+   "kind": "pattern",
+   "line": 305,
+   "input": "/\\x{1234}{2}/Ii,utf\n\n",
+   "expected": "/\\x{1234}{2}/Ii,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: \\xe1 \nSubject length lower bound = 2\n\n"
+  },
+  {
+   "id": "10:0064",
+   "kind": "pattern",
+   "line": 307,
+   "input": "/[^\\x{c4}]/IB,utf\n\n",
+   "expected": "/[^\\x{c4}]/IB,utf\n------------------------------------------------------------------\n        Bra\n        [^\\x{c4}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0065",
+   "kind": "pattern",
+   "line": 309,
+   "input": "/X+\\x{200}/IB,utf\n\n",
+   "expected": "/X+\\x{200}/IB,utf\n------------------------------------------------------------------\n        Bra\n        X++\n        \\x{200}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = 'X'\nLast code unit = \\x80\nSubject length lower bound = 2\n\n"
+  },
+  {
+   "id": "10:0066",
+   "kind": "pattern",
+   "line": 311,
+   "input": "/\\R/I,utf\n\n",
+   "expected": "/\\R/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\x0a \\x0b \\x0c \\x0d \\xc2 \\xe2 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0067",
+   "kind": "pattern",
+   "line": 313,
+   "input": "/\\777/IB,utf\n\n",
+   "expected": "/\\777/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{1ff}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xc7\nLast code unit = \\xbf\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0068",
+   "kind": "pattern",
+   "line": 315,
+   "input": "/\\w+\\x{C4}/B,utf\n    a\\x{C4}\\x{C4}\n\n",
+   "expected": "/\\w+\\x{C4}/B,utf\n------------------------------------------------------------------\n        Bra\n        \\w++\n        \\x{c4}\n        Ket\n        End\n------------------------------------------------------------------\n    a\\x{C4}\\x{C4}\n 0: a\\x{c4}\n\n"
+  },
+  {
+   "id": "10:0069",
+   "kind": "pattern",
+   "line": 318,
+   "input": "/\\w+\\x{C4}/B,utf,tables=2\n    a\\x{C4}\\x{C4}\n\n",
+   "expected": "/\\w+\\x{C4}/B,utf,tables=2\n------------------------------------------------------------------\n        Bra\n        \\w+\n        \\x{c4}\n        Ket\n        End\n------------------------------------------------------------------\n    a\\x{C4}\\x{C4}\n 0: a\\x{c4}\\x{c4}\n\n"
+  },
+  {
+   "id": "10:0070",
+   "kind": "pattern",
+   "line": 321,
+   "input": "/\\W+\\x{C4}/B,utf\n    !\\x{C4}\n\n",
+   "expected": "/\\W+\\x{C4}/B,utf\n------------------------------------------------------------------\n        Bra\n        \\W+\n        \\x{c4}\n        Ket\n        End\n------------------------------------------------------------------\n    !\\x{C4}\n 0: !\\x{c4}\n\n"
+  },
+  {
+   "id": "10:0071",
+   "kind": "pattern",
+   "line": 324,
+   "input": "/\\W+\\x{C4}/B,utf,tables=2\n    !\\x{C4}\n\n",
+   "expected": "/\\W+\\x{C4}/B,utf,tables=2\n------------------------------------------------------------------\n        Bra\n        \\W++\n        \\x{c4}\n        Ket\n        End\n------------------------------------------------------------------\n    !\\x{C4}\n 0: !\\x{c4}\n\n"
+  },
+  {
+   "id": "10:0072",
+   "kind": "pattern",
+   "line": 327,
+   "input": "/\\W+\\x{A1}/B,utf\n    !\\x{A1}\n\n",
+   "expected": "/\\W+\\x{A1}/B,utf\n------------------------------------------------------------------\n        Bra\n        \\W+\n        \\x{a1}\n        Ket\n        End\n------------------------------------------------------------------\n    !\\x{A1}\n 0: !\\x{a1}\n\n"
+  },
+  {
+   "id": "10:0073",
+   "kind": "pattern",
+   "line": 330,
+   "input": "/\\W+\\x{A1}/B,utf,tables=2\n    !\\x{A1}\n\n",
+   "expected": "/\\W+\\x{A1}/B,utf,tables=2\n------------------------------------------------------------------\n        Bra\n        \\W+\n        \\x{a1}\n        Ket\n        End\n------------------------------------------------------------------\n    !\\x{A1}\n 0: !\\x{a1}\n\n"
+  },
+  {
+   "id": "10:0074",
+   "kind": "pattern",
+   "line": 333,
+   "input": "/X\\s+\\x{A0}/B,utf\n    X\\x20\\x{A0}\\x{A0}\n\n",
+   "expected": "/X\\s+\\x{A0}/B,utf\n------------------------------------------------------------------\n        Bra\n        X\n        \\s++\n        \\x{a0}\n        Ket\n        End\n------------------------------------------------------------------\n    X\\x20\\x{A0}\\x{A0}\n 0: X \\x{a0}\n\n"
+  },
+  {
+   "id": "10:0075",
+   "kind": "pattern",
+   "line": 336,
+   "input": "/X\\s+\\x{A0}/B,utf,tables=2\n    X\\x20\\x{A0}\\x{A0}\n\n",
+   "expected": "/X\\s+\\x{A0}/B,utf,tables=2\n------------------------------------------------------------------\n        Bra\n        X\n        \\s+\n        \\x{a0}\n        Ket\n        End\n------------------------------------------------------------------\n    X\\x20\\x{A0}\\x{A0}\n 0: X \\x{a0}\\x{a0}\n\n"
+  },
+  {
+   "id": "10:0076",
+   "kind": "pattern",
+   "line": 339,
+   "input": "/\\S+\\x{A0}/B,utf\n    X\\x{A0}\\x{A0}\n\n",
+   "expected": "/\\S+\\x{A0}/B,utf\n------------------------------------------------------------------\n        Bra\n        \\S+\n        \\x{a0}\n        Ket\n        End\n------------------------------------------------------------------\n    X\\x{A0}\\x{A0}\n 0: X\\x{a0}\\x{a0}\n\n"
+  },
+  {
+   "id": "10:0077",
+   "kind": "pattern",
+   "line": 342,
+   "input": "/\\S+\\x{A0}/B,utf,tables=2\n    X\\x{A0}\\x{A0}\n\n",
+   "expected": "/\\S+\\x{A0}/B,utf,tables=2\n------------------------------------------------------------------\n        Bra\n        \\S++\n        \\x{a0}\n        Ket\n        End\n------------------------------------------------------------------\n    X\\x{A0}\\x{A0}\n 0: X\\x{a0}\n\n"
+  },
+  {
+   "id": "10:0078",
+   "kind": "pattern",
+   "line": 345,
+   "input": "/\\x{a0}+\\s!/B,utf\n    \\x{a0}\\x20!\n\n",
+   "expected": "/\\x{a0}+\\s!/B,utf\n------------------------------------------------------------------\n        Bra\n        \\x{a0}++\n        \\s\n        !\n        Ket\n        End\n------------------------------------------------------------------\n    \\x{a0}\\x20!\n 0: \\x{a0} !\n\n"
+  },
+  {
+   "id": "10:0079",
+   "kind": "pattern",
+   "line": 348,
+   "input": "/\\x{a0}+\\s!/B,utf,tables=2\n    \\x{a0}\\x20!\n\n",
+   "expected": "/\\x{a0}+\\s!/B,utf,tables=2\n------------------------------------------------------------------\n        Bra\n        \\x{a0}+\n        \\s\n        !\n        Ket\n        End\n------------------------------------------------------------------\n    \\x{a0}\\x20!\n 0: \\x{a0} !\n\n"
+  },
+  {
+   "id": "10:0080",
+   "kind": "pattern",
+   "line": 351,
+   "input": "/A/utf\n  \\x{ff000041}\n  \\x{7f000041}\n\n",
+   "expected": "/A/utf\n  \\x{ff000041}\n** Character \\x{ff000041} is greater than 0x7fffffff and so cannot be converted to UTF-8\n  \\x{7f000041}\nFailed: error -14: UTF-8 error: 6-byte character is not allowed (RFC 3629) at offset 0\n\n"
+  },
+  {
+   "id": "10:0081",
+   "kind": "pattern",
+   "line": 355,
+   "input": "/(*UTF8)abc/never_utf\n\n",
+   "expected": "/(*UTF8)abc/never_utf\nFailed: error 174 at offset 7: using UTF is disabled by the application\n\n"
+  },
+  {
+   "id": "10:0082",
+   "kind": "pattern",
+   "line": 357,
+   "input": "/abc/utf,never_utf\n\n",
+   "expected": "/abc/utf,never_utf\nFailed: error 174 at offset 0: using UTF is disabled by the application\n\n"
+  },
+  {
+   "id": "10:0083",
+   "kind": "pattern",
+   "line": 359,
+   "input": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/IBi,utf\n\n",
+   "expected": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/IBi,utf\n------------------------------------------------------------------\n        Bra\n     /i A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: caseless utf\nFirst code unit = 'A' (caseless)\nSubject length lower bound = 5\n\n"
+  },
+  {
+   "id": "10:0084",
+   "kind": "pattern",
+   "line": 361,
+   "input": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/IB,utf\n\n",
+   "expected": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/IB,utf\n------------------------------------------------------------------\n        Bra\n        A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = 'A'\nLast code unit = \\xb0\nSubject length lower bound = 5\n\n"
+  },
+  {
+   "id": "10:0085",
+   "kind": "pattern",
+   "line": 363,
+   "input": "/AB\\x{1fb0}/IB,utf\n\n",
+   "expected": "/AB\\x{1fb0}/IB,utf\n------------------------------------------------------------------\n        Bra\n        AB\\x{1fb0}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = 'A'\nLast code unit = \\xb0\nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "10:0086",
+   "kind": "pattern",
+   "line": 365,
+   "input": "/AB\\x{1fb0}/IBi,utf\n\n",
+   "expected": "/AB\\x{1fb0}/IBi,utf\n------------------------------------------------------------------\n        Bra\n     /i AB\\x{1fb0}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: caseless utf\nFirst code unit = 'A' (caseless)\nLast code unit = 'B' (caseless)\nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "10:0087",
+   "kind": "pattern",
+   "line": 367,
+   "input": "/\\x{401}\\x{420}\\x{421}\\x{422}\\x{423}\\x{424}\\x{425}\\x{426}\\x{427}\\x{428}\\x{429}\\x{42a}\\x{42b}\\x{42c}\\x{42d}\\x{42e}\\x{42f}/Ii,utf\n    \\x{401}\\x{420}\\x{421}\\x{422}\\x{423}\\x{424}\\x{425}\\x{426}\\x{427}\\x{428}\\x{429}\\x{42a}\\x{42b}\\x{42c}\\x{42d}\\x{42e}\\x{42f}\n    \\x{451}\\x{440}\\x{441}\\x{442}\\x{443}\\x{444}\\x{445}\\x{446}\\x{447}\\x{448}\\x{449}\\x{44a}\\x{44b}\\x{44c}\\x{44d}\\x{44e}\\x{44f}\n\n",
+   "expected": "/\\x{401}\\x{420}\\x{421}\\x{422}\\x{423}\\x{424}\\x{425}\\x{426}\\x{427}\\x{428}\\x{429}\\x{42a}\\x{42b}\\x{42c}\\x{42d}\\x{42e}\\x{42f}/Ii,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: \\xd0 \\xd1 \nSubject length lower bound = 17\n    \\x{401}\\x{420}\\x{421}\\x{422}\\x{423}\\x{424}\\x{425}\\x{426}\\x{427}\\x{428}\\x{429}\\x{42a}\\x{42b}\\x{42c}\\x{42d}\\x{42e}\\x{42f}\n 0: \\x{401}\\x{420}\\x{421}\\x{422}\\x{423}\\x{424}\\x{425}\\x{426}\\x{427}\\x{428}\\x{429}\\x{42a}\\x{42b}\\x{42c}\\x{42d}\\x{42e}\\x{42f}\n    \\x{451}\\x{440}\\x{441}\\x{442}\\x{443}\\x{444}\\x{445}\\x{446}\\x{447}\\x{448}\\x{449}\\x{44a}\\x{44b}\\x{44c}\\x{44d}\\x{44e}\\x{44f}\n 0: \\x{451}\\x{440}\\x{441}\\x{442}\\x{443}\\x{444}\\x{445}\\x{446}\\x{447}\\x{448}\\x{449}\\x{44a}\\x{44b}\\x{44c}\\x{44d}\\x{44e}\\x{44f}\n\n"
+  },
+  {
+   "id": "10:0088",
+   "kind": "pattern",
+   "line": 371,
+   "input": "/[ⱥ]/Bi,utf\n\n",
+   "expected": "/[ⱥ]/Bi,utf\n------------------------------------------------------------------\n        Bra\n     /i \\x{2c65}\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "10:0089",
+   "kind": "pattern",
+   "line": 373,
+   "input": "/[^ⱥ]/Bi,utf\n\n",
+   "expected": "/[^ⱥ]/Bi,utf\n------------------------------------------------------------------\n        Bra\n     /i [^\\x{2c65}]\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "10:0090",
+   "kind": "pattern",
+   "line": 375,
+   "input": "/\\h/I\n\n",
+   "expected": "/\\h/I\nCapture group count = 0\nStarting code units: \\x09 \\x20 \\xa0 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0091",
+   "kind": "pattern",
+   "line": 377,
+   "input": "/\\v/I\n\n",
+   "expected": "/\\v/I\nCapture group count = 0\nStarting code units: \\x0a \\x0b \\x0c \\x0d \\x85 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0092",
+   "kind": "pattern",
+   "line": 379,
+   "input": "/\\R/I\n\n",
+   "expected": "/\\R/I\nCapture group count = 0\nStarting code units: \\x0a \\x0b \\x0c \\x0d \\x85 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0093",
+   "kind": "pattern",
+   "line": 381,
+   "input": "/[[:blank:]]/B,ucp\n\n",
+   "expected": "/[[:blank:]]/B,ucp\n------------------------------------------------------------------\n        Bra\n        [\\x09 \\xa0]\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "10:0094",
+   "kind": "pattern",
+   "line": 383,
+   "input": "/\\x{212a}+/Ii,utf\n    KKkk\\x{212a}\n\n",
+   "expected": "/\\x{212a}+/Ii,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: K k \\xe2 \nSubject length lower bound = 1\n    KKkk\\x{212a}\n 0: KKkk\\x{212a}\n\n"
+  },
+  {
+   "id": "10:0095",
+   "kind": "pattern",
+   "line": 386,
+   "input": "/s+/Ii,utf\n    SSss\\x{17f}\n\n",
+   "expected": "/s+/Ii,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: S s \\xc5 \nSubject length lower bound = 1\n    SSss\\x{17f}\n 0: SSss\\x{17f}\n\n"
+  },
+  {
+   "id": "10:0096",
+   "kind": "pattern",
+   "line": 389,
+   "input": "/\\x{100}*A/IB,utf\n    A\n\n",
+   "expected": "/\\x{100}*A/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*+\n        A\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: A \\xc4 \nLast code unit = 'A'\nSubject length lower bound = 1\n    A\n 0: A\n\n"
+  },
+  {
+   "id": "10:0097",
+   "kind": "pattern",
+   "line": 392,
+   "input": "/\\x{100}*\\d(?R)/IB,utf\n\n",
+   "expected": "/\\x{100}*\\d(?R)/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*+\n        \\d\n        Recurse\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: 0 1 2 3 4 5 6 7 8 9 \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0098",
+   "kind": "pattern",
+   "line": 394,
+   "input": "/[Z\\x{100}]/IB,utf\n    Z\\x{100}\n    \\x{100}\n    \\x{100}Z\n\n",
+   "expected": "/[Z\\x{100}]/IB,utf\n------------------------------------------------------------------\n        Bra\n        [Z\\x{100}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: Z \\xc4 \nSubject length lower bound = 1\n    Z\\x{100}\n 0: Z\n    \\x{100}\n 0: \\x{100}\n    \\x{100}Z\n 0: \\x{100}\n\n"
+  },
+  {
+   "id": "10:0099",
+   "kind": "pattern",
+   "line": 399,
+   "input": "/[z-\\x{100}]/IB,utf\n\n",
+   "expected": "/[z-\\x{100}]/IB,utf\n------------------------------------------------------------------\n        Bra\n        [z-\\xff\\x{100}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: z { | } ~ \\x7f \\xc2 \\xc3 \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0100",
+   "kind": "pattern",
+   "line": 401,
+   "input": "/[z\\Qa-d]Ā\\E]/IB,utf\n    \\x{100}\n    Ā \n\n",
+   "expected": "/[z\\Qa-d]Ā\\E]/IB,utf\n------------------------------------------------------------------\n        Bra\n        [\\-\\]adz\\x{100}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: - ] a d z \\xc4 \nSubject length lower bound = 1\n    \\x{100}\n 0: \\x{100}\n    Ā \n 0: \\x{100}\n\n"
+  },
+  {
+   "id": "10:0101",
+   "kind": "pattern",
+   "line": 405,
+   "input": "/[ab\\x{100}]abc(xyz(?1))/IB,utf\n\n",
+   "expected": "/[ab\\x{100}]abc(xyz(?1))/IB,utf\n------------------------------------------------------------------\n        Bra\n        [ab\\x{100}]\n        abc\n        CBra 1\n        xyz\n        Recurse\n        Ket\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 1\nOptions: utf\nStarting code units: a b \\xc4 \nLast code unit = 'z'\nSubject length lower bound = 7\n\n"
+  },
+  {
+   "id": "10:0102",
+   "kind": "pattern",
+   "line": 407,
+   "input": "/\\x{100}*\\s/IB,utf\n\n",
+   "expected": "/\\x{100}*\\s/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*+\n        \\s\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: \\x09 \\x0a \\x0b \\x0c \\x0d \\x20 \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0103",
+   "kind": "pattern",
+   "line": 409,
+   "input": "/\\x{100}*\\d/IB,utf\n\n",
+   "expected": "/\\x{100}*\\d/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*+\n        \\d\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: 0 1 2 3 4 5 6 7 8 9 \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0104",
+   "kind": "pattern",
+   "line": 411,
+   "input": "/\\x{100}*\\w/IB,utf\n\n",
+   "expected": "/\\x{100}*\\w/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*+\n        \\w\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N O P \n  Q R S T U V W X Y Z _ a b c d e f g h i j k l m n o p q r s t u v w x y z \n  \\xc4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0105",
+   "kind": "pattern",
+   "line": 413,
+   "input": "/\\x{100}*\\D/IB,utf\n\n",
+   "expected": "/\\x{100}*\\D/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*\n        \\D\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: \\x00 \\x01 \\x02 \\x03 \\x04 \\x05 \\x06 \\x07 \\x08 \\x09 \\x0a \n  \\x0b \\x0c \\x0d \\x0e \\x0f \\x10 \\x11 \\x12 \\x13 \\x14 \\x15 \\x16 \\x17 \\x18 \\x19 \n  \\x1a \\x1b \\x1c \\x1d \\x1e \\x1f \\x20 ! \" # $ % \u0026 ' ( ) * + , - . / : ; \u003c = \u003e \n  ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \\ ] ^ _ ` a b c \n  d e f g h i j k l m n o p q r s t u v w x y z { | } ~ \\x7f \\xc0 \\xc1 \\xc2 \n  \\xc3 \\xc4 \\xc5 \\xc6 \\xc7 \\xc8 \\xc9 \\xca \\xcb \\xcc \\xcd \\xce \\xcf \\xd0 \\xd1 \n  \\xd2 \\xd3 \\xd4 \\xd5 \\xd6 \\xd7 \\xd8 \\xd9 \\xda \\xdb \\xdc \\xdd \\xde \\xdf \\xe0 \n  \\xe1 \\xe2 \\xe3 \\xe4 \\xe5 \\xe6 \\xe7 \\xe8 \\xe9 \\xea \\xeb \\xec \\xed \\xee \\xef \n  \\xf0 \\xf1 \\xf2 \\xf3 \\xf4 \\xf5 \\xf6 \\xf7 \\xf8 \\xf9 \\xfa \\xfb \\xfc \\xfd \\xfe \n  \\xff \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0106",
+   "kind": "pattern",
+   "line": 415,
+   "input": "/\\x{100}*\\S/IB,utf\n\n",
+   "expected": "/\\x{100}*\\S/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*\n        \\S\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: \\x00 \\x01 \\x02 \\x03 \\x04 \\x05 \\x06 \\x07 \\x08 \\x0e \\x0f \n  \\x10 \\x11 \\x12 \\x13 \\x14 \\x15 \\x16 \\x17 \\x18 \\x19 \\x1a \\x1b \\x1c \\x1d \\x1e \n  \\x1f ! \" # $ % \u0026 ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; \u003c = \u003e ? @ A B C \n  D E F G H I J K L M N O P Q R S T U V W X Y Z [ \\ ] ^ _ ` a b c d e f g h \n  i j k l m n o p q r s t u v w x y z { | } ~ \\x7f \\xc0 \\xc1 \\xc2 \\xc3 \\xc4 \n  \\xc5 \\xc6 \\xc7 \\xc8 \\xc9 \\xca \\xcb \\xcc \\xcd \\xce \\xcf \\xd0 \\xd1 \\xd2 \\xd3 \n  \\xd4 \\xd5 \\xd6 \\xd7 \\xd8 \\xd9 \\xda \\xdb \\xdc \\xdd \\xde \\xdf \\xe0 \\xe1 \\xe2 \n  \\xe3 \\xe4 \\xe5 \\xe6 \\xe7 \\xe8 \\xe9 \\xea \\xeb \\xec \\xed \\xee \\xef \\xf0 \\xf1 \n  \\xf2 \\xf3 \\xf4 \\xf5 \\xf6 \\xf7 \\xf8 \\xf9 \\xfa \\xfb \\xfc \\xfd \\xfe \\xff \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0107",
+   "kind": "pattern",
+   "line": 417,
+   "input": "/\\x{100}*\\W/IB,utf\n\n",
+   "expected": "/\\x{100}*\\W/IB,utf\n------------------------------------------------------------------\n        Bra\n        \\x{100}*\n        \\W\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: \\x00 \\x01 \\x02 \\x03 \\x04 \\x05 \\x06 \\x07 \\x08 \\x09 \\x0a \n  \\x0b \\x0c \\x0d \\x0e \\x0f \\x10 \\x11 \\x12 \\x13 \\x14 \\x15 \\x16 \\x17 \\x18 \\x19 \n  \\x1a \\x1b \\x1c \\x1d \\x1e \\x1f \\x20 ! \" # $ % \u0026 ' ( ) * + , - . / : ; \u003c = \u003e \n  ? @ [ \\ ] ^ ` { | } ~ \\x7f \\xc0 \\xc1 \\xc2 \\xc3 \\xc4 \\xc5 \\xc6 \\xc7 \\xc8 \\xc9 \n  \\xca \\xcb \\xcc \\xcd \\xce \\xcf \\xd0 \\xd1 \\xd2 \\xd3 \\xd4 \\xd5 \\xd6 \\xd7 \\xd8 \n  \\xd9 \\xda \\xdb \\xdc \\xdd \\xde \\xdf \\xe0 \\xe1 \\xe2 \\xe3 \\xe4 \\xe5 \\xe6 \\xe7 \n  \\xe8 \\xe9 \\xea \\xeb \\xec \\xed \\xee \\xef \\xf0 \\xf1 \\xf2 \\xf3 \\xf4 \\xf5 \\xf6 \n  \\xf7 \\xf8 \\xf9 \\xfa \\xfb \\xfc \\xfd \\xfe \\xff \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0108",
+   "kind": "pattern",
+   "line": 419,
+   "input": "/[\\x{105}-\\x{109}]/IBi,utf\n    \\x{104}\n    \\x{105}\n    \\x{109}  \n\\= Expect no match\n    \\x{100}\n    \\x{10a} \n    \n",
+   "expected": "/[\\x{105}-\\x{109}]/IBi,utf\n------------------------------------------------------------------\n        Bra\n        [\\x{104}-\\x{109}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: caseless utf\nStarting code units: \\xc4 \nSubject length lower bound = 1\n    \\x{104}\n 0: \\x{104}\n    \\x{105}\n 0: \\x{105}\n    \\x{109}  \n 0: \\x{109}\n\\= Expect no match\n    \\x{100}\nNo match\n    \\x{10a} \nNo match\n    \n"
+  },
+  {
+   "id": "10:0109",
+   "kind": "pattern",
+   "line": 427,
+   "input": "/[z-\\x{100}]/IBi,utf\n    Z\n    z\n    \\x{39c}\n    \\x{178}\n    |\n    \\x{80}\n    \\x{ff}\n    \\x{100}\n    \\x{101} \n\\= Expect no match\n    \\x{102}\n    Y\n    y           \n\n",
+   "expected": "/[z-\\x{100}]/IBi,utf\n------------------------------------------------------------------\n        Bra\n        [Zz-\\xff\\x{39c}\\x{3bc}\\x{212b}\\x{1e9e}\\x{212b}\\x{178}\\x{100}-\\x{101}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: caseless utf\nStarting code units: Z z { | } ~ \\x7f \\xc2 \\xc3 \\xc4 \\xc5 \\xce \\xe1 \\xe2 \nSubject length lower bound = 1\n    Z\n 0: Z\n    z\n 0: z\n    \\x{39c}\n 0: \\x{39c}\n    \\x{178}\n 0: \\x{178}\n    |\n 0: |\n    \\x{80}\n 0: \\x{80}\n    \\x{ff}\n 0: \\x{ff}\n    \\x{100}\n 0: \\x{100}\n    \\x{101} \n 0: \\x{101}\n\\= Expect no match\n    \\x{102}\nNo match\n    Y\nNo match\n    y           \nNo match\n\n"
+  },
+  {
+   "id": "10:0110",
+   "kind": "pattern",
+   "line": 442,
+   "input": "/[z-\\x{100}]/IBi,utf\n\n",
+   "expected": "/[z-\\x{100}]/IBi,utf\n------------------------------------------------------------------\n        Bra\n        [Zz-\\xff\\x{39c}\\x{3bc}\\x{212b}\\x{1e9e}\\x{212b}\\x{178}\\x{100}-\\x{101}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: caseless utf\nStarting code units: Z z { | } ~ \\x7f \\xc2 \\xc3 \\xc4 \\xc5 \\xce \\xe1 \\xe2 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0111",
+   "kind": "pattern",
+   "line": 444,
+   "input": "/\\x{3a3}B/IBi,utf\n\n",
+   "expected": "/\\x{3a3}B/IBi,utf\n------------------------------------------------------------------\n        Bra\n        clist 03a3 03c2 03c3\n     /i B\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: caseless utf\nStarting code units: \\xce \\xcf \nLast code unit = 'B' (caseless)\nSubject length lower bound = 2\n\n"
+  },
+  {
+   "id": "10:0112",
+   "kind": "pattern",
+   "line": 446,
+   "input": "/abc/utf,replace=�\n    abc\n\n",
+   "expected": "/abc/utf,replace=�\n    abc\nFailed: error -3: UTF-8 error: 1 byte missing at end\n\n"
+  },
+  {
+   "id": "10:0113",
+   "kind": "pattern",
+   "line": 449,
+   "input": "/(?\u003c=(a)(?-1))x/I,utf\n    a\\x80zx\\=offset=3\n\n",
+   "expected": "/(?\u003c=(a)(?-1))x/I,utf\nCapture group count = 1\nMax lookbehind = 2\nOptions: utf\nFirst code unit = 'x'\nSubject length lower bound = 1\n    a\\x80zx\\=offset=3\nFailed: error -22: UTF-8 error: isolated byte with 0x80 bit set at offset 1\n\n"
+  },
+  {
+   "id": "10:0114",
+   "kind": "pattern",
+   "line": 452,
+   "input": "/[\\W\\p{Any}]/B\n    abc\n    123 \n\n",
+   "expected": "/[\\W\\p{Any}]/B\n------------------------------------------------------------------\n        Bra\n        [\\x00-/:-@[-^`{-\\xff\\p{Any}]\n        Ket\n        End\n------------------------------------------------------------------\n    abc\n 0: a\n    123 \n 0: 1\n\n"
+  },
+  {
+   "id": "10:0115",
+   "kind": "pattern",
+   "line": 456,
+   "input": "/[\\W\\pL]/B\n    abc\n\\= Expect no match\n    123     \n\n",
+   "expected": "/[\\W\\pL]/B\n------------------------------------------------------------------\n        Bra\n        [\\x00-/:-@[-^`{-\\xff\\p{L}]\n        Ket\n        End\n------------------------------------------------------------------\n    abc\n 0: a\n\\= Expect no match\n    123     \nNo match\n\n"
+  },
+  {
+   "id": "10:0116",
+   "kind": "pattern",
+   "line": 461,
+   "input": "/(*:*++++++++++++''''''''''''''''''''+''+++'+++x+++++++++++++++++++++++++++++++++++(++++++++++++++++++++:++++++%++:''''''''''''''''''''''''+++++++++++++++++++++++++++++++++++++++++++++++++++++-++++++++k+++++++''''+++'+++++++++++++++++++++++''''++++++++++++':ƿ)/utf\n\n",
+   "expected": "/(*:*++++++++++++''''''''''''''''''''+''+++'+++x+++++++++++++++++++++++++++++++++++(++++++++++++++++++++:++++++%++:''''''''''''''''''''''''+++++++++++++++++++++++++++++++++++++++++++++++++++++-++++++++k+++++++''''+++'+++++++++++++++++++++++''''++++++++++++':ƿ)/utf\nFailed: error 176 at offset 259: name is too long in (*MARK), (*PRUNE), (*SKIP), or (*THEN)\n\n"
+  },
+  {
+   "id": "10:0117",
+   "kind": "pattern",
+   "line": 463,
+   "input": "/[\\s[:^ascii:]]/B,ucp\n\n",
+   "expected": "/[\\s[:^ascii:]]/B,ucp\n------------------------------------------------------------------\n        Bra\n        [\\x80-\\xff\\p{Xsp}]\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "10:0118",
+   "kind": "pattern",
+   "line": 465,
+   "input": "# A special extra option allows excaped surrogate code points in 8-bit mode,\n# but subjects containing them must not be UTF-checked.\n\n/\\x{d800}/I,utf,allow_surrogate_escapes\n    \\x{d800}\\=no_utf_check\n\n",
+   "expected": "# A special extra option allows excaped surrogate code points in 8-bit mode,\n# but subjects containing them must not be UTF-checked.\n\n/\\x{d800}/I,utf,allow_surrogate_escapes\nCapture group count = 0\nOptions: utf\nExtra options: allow_surrogate_escapes\nFirst code unit = \\xed\nLast code unit = \\x80\nSubject length lower bound = 1\n    \\x{d800}\\=no_utf_check\n 0: \\x{d800}\n\n"
+  },
+  {
+   "id": "10:0119",
+   "kind": "pattern",
+   "line": 471,
+   "input": "/\\udfff\\o{157401}/utf,alt_bsux,allow_surrogate_escapes\n    \\x{dfff}\\x{df01}\\=no_utf_check\n    \n",
+   "expected": "/\\udfff\\o{157401}/utf,alt_bsux,allow_surrogate_escapes\n    \\x{dfff}\\x{df01}\\=no_utf_check\n 0: \\x{dfff}\\x{df01}\n    \n"
+  },
+  {
+   "id": "10:0120",
+   "kind": "pattern",
+   "line": 474,
+   "input": "# This has different starting code units in 8-bit mode. \n\n/^[^ab]/IB,utf\n    c\n    \\x{ff}\n    \\x{100}\n\\= Expect no match\n    aaa\n    \n",
+   "expected": "# This has different starting code units in 8-bit mode. \n\n/^[^ab]/IB,utf\n------------------------------------------------------------------\n        Bra\n        ^\n        [\\x00-`c-\\xff] (neg)\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nCompile options: utf\nOverall options: anchored utf\nStarting code units: \\x00 \\x01 \\x02 \\x03 \\x04 \\x05 \\x06 \\x07 \\x08 \\x09 \\x0a \n  \\x0b \\x0c \\x0d \\x0e \\x0f \\x10 \\x11 \\x12 \\x13 \\x14 \\x15 \\x16 \\x17 \\x18 \\x19 \n  \\x1a \\x1b \\x1c \\x1d \\x1e \\x1f \\x20 ! \" # $ % \u0026 ' ( ) * + , - . / 0 1 2 3 4 \n  5 6 7 8 9 : ; \u003c = \u003e ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y \n  Z [ \\ ] ^ _ ` c d e f g h i j k l m n o p q r s t u v w x y z { | } ~ \\x7f \n  \\xc2 \\xc3 \\xc4 \\xc5 \\xc6 \\xc7 \\xc8 \\xc9 \\xca \\xcb \\xcc \\xcd \\xce \\xcf \\xd0 \n  \\xd1 \\xd2 \\xd3 \\xd4 \\xd5 \\xd6 \\xd7 \\xd8 \\xd9 \\xda \\xdb \\xdc \\xdd \\xde \\xdf \n  \\xe0 \\xe1 \\xe2 \\xe3 \\xe4 \\xe5 \\xe6 \\xe7 \\xe8 \\xe9 \\xea \\xeb \\xec \\xed \\xee \n  \\xef \\xf0 \\xf1 \\xf2 \\xf3 \\xf4 \\xf5 \\xf6 \\xf7 \\xf8 \\xf9 \\xfa \\xfb \\xfc \\xfd \n  \\xfe \\xff \nSubject length lower bound = 1\n    c\n 0: c\n    \\x{ff}\n 0: \\x{ff}\n    \\x{100}\n 0: \\x{100}\n\\= Expect no match\n    aaa\nNo match\n    \n"
+  },
+  {
+   "id": "10:0121",
+   "kind": "pattern",
+   "line": 483,
+   "input": "# Offsets are different in 8-bit mode. \n\n/(?\u003c=abc)(|def)/g,utf,replace=\u003c$0\u003e,substitute_callout\n    123abcáyzabcdef789abcሴqr\n    \n",
+   "expected": "# Offsets are different in 8-bit mode. \n\n/(?\u003c=abc)(|def)/g,utf,replace=\u003c$0\u003e,substitute_callout\n    123abcáyzabcdef789abcሴqr\n 1(2) Old 6 6 \"\" New 6 8 \"\u003c\u003e\"\n 2(2) Old 13 13 \"\" New 15 17 \"\u003c\u003e\"\n 3(2) Old 13 16 \"def\" New 17 22 \"\u003cdef\u003e\"\n 4(2) Old 22 22 \"\" New 28 30 \"\u003c\u003e\"\n 4: 123abc\u003c\u003e\\x{e1}yzabc\u003c\u003e\u003cdef\u003e789abc\u003c\u003e\\x{1234}qr\n    \n"
+  },
+  {
+   "id": "10:0122",
+   "kind": "pattern",
+   "line": 488,
+   "input": "# Check name length with non-ASCII characters \n\n/(?'ABáC678901234567890123456789012012345678901234567890123456789AB012345678901234567890123456789AB012345678901234567890123456789AB'...)/utf\n\n",
+   "expected": "# Check name length with non-ASCII characters \n\n/(?'ABáC678901234567890123456789012012345678901234567890123456789AB012345678901234567890123456789AB012345678901234567890123456789AB'...)/utf\n\n"
+  },
+  {
+   "id": "10:0123",
+   "kind": "pattern",
+   "line": 492,
+   "input": "/(?'ABáC6789012345678901234567890123012345678901234567890123456789AB012345678901234567890123456789AB012345678901234567890123456789AB'...)/utf\n\n",
+   "expected": "/(?'ABáC6789012345678901234567890123012345678901234567890123456789AB012345678901234567890123456789AB012345678901234567890123456789AB'...)/utf\nFailed: error 148 at offset 132: subpattern name is too long (maximum 128 code units)\n\n"
+  },
+  {
+   "id": "10:0124",
+   "kind": "pattern",
+   "line": 494,
+   "input": "/(?'ABZC6789012345678901234567890123012345678901234567890123456789AB012345678901234567890123456789AB012345678901234567890123456789AB'...)/utf\n\n",
+   "expected": "/(?'ABZC6789012345678901234567890123012345678901234567890123456789AB012345678901234567890123456789AB012345678901234567890123456789AB'...)/utf\n\n"
+  },
+  {
+   "id": "10:0125",
+   "kind": "pattern",
+   "line": 496,
+   "input": "/(?(n/utf\n\n",
+   "expected": "/(?(n/utf\nFailed: error 142 at offset 4: syntax error in subpattern name (missing terminator?)\n\n"
+  },
+  {
+   "id": "10:0126",
+   "kind": "pattern",
+   "line": 498,
+   "input": "/(?(á/utf\n\n",
+   "expected": "/(?(á/utf\nFailed: error 142 at offset 5: syntax error in subpattern name (missing terminator?)\n\n"
+  },
+  {
+   "id": "10:0127",
+   "kind": "pattern",
+   "line": 500,
+   "input": "# Invalid UTF-8 tests\n\n/.../g,match_invalid_utf\n    abcd\\x80wxzy\\x80pqrs\n    abcd\\x{80}wxzy\\x80pqrs\n\n",
+   "expected": "# Invalid UTF-8 tests\n\n/.../g,match_invalid_utf\n    abcd\\x80wxzy\\x80pqrs\n 0: abc\n 0: wxz\n 0: pqr\n    abcd\\x{80}wxzy\\x80pqrs\n 0: abc\n 0: d\\x{80}w\n 0: xzy\n 0: pqr\n\n"
+  },
+  {
+   "id": "10:0128",
+   "kind": "pattern",
+   "line": 506,
+   "input": "/abc/match_invalid_utf\n    ab\\x80ab\\=ph\n\\= Expect no match\n    ab\\x80cdef\\=ph\n\n",
+   "expected": "/abc/match_invalid_utf\n    ab\\x80ab\\=ph\nPartial match: ab\n\\= Expect no match\n    ab\\x80cdef\\=ph\nNo match\n\n"
+  },
+  {
+   "id": "10:0129",
+   "kind": "pattern",
+   "line": 511,
+   "input": "/.a/match_invalid_utf\n    ab\\=ph\n    ab\\=ps\n    b\\xf0\\x91\\x88b\\=ph\n    b\\xf0\\x91\\x88b\\=ps\n    b\\xf0\\x91\\x88\\xb4a\n\\= Expect no match\n    b\\x80\\=ph\n    b\\x80\\=ps\n    b\\xf0\\x91\\x88\\=ph\n    b\\xf0\\x91\\x88\\=ps\n\n",
+   "expected": "/.a/match_invalid_utf\n    ab\\=ph\nPartial match: b\n    ab\\=ps\nPartial match: b\n    b\\xf0\\x91\\x88b\\=ph\nPartial match: b\n    b\\xf0\\x91\\x88b\\=ps\nPartial match: b\n    b\\xf0\\x91\\x88\\xb4a\n 0: \\x{11234}a\n\\= Expect no match\n    b\\x80\\=ph\nNo match\n    b\\x80\\=ps\nNo match\n    b\\xf0\\x91\\x88\\=ph\nNo match\n    b\\xf0\\x91\\x88\\=ps\nNo match\n\n"
+  },
+  {
+   "id": "10:0130",
+   "kind": "pattern",
+   "line": 523,
+   "input": "/.a$/match_invalid_utf\n    ab\\=ph\n    ab\\=ps\n\\= Expect no match\n    b\\xf0\\x91\\x98\\=ph\n    b\\xf0\\x91\\x98\\=ps\n\n",
+   "expected": "/.a$/match_invalid_utf\n    ab\\=ph\nPartial match: b\n    ab\\=ps\nPartial match: b\n\\= Expect no match\n    b\\xf0\\x91\\x98\\=ph\nNo match\n    b\\xf0\\x91\\x98\\=ps\nNo match\n\n"
+  },
+  {
+   "id": "10:0131",
+   "kind": "pattern",
+   "line": 530,
+   "input": "/ab$/match_invalid_utf\n    ab\\x80cdeab\n\\= Expect no match\n    ab\\x80cde\n\n",
+   "expected": "/ab$/match_invalid_utf\n    ab\\x80cdeab\n 0: ab\n\\= Expect no match\n    ab\\x80cde\nNo match\n\n"
+  },
+  {
+   "id": "10:0132",
+   "kind": "pattern",
+   "line": 535,
+   "input": "/.../g,match_invalid_utf\n    abcd\\x{80}wxzy\\x80pqrs\n\n",
+   "expected": "/.../g,match_invalid_utf\n    abcd\\x{80}wxzy\\x80pqrs\n 0: abc\n 0: d\\x{80}w\n 0: xzy\n 0: pqr\n\n"
+  },
+  {
+   "id": "10:0133",
+   "kind": "pattern",
+   "line": 538,
+   "input": "/(?\u003c=x)../g,match_invalid_utf\n    abcd\\x{80}wxzy\\x80pqrs\n    abcd\\x{80}wxzy\\x80xpqrs\n    \n",
+   "expected": "/(?\u003c=x)../g,match_invalid_utf\n    abcd\\x{80}wxzy\\x80pqrs\n 0: zy\n    abcd\\x{80}wxzy\\x80xpqrs\n 0: zy\n 0: pq\n    \n"
+  },
+  {
+   "id": "10:0134",
+   "kind": "pattern",
+   "line": 542,
+   "input": "/X$/match_invalid_utf\n\\= Expect no match\n    X\\xc4\n    \n",
+   "expected": "/X$/match_invalid_utf\n\\= Expect no match\n    X\\xc4\nNo match\n    \n"
+  },
+  {
+   "id": "10:0135",
+   "kind": "pattern",
+   "line": 546,
+   "input": "/(?\u003c=..)X/match_invalid_utf,aftertext\n    AB\\x80AQXYZ\n    AB\\x80AQXYZ\\=offset=5\n    AB\\x80\\x80AXYZXC\\=offset=5\n\\= Expect no match\n    AB\\x80XYZ\n    AB\\x80XYZ\\=offset=3 \n    AB\\xfeXYZ\n    AB\\xffXYZ\\=offset=3 \n    AB\\x80AXYZ\n    AB\\x80AXYZ\\=offset=4\n    AB\\x80\\x80AXYZ\\=offset=5\n\n",
+   "expected": "/(?\u003c=..)X/match_invalid_utf,aftertext\n    AB\\x80AQXYZ\n 0: X\n 0+ YZ\n    AB\\x80AQXYZ\\=offset=5\n 0: X\n 0+ YZ\n    AB\\x80\\x80AXYZXC\\=offset=5\n 0: X\n 0+ C\n\\= Expect no match\n    AB\\x80XYZ\nNo match\n    AB\\x80XYZ\\=offset=3 \nNo match\n    AB\\xfeXYZ\nNo match\n    AB\\xffXYZ\\=offset=3 \nNo match\n    AB\\x80AXYZ\nNo match\n    AB\\x80AXYZ\\=offset=4\nNo match\n    AB\\x80\\x80AXYZ\\=offset=5\nNo match\n\n"
+  },
+  {
+   "id": "10:0136",
+   "kind": "pattern",
+   "line": 559,
+   "input": "/.../match_invalid_utf\n    AB\\xc4CCC\n\\= Expect no match\n    A\\x{d800}B\n    A\\x{110000}B\n    A\\xc4B  \n\n",
+   "expected": "/.../match_invalid_utf\n    AB\\xc4CCC\n 0: CCC\n\\= Expect no match\n    A\\x{d800}B\nNo match\n    A\\x{110000}B\nNo match\n    A\\xc4B  \nNo match\n\n"
+  },
+  {
+   "id": "10:0137",
+   "kind": "pattern",
+   "line": 566,
+   "input": "/\\bX/match_invalid_utf\n    A\\x80X\n\n",
+   "expected": "/\\bX/match_invalid_utf\n    A\\x80X\n 0: X\n\n"
+  },
+  {
+   "id": "10:0138",
+   "kind": "pattern",
+   "line": 569,
+   "input": "/\\BX/match_invalid_utf\n\\= Expect no match\n    A\\x80X\n    \n",
+   "expected": "/\\BX/match_invalid_utf\n\\= Expect no match\n    A\\x80X\nNo match\n    \n"
+  },
+  {
+   "id": "10:0139",
+   "kind": "pattern",
+   "line": 573,
+   "input": "/(?\u003c=...)X/match_invalid_utf\n    AAA\\x80BBBXYZ \n\\= Expect no match\n    AAA\\x80BXYZ \n    AAA\\x80BBXYZ \n\n",
+   "expected": "/(?\u003c=...)X/match_invalid_utf\n    AAA\\x80BBBXYZ \n 0: X\n\\= Expect no match\n    AAA\\x80BXYZ \nNo match\n    AAA\\x80BBXYZ \nNo match\n\n"
+  },
+  {
+   "id": "10:0140",
+   "kind": "pattern",
+   "line": 579,
+   "input": "# -------------------------------------\n\n/(*UTF)(?=\\x{123})/I\n\n",
+   "expected": "# -------------------------------------\n\n/(*UTF)(?=\\x{123})/I\nCapture group count = 0\nMay match empty string\nCompile options: \u003cnone\u003e\nOverall options: utf\nFirst code unit = \\xc4\nLast code unit = \\xa3\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0141",
+   "kind": "pattern",
+   "line": 583,
+   "input": "/[\\x{c1}\\x{e1}]X[\\x{145}\\x{146}]/I,utf\n\n",
+   "expected": "/[\\x{c1}\\x{e1}]X[\\x{145}\\x{146}]/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\xc3 \nLast code unit = 'X'\nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "10:0142",
+   "kind": "pattern",
+   "line": 585,
+   "input": "/[󿾟,]/BI,utf\n\n",
+   "expected": "/[󿾟,]/BI,utf\n------------------------------------------------------------------\n        Bra\n        [,\\x{fff9f}]\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nStarting code units: , \\xf3 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0143",
+   "kind": "pattern",
+   "line": 587,
+   "input": "/[\\x{fff4}-\\x{ffff8}]/I,utf\n\n",
+   "expected": "/[\\x{fff4}-\\x{ffff8}]/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\xef \\xf0 \\xf1 \\xf2 \\xf3 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0144",
+   "kind": "pattern",
+   "line": 589,
+   "input": "/[\\x{fff4}-\\x{afff8}\\x{10ffff}]/I,utf\n\n",
+   "expected": "/[\\x{fff4}-\\x{afff8}\\x{10ffff}]/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\xef \\xf0 \\xf1 \\xf2 \\xf4 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0145",
+   "kind": "pattern",
+   "line": 591,
+   "input": "/[\\xff\\x{ffff}]/I,utf\n\n",
+   "expected": "/[\\xff\\x{ffff}]/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\xc3 \\xef \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0146",
+   "kind": "pattern",
+   "line": 593,
+   "input": "/[\\xff\\x{ff}]/I,utf\n    abc\\x{ff}def\n\n",
+   "expected": "/[\\xff\\x{ff}]/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\xc3 \nSubject length lower bound = 1\n    abc\\x{ff}def\n 0: \\x{ff}\n\n"
+  },
+  {
+   "id": "10:0147",
+   "kind": "pattern",
+   "line": 596,
+   "input": "/[\\xff\\x{ff}]/I\n    abc\\x{ff}def\n\n",
+   "expected": "/[\\xff\\x{ff}]/I\nCapture group count = 0\nFirst code unit = \\xff\nSubject length lower bound = 1\n    abc\\x{ff}def\n 0: \\xff\n\n"
+  },
+  {
+   "id": "10:0148",
+   "kind": "pattern",
+   "line": 599,
+   "input": "/[Ss]/I\n\n",
+   "expected": "/[Ss]/I\nCapture group count = 0\nFirst code unit = 'S' (caseless)\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0149",
+   "kind": "pattern",
+   "line": 601,
+   "input": "/[Ss]/I,utf\n\n",
+   "expected": "/[Ss]/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: S s \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0150",
+   "kind": "pattern",
+   "line": 603,
+   "input": "/(?:\\x{ff}|\\x{3000})/I,utf\n\n",
+   "expected": "/(?:\\x{ff}|\\x{3000})/I,utf\nCapture group count = 0\nOptions: utf\nStarting code units: \\xc3 \\xe3 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0151",
+   "kind": "pattern",
+   "line": 605,
+   "input": "/x/utf\n    abxyz\n    \\x80\\=startchar\n    abc\\x80\\=startchar\n    abc\\x80\\=startchar,offset=3\n\n",
+   "expected": "/x/utf\n    abxyz\n 0: x\n    \\x80\\=startchar\nFailed: error -22: UTF-8 error: isolated byte with 0x80 bit set at offset 0\n    abc\\x80\\=startchar\nFailed: error -22: UTF-8 error: isolated byte with 0x80 bit set at offset 3\n    abc\\x80\\=startchar,offset=3\nError -36 (bad UTF-8 offset)\n\n"
+  },
+  {
+   "id": "10:0152",
+   "kind": "pattern",
+   "line": 611,
+   "input": "/\\x{c1}+\\x{e1}/iIB,ucp\n    \\x{c1}\\x{c1}\\x{c1}\n    \\x{e1}\\x{e1}\\x{e1} \n\n",
+   "expected": "/\\x{c1}+\\x{e1}/iIB,ucp\n------------------------------------------------------------------\n        Bra\n     /i \\x{c1}+\n     /i \\x{e1}\n        Ket\n        End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: caseless ucp\nFirst code unit = \\xc1 (caseless)\nLast code unit = \\xe1 (caseless)\nSubject length lower bound = 2\n    \\x{c1}\\x{c1}\\x{c1}\n 0: \\xc1\\xc1\\xc1\n    \\x{e1}\\x{e1}\\x{e1} \n 0: \\xe1\\xe1\\xe1\n\n"
+  },
+  {
+   "id": "10:0153",
+   "kind": "pattern",
+   "line": 615,
+   "input": "/a|\\x{c1}/iI,ucp\n    \\x{e1}xxx\n\n",
+   "expected": "/a|\\x{c1}/iI,ucp\nCapture group count = 0\nOptions: caseless ucp\nStarting code units: A a \\xc1 \\xe1 \nSubject length lower bound = 1\n    \\x{e1}xxx\n 0: \\xe1\n\n"
+  },
+  {
+   "id": "10:0154",
+   "kind": "pattern",
+   "line": 618,
+   "input": "/a|\\x{c1}/iI,utf\n    \\x{e1}xxx\n\n",
+   "expected": "/a|\\x{c1}/iI,utf\nCapture group count = 0\nOptions: caseless utf\nStarting code units: A a \\xc3 \nSubject length lower bound = 1\n    \\x{e1}xxx\n 0: \\x{e1}\n\n"
+  },
+  {
+   "id": "10:0155",
+   "kind": "pattern",
+   "line": 621,
+   "input": "/\\x{c1}|\\x{e1}/iI,ucp\n\n",
+   "expected": "/\\x{c1}|\\x{e1}/iI,ucp\nCapture group count = 0\nOptions: caseless ucp\nFirst code unit = \\xc1 (caseless)\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "10:0156",
+   "kind": "pattern",
+   "line": 623,
+   "input": "/X(\\x{e1})Y/ucp,replace=\u003e\\U$1\u003c,substitute_extended\n    X\\x{e1}Y\n\n",
+   "expected": "/X(\\x{e1})Y/ucp,replace=\u003e\\U$1\u003c,substitute_extended\n    X\\x{e1}Y\n 1: \u003e\\xc1\u003c\n\n"
+  },
+  {
+   "id": "10:0157",
+   "kind": "pattern",
+   "line": 626,
+   "input": "/X(\\x{e1})Y/i,ucp,replace=\u003e\\L$1\u003c,substitute_extended\n    X\\x{c1}Y\n\n",
+   "expected": "/X(\\x{e1})Y/i,ucp,replace=\u003e\\L$1\u003c,substitute_extended\n    X\\x{c1}Y\n 1: \u003e\\xe1\u003c\n\n"
+  },
+  {
+   "id": "10:0158",
+   "kind": "pattern",
+   "line": 629,
+   "input": "# Without UTF or UCP characters \u003e 127 have only one case in the default locale.\n\n/X(\\x{e1})Y/replace=\u003e\\U$1\u003c,substitute_extended\n    X\\x{e1}Y\n\n",
+   "expected": "# Without UTF or UCP characters \u003e 127 have only one case in the default locale.\n\n/X(\\x{e1})Y/replace=\u003e\\U$1\u003c,substitute_extended\n    X\\x{e1}Y\n 1: \u003e\\xe1\u003c\n\n"
+  },
+  {
+   "id": "10:0159",
+   "kind": "pattern",
+   "line": 634,
+   "input": "/A/utf,match_invalid_utf,caseless\n    \\xe5A\n\n",
+   "expected": "/A/utf,match_invalid_utf,caseless\n    \\xe5A\n 0: A\n\n"
+  },
+  {
+   "id": "10:0160",
+   "kind": "pattern",
+   "line": 637,
+   "input": "/\\bch\\b/utf,match_invalid_utf\n    qchq\\=ph\n    qchq\\=ps\n\n",
+   "expected": "/\\bch\\b/utf,match_invalid_utf\n    qchq\\=ph\nPartial match: \n    qchq\\=ps\nPartial match: \n\n"
+  },
+  {
+   "id": "10:0161",
+   "kind": "pattern",
+   "line": 641,
+   "input": "/line1\\nbreak/firstline,utf,match_invalid_utf\n    line1\\nbreak\n    line0\\nline1\\nbreak\n\n",
+   "expected": "/line1\\nbreak/firstline,utf,match_invalid_utf\n    line1\\nbreak\n 0: line1\\x{0a}break\n    line0\\nline1\\nbreak\nNo match\n\n"
+  },
+  {
+   "id": "10:0162",
+   "kind": "pattern",
+   "line": 645,
+   "input": "/A\\z/utf,match_invalid_utf\n    A\\x80\\x42\\n\n\n",
+   "expected": "/A\\z/utf,match_invalid_utf\n    A\\x80\\x42\\n\nNo match\n\n"
+  },
+  {
+   "id": "10:0163",
+   "kind": "command",
+   "line": 648,
+   "input": "# End of testinput10\n",
+   "expected": "# End of testinput10\n"
+  }
+ ]
+}

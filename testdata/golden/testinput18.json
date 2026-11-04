@@ -1,0 +1,313 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput18",
+ "testoutput": "testoutput18",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "18:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# This set of tests is run only with the 8-bit library. It tests the POSIX\n# interface, which is supported only with the 8-bit library. This test should\n# not be run with JIT (which is not available for the POSIX interface).\n    \n#forbid_utf\n",
+   "expected": "# This set of tests is run only with the 8-bit library. It tests the POSIX\n# interface, which is supported only with the 8-bit library. This test should\n# not be run with JIT (which is not available for the POSIX interface).\n    \n#forbid_utf\n"
+  },
+  {
+   "id": "18:0002",
+   "kind": "command",
+   "line": 6,
+   "input": "#pattern posix\n",
+   "expected": "#pattern posix\n"
+  },
+  {
+   "id": "18:0003",
+   "kind": "pattern",
+   "line": 7,
+   "input": "\n# Test some invalid options\n\n/abc/auto_callout\n\n",
+   "expected": "\n# Test some invalid options\n\n/abc/auto_callout\n** Ignored with POSIX interface: auto_callout\n\n"
+  },
+  {
+   "id": "18:0004",
+   "kind": "pattern",
+   "line": 12,
+   "input": "/abc/\n   abc\\=find_limits\n\n",
+   "expected": "/abc/\n   abc\\=find_limits\n** Ignored with POSIX interface: find_limits\n 0: abc\n\n"
+  },
+  {
+   "id": "18:0005",
+   "kind": "pattern",
+   "line": 15,
+   "input": "/abc/\n  abc\\=partial_hard\n  \n",
+   "expected": "/abc/\n  abc\\=partial_hard\n** Ignored with POSIX interface: partial_hard\n 0: abc\n  \n"
+  },
+  {
+   "id": "18:0006",
+   "kind": "pattern",
+   "line": 18,
+   "input": "/a(())bc/parens_nest_limit=1\n\n",
+   "expected": "/a(())bc/parens_nest_limit=1\n** Ignored with POSIX interface: parens_nest_limit\n\n"
+  },
+  {
+   "id": "18:0007",
+   "kind": "pattern",
+   "line": 20,
+   "input": "/abc/allow_surrogate_escapes,max_pattern_length=2\n\n",
+   "expected": "/abc/allow_surrogate_escapes,max_pattern_length=2\n** Ignored with POSIX interface: allow_surrogate_escapes max_pattern_length\n\n"
+  },
+  {
+   "id": "18:0008",
+   "kind": "pattern",
+   "line": 22,
+   "input": "# Real tests\n\n/abc/\n    abc\n\n",
+   "expected": "# Real tests\n\n/abc/\n    abc\n 0: abc\n\n"
+  },
+  {
+   "id": "18:0009",
+   "kind": "pattern",
+   "line": 27,
+   "input": "/^abc|def/\n    abcdef\n    abcdef\\=notbol\n\n",
+   "expected": "/^abc|def/\n    abcdef\n 0: abc\n    abcdef\\=notbol\n 0: def\n\n"
+  },
+  {
+   "id": "18:0010",
+   "kind": "pattern",
+   "line": 31,
+   "input": "/.*((abc)$|(def))/\n    defabc\n    defabc\\=noteol\n\n",
+   "expected": "/.*((abc)$|(def))/\n    defabc\n 0: defabc\n 1: abc\n 2: abc\n    defabc\\=noteol\n 0: def\n 1: def\n 2: \u003cunset\u003e\n 3: def\n\n"
+  },
+  {
+   "id": "18:0011",
+   "kind": "pattern",
+   "line": 35,
+   "input": "/the quick brown fox/\n    the quick brown fox\n\\= Expect no match\n    The Quick Brown Fox\n\n",
+   "expected": "/the quick brown fox/\n    the quick brown fox\n 0: the quick brown fox\n\\= Expect no match\n    The Quick Brown Fox\nNo match: POSIX code 17: match failed\n\n"
+  },
+  {
+   "id": "18:0012",
+   "kind": "pattern",
+   "line": 40,
+   "input": "/the quick brown fox/i\n    the quick brown fox\n    The Quick Brown Fox\n\n",
+   "expected": "/the quick brown fox/i\n    the quick brown fox\n 0: the quick brown fox\n    The Quick Brown Fox\n 0: The Quick Brown Fox\n\n"
+  },
+  {
+   "id": "18:0013",
+   "kind": "pattern",
+   "line": 44,
+   "input": "/(*LF)abc.def/\n\\= Expect no match\n    abc\\ndef\n\n",
+   "expected": "/(*LF)abc.def/\n\\= Expect no match\n    abc\\ndef\nNo match: POSIX code 17: match failed\n\n"
+  },
+  {
+   "id": "18:0014",
+   "kind": "pattern",
+   "line": 48,
+   "input": "/(*LF)abc$/\n    abc\n    abc\\n\n\n",
+   "expected": "/(*LF)abc$/\n    abc\n 0: abc\n    abc\\n\n 0: abc\n\n"
+  },
+  {
+   "id": "18:0015",
+   "kind": "pattern",
+   "line": 52,
+   "input": "/(abc)\\2/\n\n",
+   "expected": "/(abc)\\2/\nFailed: POSIX code 15: bad back reference at offset 6\n\n"
+  },
+  {
+   "id": "18:0016",
+   "kind": "pattern",
+   "line": 54,
+   "input": "/(abc\\1)/\n\\= Expect no match\n    abc\n\n",
+   "expected": "/(abc\\1)/\n\\= Expect no match\n    abc\nNo match: POSIX code 17: match failed\n\n"
+  },
+  {
+   "id": "18:0017",
+   "kind": "pattern",
+   "line": 58,
+   "input": "/a*(b+)(z)(z)/\n    aaaabbbbzzzz\n    aaaabbbbzzzz\\=ovector=0\n    aaaabbbbzzzz\\=ovector=1\n    aaaabbbbzzzz\\=ovector=2\n\n",
+   "expected": "/a*(b+)(z)(z)/\n    aaaabbbbzzzz\n 0: aaaabbbbzz\n 1: bbbb\n 2: z\n 3: z\n    aaaabbbbzzzz\\=ovector=0\nMatched without capture\n    aaaabbbbzzzz\\=ovector=1\n 0: aaaabbbbzz\n    aaaabbbbzzzz\\=ovector=2\n 0: aaaabbbbzz\n 1: bbbb\n\n"
+  },
+  {
+   "id": "18:0018",
+   "kind": "pattern",
+   "line": 64,
+   "input": "/(*ANY)ab.cd/\n    ab-cd\n    ab=cd\n\\= Expect no match\n    ab\\ncd\n\n",
+   "expected": "/(*ANY)ab.cd/\n    ab-cd\n 0: ab-cd\n    ab=cd\n 0: ab=cd\n\\= Expect no match\n    ab\\ncd\nNo match: POSIX code 17: match failed\n\n"
+  },
+  {
+   "id": "18:0019",
+   "kind": "pattern",
+   "line": 70,
+   "input": "/ab.cd/s\n    ab-cd\n    ab=cd\n    ab\\ncd\n\n",
+   "expected": "/ab.cd/s\n    ab-cd\n 0: ab-cd\n    ab=cd\n 0: ab=cd\n    ab\\ncd\n 0: ab\\x0acd\n\n"
+  },
+  {
+   "id": "18:0020",
+   "kind": "pattern",
+   "line": 75,
+   "input": "/a(b)c/posix_nosub\n    abc\n\n",
+   "expected": "/a(b)c/posix_nosub\n    abc\nMatched with REG_NOSUB\n\n"
+  },
+  {
+   "id": "18:0021",
+   "kind": "pattern",
+   "line": 78,
+   "input": "/a(?P\u003cname\u003eb)c/posix_nosub\n    abc\n\n",
+   "expected": "/a(?P\u003cname\u003eb)c/posix_nosub\n    abc\nMatched with REG_NOSUB\n\n"
+  },
+  {
+   "id": "18:0022",
+   "kind": "pattern",
+   "line": 81,
+   "input": "/(a)\\1/posix_nosub\n    zaay\n\n",
+   "expected": "/(a)\\1/posix_nosub\n    zaay\nMatched with REG_NOSUB\n\n"
+  },
+  {
+   "id": "18:0023",
+   "kind": "pattern",
+   "line": 84,
+   "input": "/a?|b?/\n    abc\n\\= Expect no match\n    ddd\\=notempty\n\n",
+   "expected": "/a?|b?/\n    abc\n 0: a\n\\= Expect no match\n    ddd\\=notempty\nNo match: POSIX code 17: match failed\n\n"
+  },
+  {
+   "id": "18:0024",
+   "kind": "pattern",
+   "line": 89,
+   "input": "/\\w+A/\n   CDAAAAB\n\n",
+   "expected": "/\\w+A/\n   CDAAAAB\n 0: CDAAAA\n\n"
+  },
+  {
+   "id": "18:0025",
+   "kind": "pattern",
+   "line": 92,
+   "input": "/\\w+A/ungreedy\n   CDAAAAB\n   \n",
+   "expected": "/\\w+A/ungreedy\n   CDAAAAB\n 0: CDA\n   \n"
+  },
+  {
+   "id": "18:0026",
+   "kind": "pattern",
+   "line": 95,
+   "input": "/\\Biss\\B/I,aftertext\n    Mississippi\n\n",
+   "expected": "/\\Biss\\B/I,aftertext\n** Ignored with POSIX interface: info\n    Mississippi\n 0: iss\n 0+ issippi\n\n"
+  },
+  {
+   "id": "18:0027",
+   "kind": "pattern",
+   "line": 98,
+   "input": "/abc/\\\n\n",
+   "expected": "/abc/\\\nFailed: POSIX code 9: bad escape sequence at offset 4\n\n"
+  },
+  {
+   "id": "18:0028",
+   "kind": "pattern",
+   "line": 100,
+   "input": "\"(?(?C)\"\n\n",
+   "expected": "\"(?(?C)\"\nFailed: POSIX code 11: unbalanced () at offset 6\n\n"
+  },
+  {
+   "id": "18:0029",
+   "kind": "pattern",
+   "line": 102,
+   "input": "\"(?(?C))\"\n\n",
+   "expected": "\"(?(?C))\"\nFailed: POSIX code 3: pattern error at offset 6\n\n"
+  },
+  {
+   "id": "18:0030",
+   "kind": "pattern",
+   "line": 104,
+   "input": "/abcd/substitute_extended\n\n",
+   "expected": "/abcd/substitute_extended\n** Ignored with POSIX interface: substitute_extended\n\n"
+  },
+  {
+   "id": "18:0031",
+   "kind": "pattern",
+   "line": 106,
+   "input": "/\\[A]{1000000}**/expand,regerror_buffsize=31\n\n",
+   "expected": "/\\[A]{1000000}**/expand,regerror_buffsize=31\nFailed: POSIX code 4: ? * + invalid at offset 100000\n** regerror() message truncated\n\n"
+  },
+  {
+   "id": "18:0032",
+   "kind": "pattern",
+   "line": 108,
+   "input": "/\\[A]{1000000}**/expand,regerror_buffsize=32\n\n",
+   "expected": "/\\[A]{1000000}**/expand,regerror_buffsize=32\nFailed: POSIX code 4: ? * + invalid at offset 1000001\n\n"
+  },
+  {
+   "id": "18:0033",
+   "kind": "pattern",
+   "line": 110,
+   "input": "//posix_nosub\n    \\=offset=70000\n\n",
+   "expected": "//posix_nosub\n    \\=offset=70000\n** Ignored with POSIX interface: offset\nMatched with REG_NOSUB\n\n"
+  },
+  {
+   "id": "18:0034",
+   "kind": "pattern",
+   "line": 113,
+   "input": "/^d(e)$/posix\n    acdef\\=posix_startend=2:4\n    acde\\=posix_startend=2 \n\\= Expect no match     \n    acdef\n    acdef\\=posix_startend=2 \n\n",
+   "expected": "/^d(e)$/posix\n    acdef\\=posix_startend=2:4\n 0: de\n 1: e\n    acde\\=posix_startend=2 \n 0: de\n 1: e\n\\= Expect no match     \n    acdef\nNo match: POSIX code 17: match failed\n    acdef\\=posix_startend=2 \nNo match: POSIX code 17: match failed\n\n"
+  },
+  {
+   "id": "18:0035",
+   "kind": "pattern",
+   "line": 120,
+   "input": "/^a\\x{00}b$/posix\n    a\\x{00}b\\=posix_startend=0:3\n\n",
+   "expected": "/^a\\x{00}b$/posix\n    a\\x{00}b\\=posix_startend=0:3\n 0: a\\x00b\n\n"
+  },
+  {
+   "id": "18:0036",
+   "kind": "pattern",
+   "line": 123,
+   "input": "/\"A\" 00 \"B\"/hex\n    A\\x{00}B\\=posix_startend=0:3\n    \n",
+   "expected": "/\"A\" 00 \"B\"/hex\n    A\\x{00}B\\=posix_startend=0:3\n 0: A\\x00B\n    \n"
+  },
+  {
+   "id": "18:0037",
+   "kind": "pattern",
+   "line": 126,
+   "input": "/ABC/use_length \n    ABC\n\n",
+   "expected": "/ABC/use_length \n    ABC\n 0: ABC\n\n"
+  },
+  {
+   "id": "18:0038",
+   "kind": "pattern",
+   "line": 129,
+   "input": "/a\\b(c/literal,posix\n    a\\\\b(c\n\n",
+   "expected": "/a\\b(c/literal,posix\n    a\\\\b(c\n 0: a\\b(c\n\n"
+  },
+  {
+   "id": "18:0039",
+   "kind": "pattern",
+   "line": 132,
+   "input": "/a\\b(c/literal,posix,dotall\n\n",
+   "expected": "/a\\b(c/literal,posix,dotall\nFailed: POSIX code 16: bad argument at offset 0\n\n"
+  },
+  {
+   "id": "18:0040",
+   "kind": "pattern",
+   "line": 134,
+   "input": "/((a)(b)?(c))/posix\n    123ace\n    123ace\\=posix_startend=2:6\n\n",
+   "expected": "/((a)(b)?(c))/posix\n    123ace\n 0: ac\n 1: ac\n 2: a\n 3: \u003cunset\u003e\n 4: c\n    123ace\\=posix_startend=2:6\n 0: ac\n 1: ac\n 2: a\n 3: \u003cunset\u003e\n 4: c\n\n"
+  },
+  {
+   "id": "18:0041",
+   "kind": "pattern",
+   "line": 138,
+   "input": "//posix\n\\= Expect errors\n    \\=null_subject\n    abc\\=null_subject\n    \n",
+   "expected": "//posix\n\\= Expect errors\n    \\=null_subject\nNo match: POSIX code 16: bad argument\n    abc\\=null_subject\nNo match: POSIX code 16: bad argument\n    \n"
+  },
+  {
+   "id": "18:0042",
+   "kind": "pattern",
+   "line": 143,
+   "input": "/(*LIMIT_HEAP=0)xx/posix\n\\= Expect error\n    xxxx \n\n",
+   "expected": "/(*LIMIT_HEAP=0)xx/posix\n\\= Expect error\n    xxxx \nNo match: POSIX code 14: failed to get memory\n\n"
+  },
+  {
+   "id": "18:0043",
+   "kind": "command",
+   "line": 147,
+   "input": "# End of testdata/testinput18\n",
+   "expected": "# End of testdata/testinput18\n"
+  }
+ ]
+}

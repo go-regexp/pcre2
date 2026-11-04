@@ -1,0 +1,831 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput24",
+ "testoutput": "testoutput24",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "24:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# This file tests the auxiliary pattern conversion features of the PCRE2\n# library, in non-UTF mode.\n\n#forbid_utf\n",
+   "expected": "# This file tests the auxiliary pattern conversion features of the PCRE2\n# library, in non-UTF mode.\n\n#forbid_utf\n"
+  },
+  {
+   "id": "24:0002",
+   "kind": "command",
+   "line": 5,
+   "input": "#newline_default lf any anycrlf\n",
+   "expected": "#newline_default lf any anycrlf\n"
+  },
+  {
+   "id": "24:0003",
+   "kind": "command",
+   "line": 6,
+   "input": "\n# -------- Tests of glob conversion --------\n\n# Set the glob separator explicitly so that different OS defaults are not a\n# problem. Then test various errors.\n\n#pattern convert=glob,convert_glob_escape=\\,convert_glob_separator=/\n",
+   "expected": "\n# -------- Tests of glob conversion --------\n\n# Set the glob separator explicitly so that different OS defaults are not a\n# problem. Then test various errors.\n\n#pattern convert=glob,convert_glob_escape=\\,convert_glob_separator=/\n"
+  },
+  {
+   "id": "24:0004",
+   "kind": "pattern",
+   "line": 13,
+   "input": "\n/abc/posix\n\n",
+   "expected": "\n/abc/posix\n** The convert and posix modifiers are mutually exclusive\n\n"
+  },
+  {
+   "id": "24:0005",
+   "kind": "pattern",
+   "line": 16,
+   "input": "# Separator must be / \\ or .\n\n/a*b/convert_glob_separator=%\n\n",
+   "expected": "# Separator must be / \\ or .\n\n/a*b/convert_glob_separator=%\n** Invalid glob separator '%'\n\n"
+  },
+  {
+   "id": "24:0006",
+   "kind": "pattern",
+   "line": 20,
+   "input": "# Can't have separator in a class\n\n\"[ab/cd]\"\n\n",
+   "expected": "# Can't have separator in a class\n\n\"[ab/cd]\"\n(?s)\\A[ab/cd](?\u003c!/)\\z\n\n"
+  },
+  {
+   "id": "24:0007",
+   "kind": "pattern",
+   "line": 24,
+   "input": "\"[,-/]\"\n\n",
+   "expected": "\"[,-/]\"\n(?s)\\A[,-/](?\u003c!/)\\z\n\n"
+  },
+  {
+   "id": "24:0008",
+   "kind": "pattern",
+   "line": 26,
+   "input": "/[ab/\n\n",
+   "expected": "/[ab/\n** Pattern conversion error at offset 3: missing terminating ] for character class\n\n"
+  },
+  {
+   "id": "24:0009",
+   "kind": "pattern",
+   "line": 28,
+   "input": "# Length check\n\n/abc/convert_length=11\n\n",
+   "expected": "# Length check\n\n/abc/convert_length=11\n** Pattern conversion error at offset 3: no more memory\n\n"
+  },
+  {
+   "id": "24:0010",
+   "kind": "pattern",
+   "line": 32,
+   "input": "/abc/convert_length=12\n\n",
+   "expected": "/abc/convert_length=12\n(?s)\\Aabc\\z\n\n"
+  },
+  {
+   "id": "24:0011",
+   "kind": "pattern",
+   "line": 34,
+   "input": "# Now some actual tests\n\n/a?b[]xy]*c/\n    azb]1234c\n\n",
+   "expected": "# Now some actual tests\n\n/a?b[]xy]*c/\n(?s)\\Aa[^/]b[\\]xy](*COMMIT)[^/]*?c\\z\n    azb]1234c\n 0: azb]1234c\n\n"
+  },
+  {
+   "id": "24:0012",
+   "kind": "pattern",
+   "line": 39,
+   "input": "# Tests from the gitwildmatch list, with some additions\n\n/foo/\n    foo\n/= Expect no match\n    bar\n\n",
+   "expected": "# Tests from the gitwildmatch list, with some additions\n\n/foo/\n(?s)\\Afoo\\z\n    foo\n 0: foo\n/= Expect no match\nNo match\n    bar\nNo match\n\n"
+  },
+  {
+   "id": "24:0013",
+   "kind": "pattern",
+   "line": 46,
+   "input": "//\n    \\\n\n",
+   "expected": "//\n(?s)\\A\\z\n    \\\n 0: \n\n"
+  },
+  {
+   "id": "24:0014",
+   "kind": "pattern",
+   "line": 49,
+   "input": "/???/\n    foo\n\\= Expect no match\n    foobar\n\n",
+   "expected": "/???/\n(?s)\\A[^/][^/][^/]\\z\n    foo\n 0: foo\n\\= Expect no match\n    foobar\nNo match\n\n"
+  },
+  {
+   "id": "24:0015",
+   "kind": "pattern",
+   "line": 54,
+   "input": "/*/\n    foo\n    \\\n\n",
+   "expected": "/*/\n(?s)\\A[^/]*+\\z\n    foo\n 0: foo\n    \\\n 0: \n\n"
+  },
+  {
+   "id": "24:0016",
+   "kind": "pattern",
+   "line": 58,
+   "input": "/f*/\n    foo\n    f\n\n",
+   "expected": "/f*/\n(?s)\\Af(*COMMIT)[^/]*+\\z\n    foo\n 0: foo\n    f\n 0: f\n\n"
+  },
+  {
+   "id": "24:0017",
+   "kind": "pattern",
+   "line": 62,
+   "input": "/*f/\n    oof\n\\= Expect no match\n    foo\n\n",
+   "expected": "/*f/\n(?s)\\A[^/]*?f\\z\n    oof\n 0: oof\n\\= Expect no match\n    foo\nNo match\n\n"
+  },
+  {
+   "id": "24:0018",
+   "kind": "pattern",
+   "line": 67,
+   "input": "/*foo*/\n    foo\n    food\n    aprilfool\n\n",
+   "expected": "/*foo*/\n(?s)\\A[^/]*?foo(*COMMIT)[^/]*+\\z\n    foo\n 0: foo\n    food\n 0: food\n    aprilfool\n 0: aprilfool\n\n"
+  },
+  {
+   "id": "24:0019",
+   "kind": "pattern",
+   "line": 72,
+   "input": "/*ob*a*r*/\n    foobar\n\n",
+   "expected": "/*ob*a*r*/\n(?s)\\A[^/]*?ob(*COMMIT)[^/]*?a(*COMMIT)[^/]*?r(*COMMIT)[^/]*+\\z\n    foobar\n 0: foobar\n\n"
+  },
+  {
+   "id": "24:0020",
+   "kind": "pattern",
+   "line": 75,
+   "input": "/*ab/\n    aaaaaaabababab\n\n",
+   "expected": "/*ab/\n(?s)\\A[^/]*?ab\\z\n    aaaaaaabababab\n 0: aaaaaaabababab\n\n"
+  },
+  {
+   "id": "24:0021",
+   "kind": "pattern",
+   "line": 78,
+   "input": "/foo\\*/\n    foo*\n\n",
+   "expected": "/foo\\*/\n(?s)\\Afoo\\*\\z\n    foo*\n 0: foo*\n\n"
+  },
+  {
+   "id": "24:0022",
+   "kind": "pattern",
+   "line": 81,
+   "input": "/foo\\*bar/\n\\= Expect no match\n    foobar\n\n",
+   "expected": "/foo\\*bar/\n(?s)\\Afoo\\*bar\\z\n\\= Expect no match\n    foobar\nNo match\n\n"
+  },
+  {
+   "id": "24:0023",
+   "kind": "pattern",
+   "line": 85,
+   "input": "/f\\\\oo/\n    f\\\\oo\n\n",
+   "expected": "/f\\\\oo/\n(?s)\\Af\\\\oo\\z\n    f\\\\oo\n 0: f\\oo\n\n"
+  },
+  {
+   "id": "24:0024",
+   "kind": "pattern",
+   "line": 88,
+   "input": "/*[al]?/\n    ball\n\n",
+   "expected": "/*[al]?/\n(?s)\\A[^/]*?[al][^/]\\z\n    ball\n 0: ball\n\n"
+  },
+  {
+   "id": "24:0025",
+   "kind": "pattern",
+   "line": 91,
+   "input": "/[ten]/\n\\= Expect no match\n    ten\n\n",
+   "expected": "/[ten]/\n(?s)\\A[ten]\\z\n\\= Expect no match\n    ten\nNo match\n\n"
+  },
+  {
+   "id": "24:0026",
+   "kind": "pattern",
+   "line": 95,
+   "input": "/t[a-g]n/\n    ten\n\n",
+   "expected": "/t[a-g]n/\n(?s)\\At[a-g]n\\z\n    ten\n 0: ten\n\n"
+  },
+  {
+   "id": "24:0027",
+   "kind": "pattern",
+   "line": 98,
+   "input": "/a[]]b/\n    a]b\n\n",
+   "expected": "/a[]]b/\n(?s)\\Aa[\\]]b\\z\n    a]b\n 0: a]b\n\n"
+  },
+  {
+   "id": "24:0028",
+   "kind": "pattern",
+   "line": 101,
+   "input": "/a[]a-]b/\n\n",
+   "expected": "/a[]a-]b/\n(?s)\\Aa[\\]a\\-]b\\z\n\n"
+  },
+  {
+   "id": "24:0029",
+   "kind": "pattern",
+   "line": 103,
+   "input": "/a[]-]b/\n    a-b\n    a]b\n\\= Expect no match\n    aab\n\n",
+   "expected": "/a[]-]b/\n(?s)\\Aa[\\]\\-]b\\z\n    a-b\n 0: a-b\n    a]b\n 0: a]b\n\\= Expect no match\n    aab\nNo match\n\n"
+  },
+  {
+   "id": "24:0030",
+   "kind": "pattern",
+   "line": 109,
+   "input": "/a[]a-z]b/\n    aab\n\n",
+   "expected": "/a[]a-z]b/\n(?s)\\Aa[\\]a-z]b\\z\n    aab\n 0: aab\n\n"
+  },
+  {
+   "id": "24:0031",
+   "kind": "pattern",
+   "line": 112,
+   "input": "/]/\n    ]\n\n",
+   "expected": "/]/\n(?s)\\A\\]\\z\n    ]\n 0: ]\n\n"
+  },
+  {
+   "id": "24:0032",
+   "kind": "pattern",
+   "line": 115,
+   "input": "/t[!a-g]n/\n    ton\n\\= Expect no match\n    ten\n\n",
+   "expected": "/t[!a-g]n/\n(?s)\\At[^/a-g]n\\z\n    ton\n 0: ton\n\\= Expect no match\n    ten\nNo match\n\n"
+  },
+  {
+   "id": "24:0033",
+   "kind": "pattern",
+   "line": 120,
+   "input": "'[[:alpha:]][[:digit:]][[:upper:]]'\n    a1B\n\n",
+   "expected": "'[[:alpha:]][[:digit:]][[:upper:]]'\n(?s)\\A[[:alpha:]][[:digit:]][[:upper:]]\\z\n    a1B\n 0: a1B\n\n"
+  },
+  {
+   "id": "24:0034",
+   "kind": "pattern",
+   "line": 123,
+   "input": "'[[:digit:][:upper:][:space:]]'\n    A\n    1\n    \\ \\=\n\\= Expect no match\n    a\n    .\n\n",
+   "expected": "'[[:digit:][:upper:][:space:]]'\n(?s)\\A[[:digit:][:upper:][:space:]]\\z\n    A\n 0: A\n    1\n 0: 1\n    \\ \\=\n 0:  \n\\= Expect no match\n    a\nNo match\n    .\nNo match\n\n"
+  },
+  {
+   "id": "24:0035",
+   "kind": "pattern",
+   "line": 131,
+   "input": "'[a-c[:digit:]x-z]'\n    5\n    b\n    y\n\\= Expect no match\n    q\n\n",
+   "expected": "'[a-c[:digit:]x-z]'\n(?s)\\A[a-c[:digit:]x-z]\\z\n    5\n 0: 5\n    b\n 0: b\n    y\n 0: y\n\\= Expect no match\n    q\nNo match\n\n"
+  },
+  {
+   "id": "24:0036",
+   "kind": "pattern",
+   "line": 138,
+   "input": "# End of gitwildmatch tests\n\n/*.j?g/\n    pic01.jpg\n    .jpg\n    pic02.jxg\n\\= Expect no match\n    pic03.j/g\n\n",
+   "expected": "# End of gitwildmatch tests\n\n/*.j?g/\n(?s)\\A[^/]*?\\.j[^/]g\\z\n    pic01.jpg\n 0: pic01.jpg\n    .jpg\n 0: .jpg\n    pic02.jxg\n 0: pic02.jxg\n\\= Expect no match\n    pic03.j/g\nNo match\n\n"
+  },
+  {
+   "id": "24:0037",
+   "kind": "pattern",
+   "line": 147,
+   "input": "/A[+-0]B/\n    A+B\n    A.B\n    A0B\n\\= Expect no match\n    A/B\n\n",
+   "expected": "/A[+-0]B/\n(?s)\\AA[+-0](?\u003c!/)B\\z\n    A+B\n 0: A+B\n    A.B\n 0: A.B\n    A0B\n 0: A0B\n\\= Expect no match\n    A/B\nNo match\n\n"
+  },
+  {
+   "id": "24:0038",
+   "kind": "pattern",
+   "line": 154,
+   "input": "/*x?z/\n    abc.xyz\n\\= Expect no match\n    .xyz\n\n",
+   "expected": "/*x?z/\n(?s)\\A[^/]*?x[^/]z\\z\n    abc.xyz\n 0: abc.xyz\n\\= Expect no match\n    .xyz\n 0: .xyz\n\n"
+  },
+  {
+   "id": "24:0039",
+   "kind": "pattern",
+   "line": 159,
+   "input": "/?x?z/\n    axyz\n\\= Expect no match\n    .xyz\n\n",
+   "expected": "/?x?z/\n(?s)\\A[^/]x[^/]z\\z\n    axyz\n 0: axyz\n\\= Expect no match\n    .xyz\n 0: .xyz\n\n"
+  },
+  {
+   "id": "24:0040",
+   "kind": "pattern",
+   "line": 164,
+   "input": "\"[,-0]x?z\"\n    ,xyz\n\\= Expect no match\n    /xyz\n    .xyz\n\n",
+   "expected": "\"[,-0]x?z\"\n(?s)\\A[,-0](?\u003c!/)x[^/]z\\z\n    ,xyz\n 0: ,xyz\n\\= Expect no match\n    /xyz\nNo match\n    .xyz\n 0: .xyz\n\n"
+  },
+  {
+   "id": "24:0041",
+   "kind": "pattern",
+   "line": 170,
+   "input": "\".x*\"\n    .xabc\n\n",
+   "expected": "\".x*\"\n(?s)\\A\\.x(*COMMIT)[^/]*+\\z\n    .xabc\n 0: .xabc\n\n"
+  },
+  {
+   "id": "24:0042",
+   "kind": "pattern",
+   "line": 173,
+   "input": "/a[--0]z/\n    a-z\n    a.z\n    a0z\n\\= Expect no match\n    a/z\n    a1z\n\n",
+   "expected": "/a[--0]z/\n(?s)\\Aa[\\--0](?\u003c!/)z\\z\n    a-z\n 0: a-z\n    a.z\n 0: a.z\n    a0z\n 0: a0z\n\\= Expect no match\n    a/z\nNo match\n    a1z\nNo match\n\n"
+  },
+  {
+   "id": "24:0043",
+   "kind": "pattern",
+   "line": 181,
+   "input": "/\u003c[a-c-d]\u003e/\n    \u003ca\u003e\n    \u003cb\u003e\n    \u003cc\u003e\n    \u003cd\u003e\n    \u003c-\u003e\n\n",
+   "expected": "/\u003c[a-c-d]\u003e/\n(?s)\\A\u003c[a-c\\-d]\u003e\\z\n    \u003ca\u003e\n 0: \u003ca\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n    \u003cc\u003e\n 0: \u003cc\u003e\n    \u003cd\u003e\n 0: \u003cd\u003e\n    \u003c-\u003e\n 0: \u003c-\u003e\n\n"
+  },
+  {
+   "id": "24:0044",
+   "kind": "pattern",
+   "line": 188,
+   "input": "/a[[:digit:].]z/\n    a1z\n    a.z\n\\= Expect no match\n    a:z\n\n",
+   "expected": "/a[[:digit:].]z/\n(?s)\\Aa[[:digit:].]z\\z\n    a1z\n 0: a1z\n    a.z\n 0: a.z\n\\= Expect no match\n    a:z\nNo match\n\n"
+  },
+  {
+   "id": "24:0045",
+   "kind": "pattern",
+   "line": 194,
+   "input": "/a[[:digit].]z/\n    a[.]z\n    a:.]z\n    ad.]z\n\n",
+   "expected": "/a[[:digit].]z/\n(?s)\\Aa[\\[:digit]\\.\\]z\\z\n    a[.]z\n 0: a[.]z\n    a:.]z\n 0: a:.]z\n    ad.]z\n 0: ad.]z\n\n"
+  },
+  {
+   "id": "24:0046",
+   "kind": "pattern",
+   "line": 199,
+   "input": "/\u003c[[:a[:digit:]b]\u003e/\n    \u003c[\u003e\n    \u003c:\u003e\n    \u003ca\u003e\n    \u003c9\u003e\n    \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\n\n",
+   "expected": "/\u003c[[:a[:digit:]b]\u003e/\n(?s)\\A\u003c[\\[:a[:digit:]b]\u003e\\z\n    \u003c[\u003e\n 0: \u003c[\u003e\n    \u003c:\u003e\n 0: \u003c:\u003e\n    \u003ca\u003e\n 0: \u003ca\u003e\n    \u003c9\u003e\n 0: \u003c9\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\nNo match\n\n"
+  },
+  {
+   "id": "24:0047",
+   "kind": "pattern",
+   "line": 208,
+   "input": "/a*b/convert_glob_separator=\\\n\n",
+   "expected": "/a*b/convert_glob_separator=\\\n(?s)\\Aa(*COMMIT)[^\\\\]*?b\\z\n\n"
+  },
+  {
+   "id": "24:0048",
+   "kind": "pattern",
+   "line": 210,
+   "input": "/a*b/convert_glob_separator=.\n\n",
+   "expected": "/a*b/convert_glob_separator=.\n(?s)\\Aa(*COMMIT)[^\\.]*?b\\z\n\n"
+  },
+  {
+   "id": "24:0049",
+   "kind": "pattern",
+   "line": 212,
+   "input": "/a*b/convert_glob_separator=/\n\n",
+   "expected": "/a*b/convert_glob_separator=/\n(?s)\\Aa(*COMMIT)[^/]*?b\\z\n\n"
+  },
+  {
+   "id": "24:0050",
+   "kind": "pattern",
+   "line": 214,
+   "input": "# Non control character checking\n\n/A\\B\\\\C\\D/\n\n",
+   "expected": "# Non control character checking\n\n/A\\B\\\\C\\D/\n(?s)\\AAB\\\\CD\\z\n\n"
+  },
+  {
+   "id": "24:0051",
+   "kind": "pattern",
+   "line": 218,
+   "input": "/\\\\{}\\?\\*+\\[\\]()|.^$/\n\n",
+   "expected": "/\\\\{}\\?\\*+\\[\\]()|.^$/\n(?s)\\A\\\\\\{\\}\\?\\*\\+\\[\\]\\(\\)\\|\\.\\^\\$\\z\n\n"
+  },
+  {
+   "id": "24:0052",
+   "kind": "pattern",
+   "line": 220,
+   "input": "/*a*\\/*b*/\n\n",
+   "expected": "/*a*\\/*b*/\n(?s)\\A[^/]*?a(*COMMIT)[^/]*?/(*COMMIT)[^/]*?b(*COMMIT)[^/]*+\\z\n\n"
+  },
+  {
+   "id": "24:0053",
+   "kind": "pattern",
+   "line": 222,
+   "input": "/?a?\\/?b?/\n\n",
+   "expected": "/?a?\\/?b?/\n(?s)\\A[^/]a[^/]/[^/]b[^/]\\z\n\n"
+  },
+  {
+   "id": "24:0054",
+   "kind": "pattern",
+   "line": 224,
+   "input": "/[a\\\\b\\c][]][-][\\]\\-]/\n\n",
+   "expected": "/[a\\\\b\\c][]][-][\\]\\-]/\n(?s)\\A[a\\\\bc][\\]][\\-][\\]\\-]\\z\n\n"
+  },
+  {
+   "id": "24:0055",
+   "kind": "pattern",
+   "line": 226,
+   "input": "/[^a\\\\b\\c][!]][!-][^\\]\\-]/\n\n",
+   "expected": "/[^a\\\\b\\c][!]][!-][^\\]\\-]/\n(?s)\\A[^/a\\\\bc][^/\\]][^/\\-][^/\\]\\-]\\z\n\n"
+  },
+  {
+   "id": "24:0056",
+   "kind": "pattern",
+   "line": 228,
+   "input": "/[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]]/\n\n",
+   "expected": "/[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]]/\n(?s)\\A[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:word:][:xdigit:]](?\u003c!/)\\z\n\n"
+  },
+  {
+   "id": "24:0057",
+   "kind": "pattern",
+   "line": 230,
+   "input": "\"[/-/]\"\n\n",
+   "expected": "\"[/-/]\"\n(?s)\\A[/-/](?\u003c!/)\\z\n\n"
+  },
+  {
+   "id": "24:0058",
+   "kind": "pattern",
+   "line": 232,
+   "input": "/[-----]/\n\n",
+   "expected": "/[-----]/\n(?s)\\A[\\--\\-\\-\\-]\\z\n\n"
+  },
+  {
+   "id": "24:0059",
+   "kind": "pattern",
+   "line": 234,
+   "input": "/[------]/\n\n",
+   "expected": "/[------]/\n(?s)\\A[\\--\\-\\--\\-]\\z\n\n"
+  },
+  {
+   "id": "24:0060",
+   "kind": "pattern",
+   "line": 236,
+   "input": "/[!------]/\n\n",
+   "expected": "/[!------]/\n(?s)\\A[^/\\--\\-\\--\\-]\\z\n\n"
+  },
+  {
+   "id": "24:0061",
+   "kind": "pattern",
+   "line": 238,
+   "input": "/[[:alpha:]-a]/\n\n",
+   "expected": "/[[:alpha:]-a]/\n(?s)\\A[[:alpha:]\\-a]\\z\n\n"
+  },
+  {
+   "id": "24:0062",
+   "kind": "pattern",
+   "line": 240,
+   "input": "/[[:alpha:]][[:punct:]][[:ascii:]]/\n\n",
+   "expected": "/[[:alpha:]][[:punct:]][[:ascii:]]/\n(?s)\\A[[:alpha:]][[:punct:]](?\u003c!/)[[:ascii:]](?\u003c!/)\\z\n\n"
+  },
+  {
+   "id": "24:0063",
+   "kind": "pattern",
+   "line": 242,
+   "input": "/[a-[:alpha:]]/\n\n",
+   "expected": "/[a-[:alpha:]]/\n** Pattern conversion error at offset 4: invalid syntax\n\n"
+  },
+  {
+   "id": "24:0064",
+   "kind": "pattern",
+   "line": 244,
+   "input": "/[[:alpha:/\n\n",
+   "expected": "/[[:alpha:/\n** Pattern conversion error at offset 9: missing terminating ] for character class\n\n"
+  },
+  {
+   "id": "24:0065",
+   "kind": "pattern",
+   "line": 246,
+   "input": "/[[:alpha:]/\n\n",
+   "expected": "/[[:alpha:]/\n** Pattern conversion error at offset 10: missing terminating ] for character class\n\n"
+  },
+  {
+   "id": "24:0066",
+   "kind": "pattern",
+   "line": 248,
+   "input": "/[[:alphaa:]]/\n\n",
+   "expected": "/[[:alphaa:]]/\n(?s)\\A[\\[:alphaa:]\\]\\z\n\n"
+  },
+  {
+   "id": "24:0067",
+   "kind": "pattern",
+   "line": 250,
+   "input": "/[[:xdigi:]]/\n\n",
+   "expected": "/[[:xdigi:]]/\n(?s)\\A[\\[:xdigi:]\\]\\z\n\n"
+  },
+  {
+   "id": "24:0068",
+   "kind": "pattern",
+   "line": 252,
+   "input": "/[[:xdigit::]]/\n\n",
+   "expected": "/[[:xdigit::]]/\n(?s)\\A[\\[:xdigit::]\\]\\z\n\n"
+  },
+  {
+   "id": "24:0069",
+   "kind": "pattern",
+   "line": 254,
+   "input": "/****/\n\n",
+   "expected": "/****/\n(?s)\n\n"
+  },
+  {
+   "id": "24:0070",
+   "kind": "pattern",
+   "line": 256,
+   "input": "/**\\/abc/\n  abc\n  x/abc\n  xabc\n\n",
+   "expected": "/**\\/abc/\n(?s)(?:\\A|/)abc\\z\n  abc\n 0: abc\n  x/abc\n 0: /abc\n  xabc\nNo match\n\n"
+  },
+  {
+   "id": "24:0071",
+   "kind": "pattern",
+   "line": 261,
+   "input": "/abc\\/**/\n\n",
+   "expected": "/abc\\/**/\n(?s)\\Aabc/\n\n"
+  },
+  {
+   "id": "24:0072",
+   "kind": "pattern",
+   "line": 263,
+   "input": "/abc\\/**\\/abc/\n\n",
+   "expected": "/abc\\/**\\/abc/\n(?s)\\Aabc/(*COMMIT)(?:.*?/)??abc\\z\n\n"
+  },
+  {
+   "id": "24:0073",
+   "kind": "pattern",
+   "line": 265,
+   "input": "/**\\/*a*b*g*n*t/\n  abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txt\n\n",
+   "expected": "/**\\/*a*b*g*n*t/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*?b)(?\u003e[^/]*?g)(?\u003e[^/]*?n)(?\u003e[^/]*?t\\z)\n  abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txt\n 0: /abcdefghijklmnop.txt\n\n"
+  },
+  {
+   "id": "24:0074",
+   "kind": "pattern",
+   "line": 268,
+   "input": "/**\\/*a*\\/**/\n  xx/xx/xx/xax/xx/xb\n\n",
+   "expected": "/**\\/*a*\\/**/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*?/)\n  xx/xx/xx/xax/xx/xb\n 0: /xax/\n\n"
+  },
+  {
+   "id": "24:0075",
+   "kind": "pattern",
+   "line": 271,
+   "input": "/**\\/*a*/\n  xx/xx/xx/xax\n  xx/xx/xx/xax/xx\n\n",
+   "expected": "/**\\/*a*/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*+\\z)\n  xx/xx/xx/xax\n 0: /xax\n  xx/xx/xx/xax/xx\nNo match\n\n"
+  },
+  {
+   "id": "24:0076",
+   "kind": "pattern",
+   "line": 275,
+   "input": "/**\\/*a*\\/**\\/*b*/\n  xx/xx/xx/xax/xx/xb\n  xx/xx/xx/xax/xx/x\n\n",
+   "expected": "/**\\/*a*\\/**\\/*b*/\n(?s)(?:\\A|/)(?\u003e[^/]*?a)(?\u003e[^/]*?/)(*COMMIT)(?:.*?/)??(?\u003e[^/]*?b)(?\u003e[^/]*+\\z)\n  xx/xx/xx/xax/xx/xb\n 0: /xax/xx/xb\n  xx/xx/xx/xax/xx/x\nNo match\n\n"
+  },
+  {
+   "id": "24:0077",
+   "kind": "pattern",
+   "line": 279,
+   "input": "\"**a\"convert=glob\n  a\n  c/b/a\n  c/b/aaa\n\n",
+   "expected": "\"**a\"convert=glob\n(?s)a\\z\n  a\n 0: a\n  c/b/a\n 0: a\n  c/b/aaa\n 0: a\n\n"
+  },
+  {
+   "id": "24:0078",
+   "kind": "pattern",
+   "line": 284,
+   "input": "\"a**/b\"convert=glob\n  a/b\n  ab\n\n",
+   "expected": "\"a**/b\"convert=glob\n(?s)\\Aa(*COMMIT).*?/b\\z\n  a/b\n 0: a/b\n  ab\nNo match\n\n"
+  },
+  {
+   "id": "24:0079",
+   "kind": "pattern",
+   "line": 288,
+   "input": "\"a/**b\"convert=glob\n  a/b\n  ab\n\n",
+   "expected": "\"a/**b\"convert=glob\n(?s)\\Aa/(*COMMIT).*?b\\z\n  a/b\n 0: a/b\n  ab\nNo match\n\n"
+  },
+  {
+   "id": "24:0080",
+   "kind": "command",
+   "line": 292,
+   "input": "#pattern convert=glob:glob_no_starstar\n",
+   "expected": "#pattern convert=glob:glob_no_starstar\n"
+  },
+  {
+   "id": "24:0081",
+   "kind": "pattern",
+   "line": 293,
+   "input": "\n/***/\n\n",
+   "expected": "\n/***/\n(?s)\\A[^/]*+\\z\n\n"
+  },
+  {
+   "id": "24:0082",
+   "kind": "pattern",
+   "line": 296,
+   "input": "/**a**/\n\n",
+   "expected": "/**a**/\n(?s)\\A[^/]*?a(*COMMIT)[^/]*+\\z\n\n"
+  },
+  {
+   "id": "24:0083",
+   "kind": "command",
+   "line": 298,
+   "input": "#pattern convert=unset\n",
+   "expected": "#pattern convert=unset\n"
+  },
+  {
+   "id": "24:0084",
+   "kind": "command",
+   "line": 299,
+   "input": "#pattern convert=glob:glob_no_wild_separator\n",
+   "expected": "#pattern convert=glob:glob_no_wild_separator\n"
+  },
+  {
+   "id": "24:0085",
+   "kind": "pattern",
+   "line": 300,
+   "input": "\n/*/\n\n",
+   "expected": "\n/*/\n(?s)\n\n"
+  },
+  {
+   "id": "24:0086",
+   "kind": "pattern",
+   "line": 303,
+   "input": "/*a*/\n\n",
+   "expected": "/*a*/\n(?s)a\n\n"
+  },
+  {
+   "id": "24:0087",
+   "kind": "pattern",
+   "line": 305,
+   "input": "/**a**/\n\n",
+   "expected": "/**a**/\n(?s)a\n\n"
+  },
+  {
+   "id": "24:0088",
+   "kind": "pattern",
+   "line": 307,
+   "input": "/a*b/\n\n",
+   "expected": "/a*b/\n(?s)\\Aa(*COMMIT).*?b\\z\n\n"
+  },
+  {
+   "id": "24:0089",
+   "kind": "pattern",
+   "line": 309,
+   "input": "/*a*b*/\n\n",
+   "expected": "/*a*b*/\n(?s)a(*COMMIT).*?b\n\n"
+  },
+  {
+   "id": "24:0090",
+   "kind": "pattern",
+   "line": 311,
+   "input": "/??a??/\n\n",
+   "expected": "/??a??/\n(?s)\\A..a..\\z\n\n"
+  },
+  {
+   "id": "24:0091",
+   "kind": "command",
+   "line": 313,
+   "input": "#pattern convert=unset\n",
+   "expected": "#pattern convert=unset\n"
+  },
+  {
+   "id": "24:0092",
+   "kind": "command",
+   "line": 314,
+   "input": "#pattern convert=glob,convert_glob_escape=0\n",
+   "expected": "#pattern convert=glob,convert_glob_escape=0\n"
+  },
+  {
+   "id": "24:0093",
+   "kind": "pattern",
+   "line": 315,
+   "input": "\n/a\\b\\cd/\n\n",
+   "expected": "\n/a\\b\\cd/\n(?s)\\Aa\\\\b\\\\cd\\z\n\n"
+  },
+  {
+   "id": "24:0094",
+   "kind": "pattern",
+   "line": 318,
+   "input": "/**\\/a/\n\n",
+   "expected": "/**\\/a/\n(?s)\\\\/a\\z\n\n"
+  },
+  {
+   "id": "24:0095",
+   "kind": "pattern",
+   "line": 320,
+   "input": "/a`*b/convert_glob_escape=`\n\n",
+   "expected": "/a`*b/convert_glob_escape=`\n(?s)\\Aa\\*b\\z\n\n"
+  },
+  {
+   "id": "24:0096",
+   "kind": "pattern",
+   "line": 322,
+   "input": "/a`*b/convert_glob_escape=0\n\n",
+   "expected": "/a`*b/convert_glob_escape=0\n(?s)\\Aa`(*COMMIT)[^/]*?b\\z\n\n"
+  },
+  {
+   "id": "24:0097",
+   "kind": "pattern",
+   "line": 324,
+   "input": "/a`*b/convert_glob_escape=x\n\n",
+   "expected": "/a`*b/convert_glob_escape=x\n** Invalid glob escape 'x'\n\n"
+  },
+  {
+   "id": "24:0098",
+   "kind": "command",
+   "line": 326,
+   "input": "# -------- Tests of extended POSIX conversion --------\n\n#pattern convert=unset:posix_extended\n",
+   "expected": "# -------- Tests of extended POSIX conversion --------\n\n#pattern convert=unset:posix_extended\n"
+  },
+  {
+   "id": "24:0099",
+   "kind": "pattern",
+   "line": 329,
+   "input": "\n/\u003c[[:a[:digit:]b]\u003e/\n    \u003c[\u003e\n    \u003c:\u003e\n    \u003ca\u003e\n    \u003c9\u003e\n    \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\n\n",
+   "expected": "\n/\u003c[[:a[:digit:]b]\u003e/\n(*NUL)\u003c[[:a[:digit:]b]\u003e\n    \u003c[\u003e\n 0: \u003c[\u003e\n    \u003c:\u003e\n 0: \u003c:\u003e\n    \u003ca\u003e\n 0: \u003ca\u003e\n    \u003c9\u003e\n 0: \u003c9\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n\\= Expect no match\n    \u003cd\u003e\nNo match\n\n"
+  },
+  {
+   "id": "24:0100",
+   "kind": "pattern",
+   "line": 339,
+   "input": "/a+\\1b\\\\c|d[ab\\c]/\n\n",
+   "expected": "/a+\\1b\\\\c|d[ab\\c]/\n(*NUL)a+1b\\\\c|d[ab\\\\c]\n\n"
+  },
+  {
+   "id": "24:0101",
+   "kind": "pattern",
+   "line": 341,
+   "input": "/\u003c[]bc]\u003e/\n    \u003c]\u003e\n    \u003cb\u003e\n    \u003cc\u003e\n\n",
+   "expected": "/\u003c[]bc]\u003e/\n(*NUL)\u003c[]bc]\u003e\n    \u003c]\u003e\n 0: \u003c]\u003e\n    \u003cb\u003e\n 0: \u003cb\u003e\n    \u003cc\u003e\n 0: \u003cc\u003e\n\n"
+  },
+  {
+   "id": "24:0102",
+   "kind": "pattern",
+   "line": 346,
+   "input": "/\u003c[^]bc]\u003e/\n    \u003c.\u003e\n\\= Expect no match\n    \u003c]\u003e\n    \u003cb\u003e\n\n",
+   "expected": "/\u003c[^]bc]\u003e/\n(*NUL)\u003c[^]bc]\u003e\n    \u003c.\u003e\n 0: \u003c.\u003e\n\\= Expect no match\n    \u003c]\u003e\nNo match\n    \u003cb\u003e\nNo match\n\n"
+  },
+  {
+   "id": "24:0103",
+   "kind": "pattern",
+   "line": 352,
+   "input": "/(a)\\1b/\n    a1b\n\\= Expect no match\n    aab\n\n",
+   "expected": "/(a)\\1b/\n(*NUL)(a)1b\n    a1b\n 0: a1b\n 1: a\n\\= Expect no match\n    aab\nNo match\n\n"
+  },
+  {
+   "id": "24:0104",
+   "kind": "pattern",
+   "line": 357,
+   "input": "/(ab)c)d]/\n    Xabc)d]Y\n\n",
+   "expected": "/(ab)c)d]/\n(*NUL)(ab)c\\)d\\]\n    Xabc)d]Y\n 0: abc)d]\n 1: ab\n\n"
+  },
+  {
+   "id": "24:0105",
+   "kind": "pattern",
+   "line": 360,
+   "input": "/a***b/\n\n",
+   "expected": "/a***b/\n(*NUL)a*b\n\n"
+  },
+  {
+   "id": "24:0106",
+   "kind": "command",
+   "line": 362,
+   "input": "# -------- Tests of basic POSIX conversion --------\n\n#pattern convert=unset:posix_basic\n",
+   "expected": "# -------- Tests of basic POSIX conversion --------\n\n#pattern convert=unset:posix_basic\n"
+  },
+  {
+   "id": "24:0107",
+   "kind": "pattern",
+   "line": 365,
+   "input": "\n/a*b+c\\+[def](ab)\\(cd\\)/\n\n",
+   "expected": "\n/a*b+c\\+[def](ab)\\(cd\\)/\n(*NUL)a*b\\+c\\+[def]\\(ab\\)(cd)\n\n"
+  },
+  {
+   "id": "24:0108",
+   "kind": "pattern",
+   "line": 368,
+   "input": "/\\(a\\)\\1b/\n    aab\n\\= Expect no match\n    a1b\n\n",
+   "expected": "/\\(a\\)\\1b/\n(*NUL)(a)\\1b\n    aab\n 0: aab\n 1: a\n\\= Expect no match\n    a1b\nNo match\n\n"
+  },
+  {
+   "id": "24:0109",
+   "kind": "pattern",
+   "line": 373,
+   "input": "/how.to how\\.to/\n    how\\nto how.to\n\\= Expect no match     \n    how\\x{0}to how.to\n\n",
+   "expected": "/how.to how\\.to/\n(*NUL)how.to how\\.to\n    how\\nto how.to\n 0: how\\x0ato how.to\n\\= Expect no match     \n    how\\x{0}to how.to\nNo match\n\n"
+  },
+  {
+   "id": "24:0110",
+   "kind": "pattern",
+   "line": 378,
+   "input": "/^how to \\^how to/\n\n",
+   "expected": "/^how to \\^how to/\n(*NUL)^how to \\^how to\n\n"
+  },
+  {
+   "id": "24:0111",
+   "kind": "pattern",
+   "line": 380,
+   "input": "/^*abc/\n\n",
+   "expected": "/^*abc/\n(*NUL)^\\*abc\n\n"
+  },
+  {
+   "id": "24:0112",
+   "kind": "pattern",
+   "line": 382,
+   "input": "/*abc/\n    X*abcY\n\n",
+   "expected": "/*abc/\n(*NUL)\\*abc\n    X*abcY\n 0: *abc\n\n"
+  },
+  {
+   "id": "24:0113",
+   "kind": "pattern",
+   "line": 385,
+   "input": "/**abc/\n    XabcY\n    X*abcY\n    X**abcY\n    \n",
+   "expected": "/**abc/\n(*NUL)\\**abc\n    XabcY\n 0: abc\n    X*abcY\n 0: *abc\n    X**abcY\n 0: **abc\n    \n"
+  },
+  {
+   "id": "24:0114",
+   "kind": "pattern",
+   "line": 390,
+   "input": "/*ab\\(*cd\\)/ \n\n",
+   "expected": "/*ab\\(*cd\\)/ \n(*NUL)\\*ab(\\*cd)\n\n"
+  },
+  {
+   "id": "24:0115",
+   "kind": "pattern",
+   "line": 392,
+   "input": "/^b\\(c^d\\)\\(^e^f\\)/\n\n",
+   "expected": "/^b\\(c^d\\)\\(^e^f\\)/\n(*NUL)^b(c\\^d)(^e\\^f)\n\n"
+  },
+  {
+   "id": "24:0116",
+   "kind": "pattern",
+   "line": 394,
+   "input": "/a***b/\n\n",
+   "expected": "/a***b/\n(*NUL)a*b\n\n"
+  },
+  {
+   "id": "24:0117",
+   "kind": "command",
+   "line": 396,
+   "input": "# End of testinput24\n",
+   "expected": "# End of testinput24\n"
+  }
+ ]
+}

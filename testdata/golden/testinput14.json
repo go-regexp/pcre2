@@ -1,0 +1,152 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput14",
+ "testoutput": "testoutput14-8",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "14:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# These test special UTF and UCP features of DFA matching. The output is\n# different for the different widths.\n\n#subject dfa\n",
+   "expected": "# These test special UTF and UCP features of DFA matching. The output is\n# different for the different widths.\n\n#subject dfa\n"
+  },
+  {
+   "id": "14:0002",
+   "kind": "pattern",
+   "line": 5,
+   "input": "\n# ---------------------------------------------------- \n# These are a selection of the more comprehensive tests that are run for\n# non-DFA matching.\n\n/X/utf\n    XX\\x{d800}\n    XX\\x{d800}\\=offset=3\n    XX\\x{d800}\\=no_utf_check\n    XX\\x{da00}\n    XX\\x{da00}\\=no_utf_check\n    XX\\x{dc00}\n    XX\\x{dc00}\\=no_utf_check\n    XX\\x{de00}\n    XX\\x{de00}\\=no_utf_check\n    XX\\x{dfff}\n    XX\\x{dfff}\\=no_utf_check\n    XX\\x{110000}\n    XX\\x{d800}\\x{1234}\n          \n",
+   "expected": "\n# ---------------------------------------------------- \n# These are a selection of the more comprehensive tests that are run for\n# non-DFA matching.\n\n/X/utf\n    XX\\x{d800}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 2\n    XX\\x{d800}\\=offset=3\nError -36 (bad UTF-8 offset)\n    XX\\x{d800}\\=no_utf_check\n 0: X\n    XX\\x{da00}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 2\n    XX\\x{da00}\\=no_utf_check\n 0: X\n    XX\\x{dc00}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 2\n    XX\\x{dc00}\\=no_utf_check\n 0: X\n    XX\\x{de00}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 2\n    XX\\x{de00}\\=no_utf_check\n 0: X\n    XX\\x{dfff}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 2\n    XX\\x{dfff}\\=no_utf_check\n 0: X\n    XX\\x{110000}\nFailed: error -15: UTF-8 error: code points greater than 0x10ffff are not defined at offset 2\n    XX\\x{d800}\\x{1234}\nFailed: error -16: UTF-8 error: code points 0xd800-0xdfff are not defined at offset 2\n          \n"
+  },
+  {
+   "id": "14:0003",
+   "kind": "pattern",
+   "line": 25,
+   "input": "/badutf/utf\n    X\\xdf\n    XX\\xef\n    XXX\\xef\\x80\n    X\\xf7\n    XX\\xf7\\x80\n    XXX\\xf7\\x80\\x80\n\n",
+   "expected": "/badutf/utf\n    X\\xdf\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 1\n    XX\\xef\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 2\n    XXX\\xef\\x80\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 3\n    X\\xf7\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 1\n    XX\\xf7\\x80\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 2\n    XXX\\xf7\\x80\\x80\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 3\n\n"
+  },
+  {
+   "id": "14:0004",
+   "kind": "pattern",
+   "line": 33,
+   "input": "/shortutf/utf\n    XX\\xdf\\=ph\n    XX\\xef\\=ph\n    XX\\xef\\x80\\=ph\n    \\xf7\\=ph\n    \\xf7\\x80\\=ph\n    \n",
+   "expected": "/shortutf/utf\n    XX\\xdf\\=ph\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 2\n    XX\\xef\\=ph\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 2\n    XX\\xef\\x80\\=ph\nFailed: error -3: UTF-8 error: 1 byte missing at end at offset 2\n    \\xf7\\=ph\nFailed: error -5: UTF-8 error: 3 bytes missing at end at offset 0\n    \\xf7\\x80\\=ph\nFailed: error -4: UTF-8 error: 2 bytes missing at end at offset 0\n    \n"
+  },
+  {
+   "id": "14:0005",
+   "kind": "pattern",
+   "line": 40,
+   "input": "# ---------------------------------------------------- \n# UCP and casing tests - except for the first two, these will all fail in 8-bit\n# mode because they are testing UCP without UTF and use characters \u003e 255.\n\n/\\x{c1}/i,no_start_optimize\n\\= Expect no match\n    \\x{e1}\n\n",
+   "expected": "# ---------------------------------------------------- \n# UCP and casing tests - except for the first two, these will all fail in 8-bit\n# mode because they are testing UCP without UTF and use characters \u003e 255.\n\n/\\x{c1}/i,no_start_optimize\n\\= Expect no match\n    \\x{e1}\nNo match\n\n"
+  },
+  {
+   "id": "14:0006",
+   "kind": "pattern",
+   "line": 48,
+   "input": "/\\x{c1}+\\x{e1}/iB,ucp\n    \\x{c1}\\x{c1}\\x{c1}\n    \\x{e1}\\x{e1}\\x{e1} \n\n",
+   "expected": "/\\x{c1}+\\x{e1}/iB,ucp\n------------------------------------------------------------------\n        Bra\n     /i \\x{c1}+\n     /i \\x{e1}\n        Ket\n        End\n------------------------------------------------------------------\n    \\x{c1}\\x{c1}\\x{c1}\n 0: \\xc1\\xc1\\xc1\n 1: \\xc1\\xc1\n    \\x{e1}\\x{e1}\\x{e1} \n 0: \\xe1\\xe1\\xe1\n 1: \\xe1\\xe1\n\n"
+  },
+  {
+   "id": "14:0007",
+   "kind": "pattern",
+   "line": 52,
+   "input": "/\\x{120}\\x{c1}/i,ucp,no_start_optimize\n    \\x{121}\\x{e1}\n\n",
+   "expected": "/\\x{120}\\x{c1}/i,ucp,no_start_optimize\nFailed: error 134 at offset 6: character code point value in \\x{} or \\o{} is too large\n    \\x{121}\\x{e1}\n\n"
+  },
+  {
+   "id": "14:0008",
+   "kind": "pattern",
+   "line": 55,
+   "input": "/\\x{120}\\x{c1}/i,ucp\n    \\x{121}\\x{e1}\n\n",
+   "expected": "/\\x{120}\\x{c1}/i,ucp\nFailed: error 134 at offset 6: character code point value in \\x{} or \\o{} is too large\n    \\x{121}\\x{e1}\n\n"
+  },
+  {
+   "id": "14:0009",
+   "kind": "pattern",
+   "line": 58,
+   "input": "/[^\\x{120}]/i,no_start_optimize\n    \\x{121}\n\n",
+   "expected": "/[^\\x{120}]/i,no_start_optimize\nFailed: error 134 at offset 8: character code point value in \\x{} or \\o{} is too large\n    \\x{121}\n\n"
+  },
+  {
+   "id": "14:0010",
+   "kind": "pattern",
+   "line": 61,
+   "input": "/[^\\x{120}]/i,ucp,no_start_optimize\n\\= Expect no match\n    \\x{121}\n\n",
+   "expected": "/[^\\x{120}]/i,ucp,no_start_optimize\nFailed: error 134 at offset 8: character code point value in \\x{} or \\o{} is too large\n\\= Expect no match\n    \\x{121}\n\n"
+  },
+  {
+   "id": "14:0011",
+   "kind": "pattern",
+   "line": 65,
+   "input": "/[^\\x{120}]/i\n    \\x{121}\n\n",
+   "expected": "/[^\\x{120}]/i\nFailed: error 134 at offset 8: character code point value in \\x{} or \\o{} is too large\n    \\x{121}\n\n"
+  },
+  {
+   "id": "14:0012",
+   "kind": "pattern",
+   "line": 68,
+   "input": "/[^\\x{120}]/i,ucp\n\\= Expect no match\n    \\x{121}\n    \n",
+   "expected": "/[^\\x{120}]/i,ucp\nFailed: error 134 at offset 8: character code point value in \\x{} or \\o{} is too large\n\\= Expect no match\n    \\x{121}\n    \n"
+  },
+  {
+   "id": "14:0013",
+   "kind": "pattern",
+   "line": 72,
+   "input": "/\\x{120}{2}/i,ucp\n    \\x{121}\\x{121}\n\n",
+   "expected": "/\\x{120}{2}/i,ucp\nFailed: error 134 at offset 6: character code point value in \\x{} or \\o{} is too large\n    \\x{121}\\x{121}\n\n"
+  },
+  {
+   "id": "14:0014",
+   "kind": "pattern",
+   "line": 75,
+   "input": "/[^\\x{120}]{2}/i,ucp\n\\= Expect no match\n    \\x{121}\\x{121}\n\n",
+   "expected": "/[^\\x{120}]{2}/i,ucp\nFailed: error 134 at offset 8: character code point value in \\x{} or \\o{} is too large\n\\= Expect no match\n    \\x{121}\\x{121}\n\n"
+  },
+  {
+   "id": "14:0015",
+   "kind": "pattern",
+   "line": 79,
+   "input": "# ---------------------------------------------------- \n\n# ---------------------------------------------------- \n# Tests for handling 0xffffffff in caseless UCP mode. They only apply to 32-bit\n# mode; for the other widths they will fail.\n\n/k*\\x{ffffffff}/caseless,ucp\n    \\x{ffffffff}\n\n",
+   "expected": "# ---------------------------------------------------- \n\n# ---------------------------------------------------- \n# Tests for handling 0xffffffff in caseless UCP mode. They only apply to 32-bit\n# mode; for the other widths they will fail.\n\n/k*\\x{ffffffff}/caseless,ucp\nFailed: error 134 at offset 13: character code point value in \\x{} or \\o{} is too large\n    \\x{ffffffff}\n\n"
+  },
+  {
+   "id": "14:0016",
+   "kind": "pattern",
+   "line": 88,
+   "input": "/k+\\x{ffffffff}/caseless,ucp,no_start_optimize\n    K\\x{ffffffff}\n\\= Expect no match     \n    \\x{ffffffff}\\x{ffffffff}\n\n",
+   "expected": "/k+\\x{ffffffff}/caseless,ucp,no_start_optimize\nFailed: error 134 at offset 13: character code point value in \\x{} or \\o{} is too large\n    K\\x{ffffffff}\n\\= Expect no match     \n    \\x{ffffffff}\\x{ffffffff}\n\n"
+  },
+  {
+   "id": "14:0017",
+   "kind": "pattern",
+   "line": 93,
+   "input": "/k{2}\\x{ffffffff}/caseless,ucp,no_start_optimize\n\\= Expect no match\n    \\x{ffffffff}\\x{ffffffff}\\x{ffffffff}\n\n",
+   "expected": "/k{2}\\x{ffffffff}/caseless,ucp,no_start_optimize\nFailed: error 134 at offset 15: character code point value in \\x{} or \\o{} is too large\n\\= Expect no match\n    \\x{ffffffff}\\x{ffffffff}\\x{ffffffff}\n\n"
+  },
+  {
+   "id": "14:0018",
+   "kind": "pattern",
+   "line": 97,
+   "input": "/k\\x{ffffffff}/caseless,ucp,no_start_optimize\n    K\\x{ffffffff}\n\\= Expect no match\n    \\x{ffffffff}\\x{ffffffff}\\x{ffffffff}\n\n",
+   "expected": "/k\\x{ffffffff}/caseless,ucp,no_start_optimize\nFailed: error 134 at offset 12: character code point value in \\x{} or \\o{} is too large\n    K\\x{ffffffff}\n\\= Expect no match\n    \\x{ffffffff}\\x{ffffffff}\\x{ffffffff}\n\n"
+  },
+  {
+   "id": "14:0019",
+   "kind": "pattern",
+   "line": 102,
+   "input": "/k{2,}?Z/caseless,ucp,no_start_optimize,no_auto_possess\n\\= Expect no match\n    Kk\\x{ffffffff}\\x{ffffffff}\\x{ffffffff}Z\n\n",
+   "expected": "/k{2,}?Z/caseless,ucp,no_start_optimize,no_auto_possess\n\\= Expect no match\n    Kk\\x{ffffffff}\\x{ffffffff}\\x{ffffffff}Z\n** Character \\x{ffffffff} is greater than 255 and UTF-8 mode is not enabled.\n** Truncation will probably give the wrong result.\n** Character \\x{ffffffff} is greater than 255 and UTF-8 mode is not enabled.\n** Truncation will probably give the wrong result.\n** Character \\x{ffffffff} is greater than 255 and UTF-8 mode is not enabled.\n** Truncation will probably give the wrong result.\nNo match\n\n"
+  },
+  {
+   "id": "14:0020",
+   "kind": "command",
+   "line": 106,
+   "input": "# ---------------------------------------------------- \n\n# End of testinput14\n",
+   "expected": "# ---------------------------------------------------- \n\n# End of testinput14\n"
+  }
+ ]
+}

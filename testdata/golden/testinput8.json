@@ -1,0 +1,600 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput8",
+ "testoutput": "testoutput8-8-2",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "8:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# There are two sorts of patterns in this test. A number of them are\n# representative patterns whose lengths and offsets are checked. This is just a\n# doublecheck test to ensure the sizes don't go horribly wrong when something\n# is changed. The operation of these patterns is checked in other tests.\n#\n# This file also contains tests whose output varies with code unit size and/or\n# link size. Unicode support is required for these tests. There are separate\n# output files for each code unit size and link size.\n\n#pattern fullbincode,memory\n",
+   "expected": "# There are two sorts of patterns in this test. A number of them are\n# representative patterns whose lengths and offsets are checked. This is just a\n# doublecheck test to ensure the sizes don't go horribly wrong when something\n# is changed. The operation of these patterns is checked in other tests.\n#\n# This file also contains tests whose output varies with code unit size and/or\n# link size. Unicode support is required for these tests. There are separate\n# output files for each code unit size and link size.\n\n#pattern fullbincode,memory\n"
+  },
+  {
+   "id": "8:0002",
+   "kind": "pattern",
+   "line": 11,
+   "input": "\n/((?i)b)/\n\n",
+   "expected": "\n/((?i)b)/\nMemory allocation - compiled block : 153\nMemory allocation - code portion   : 17\n------------------------------------------------------------------\n  0  13 Bra\n  3   7 CBra 1\n  8  /i b\n 10   7 Ket\n 13  13 Ket\n 16     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0003",
+   "kind": "pattern",
+   "line": 14,
+   "input": "/(?s)(.*X|^B)/\n\n",
+   "expected": "/(?s)(.*X|^B)/\nMemory allocation - compiled block : 161\nMemory allocation - code portion   : 25\n------------------------------------------------------------------\n  0  21 Bra\n  3   9 CBra 1\n  8     AllAny*\n 10     X\n 12   6 Alt\n 15     ^\n 16     B\n 18  15 Ket\n 21  21 Ket\n 24     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0004",
+   "kind": "pattern",
+   "line": 16,
+   "input": "/(?s:.*X|^B)/\n\n",
+   "expected": "/(?s:.*X|^B)/\nMemory allocation - compiled block : 159\nMemory allocation - code portion   : 23\n------------------------------------------------------------------\n  0  19 Bra\n  3   7 Bra\n  6     AllAny*\n  8     X\n 10   6 Alt\n 13     ^\n 14     B\n 16  13 Ket\n 19  19 Ket\n 22     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0005",
+   "kind": "pattern",
+   "line": 18,
+   "input": "/^[[:alnum:]]/\n\n",
+   "expected": "/^[[:alnum:]]/\nMemory allocation - compiled block : 177\nMemory allocation - code portion   : 41\n------------------------------------------------------------------\n  0  37 Bra\n  3     ^\n  4     [0-9A-Za-z]\n 37  37 Ket\n 40     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0006",
+   "kind": "pattern",
+   "line": 20,
+   "input": "/#/Ix\n\n",
+   "expected": "/#/Ix\nMemory allocation - compiled block : 143\nMemory allocation - code portion   : 7\n------------------------------------------------------------------\n  0   3 Bra\n  3   3 Ket\n  6     End\n------------------------------------------------------------------\nCapture group count = 0\nMay match empty string\nOptions: extended\nSubject length lower bound = 0\n\n"
+  },
+  {
+   "id": "8:0007",
+   "kind": "pattern",
+   "line": 22,
+   "input": "/a#/Ix\n\n",
+   "expected": "/a#/Ix\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     a\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: extended\nFirst code unit = 'a'\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "8:0008",
+   "kind": "pattern",
+   "line": 24,
+   "input": "/x?+/\n\n",
+   "expected": "/x?+/\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     x?+\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0009",
+   "kind": "pattern",
+   "line": 26,
+   "input": "/x++/\n\n",
+   "expected": "/x++/\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     x++\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0010",
+   "kind": "pattern",
+   "line": 28,
+   "input": "/x{1,3}+/\n\n",
+   "expected": "/x{1,3}+/\nMemory allocation - compiled block : 149\nMemory allocation - code portion   : 13\n------------------------------------------------------------------\n  0   9 Bra\n  3     x\n  5     x{0,2}+\n  9   9 Ket\n 12     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0011",
+   "kind": "pattern",
+   "line": 30,
+   "input": "/(x)*+/\n\n",
+   "expected": "/(x)*+/\nMemory allocation - compiled block : 154\nMemory allocation - code portion   : 18\n------------------------------------------------------------------\n  0  14 Bra\n  3     Braposzero\n  4   7 CBraPos 1\n  9     x\n 11   7 KetRpos\n 14  14 Ket\n 17     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0012",
+   "kind": "pattern",
+   "line": 32,
+   "input": "/^((a+)(?U)([ab]+)(?-U)([bc]+)(\\w*))/\n\n",
+   "expected": "/^((a+)(?U)([ab]+)(?-U)([bc]+)(\\w*))/\nMemory allocation - compiled block : 256\nMemory allocation - code portion   : 120\n------------------------------------------------------------------\n  0 116 Bra\n  3     ^\n  4 109 CBra 1\n  9   7 CBra 2\n 14     a+\n 16   7 Ket\n 19  39 CBra 3\n 24     [ab]+?\n 58  39 Ket\n 61  39 CBra 4\n 66     [bc]+\n100  39 Ket\n103   7 CBra 5\n108     \\w*+\n110   7 Ket\n113 109 Ket\n116 116 Ket\n119     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0013",
+   "kind": "pattern",
+   "line": 34,
+   "input": "\"8J\\$WE\\\u003c\\.rX\\+ix\\[d1b\\!H\\#\\?vV0vrK\\:ZH1\\=2M\\\u003eiV\\;\\?aPhFB\\\u003c\\*vW\\@QW\\@sO9\\}cfZA\\-i\\'w\\%hKd6gt1UJP\\,15_\\#QY\\$M\\^Mss_U\\/\\]\\\u0026LK9\\[5vQub\\^w\\[KDD\\\u003cEjmhUZ\\?\\.akp2dF\\\u003eqmj\\;2\\}YWFdYx\\.Ap\\]hjCPTP\\(n28k\\+3\\;o\\\u0026WXqs\\/gOXdr\\$\\:r\\'do0\\;b4c\\(f_Gr\\=\\\"\\\\4\\)\\[01T7ajQJvL\\$W\\~mL_sS\\/4h\\:x\\*\\[ZN\\=KLs\\\u0026L5zX\\/\\/\\\u003eit\\,o\\:aU\\(\\;Z\\\u003epW\\\u0026T7oP\\'2K\\^E\\:x9\\'c\\[\\%z\\-\\,64JQ5AeH_G\\#KijUKghQw\\^\\\\vea3a\\?kka_G\\$8\\#\\`\\*kynsxzBLru\\'\\]k_\\[7FrVx\\}\\^\\=\\$blx\\\u003es\\-N\\%j\\;D\\*aZDnsw\\:YKZ\\%Q\\.Kne9\\#hP\\?\\+b3\\(SOvL\\,\\^\\;\\\u0026u5\\@\\?5C5Bhb\\=m\\-vEh_L15Jl\\]U\\)0RP6\\{q\\%L\\^_z5E\\'Dw6X\\b\"\n\n",
+   "expected": "\"8J\\$WE\\\u003c\\.rX\\+ix\\[d1b\\!H\\#\\?vV0vrK\\:ZH1\\=2M\\\u003eiV\\;\\?aPhFB\\\u003c\\*vW\\@QW\\@sO9\\}cfZA\\-i\\'w\\%hKd6gt1UJP\\,15_\\#QY\\$M\\^Mss_U\\/\\]\\\u0026LK9\\[5vQub\\^w\\[KDD\\\u003cEjmhUZ\\?\\.akp2dF\\\u003eqmj\\;2\\}YWFdYx\\.Ap\\]hjCPTP\\(n28k\\+3\\;o\\\u0026WXqs\\/gOXdr\\$\\:r\\'do0\\;b4c\\(f_Gr\\=\\\"\\\\4\\)\\[01T7ajQJvL\\$W\\~mL_sS\\/4h\\:x\\*\\[ZN\\=KLs\\\u0026L5zX\\/\\/\\\u003eit\\,o\\:aU\\(\\;Z\\\u003epW\\\u0026T7oP\\'2K\\^E\\:x9\\'c\\[\\%z\\-\\,64JQ5AeH_G\\#KijUKghQw\\^\\\\vea3a\\?kka_G\\$8\\#\\`\\*kynsxzBLru\\'\\]k_\\[7FrVx\\}\\^\\=\\$blx\\\u003es\\-N\\%j\\;D\\*aZDnsw\\:YKZ\\%Q\\.Kne9\\#hP\\?\\+b3\\(SOvL\\,\\^\\;\\\u0026u5\\@\\?5C5Bhb\\=m\\-vEh_L15Jl\\]U\\)0RP6\\{q\\%L\\^_z5E\\'Dw6X\\b\"\nMemory allocation - compiled block : 962\nMemory allocation - code portion   : 826\n------------------------------------------------------------------\n  0 822 Bra\n  3     8J$WE\u003c.rX+ix[d1b!H#?vV0vrK:ZH1=2M\u003eiV;?aPhFB\u003c*vW@QW@sO9}cfZA-i'w%hKd6gt1UJP,15_#QY$M^Mss_U/]\u0026LK9[5vQub^w[KDD\u003cEjmhUZ?.akp2dF\u003eqmj;2}YWFdYx.Ap]hjCPTP(n28k+3;o\u0026WXqs/gOXdr$:r'do0;b4c(f_Gr=\"\\4)[01T7ajQJvL$W~mL_sS/4h:x*[ZN=KLs\u0026L5zX//\u003eit,o:aU(;Z\u003epW\u0026T7oP'2K^E:x9'c[%z-,64JQ5AeH_G#KijUKghQw^\\vea3a?kka_G$8#`*kynsxzBLru']k_[7FrVx}^=$blx\u003es-N%j;D*aZDnsw:YKZ%Q.Kne9#hP?+b3(SOvL,^;\u0026u5@?5C5Bhb=m-vEh_L15Jl]U)0RP6{q%L^_z5E'Dw6X\n821     \\b\n822 822 Ket\n825     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0014",
+   "kind": "pattern",
+   "line": 36,
+   "input": "\"\\$\\\u003c\\.X\\+ix\\[d1b\\!H\\#\\?vV0vrK\\:ZH1\\=2M\\\u003eiV\\;\\?aPhFB\\\u003c\\*vW\\@QW\\@sO9\\}cfZA\\-i\\'w\\%hKd6gt1UJP\\,15_\\#QY\\$M\\^Mss_U\\/\\]\\\u0026LK9\\[5vQub\\^w\\[KDD\\\u003cEjmhUZ\\?\\.akp2dF\\\u003eqmj\\;2\\}YWFdYx\\.Ap\\]hjCPTP\\(n28k\\+3\\;o\\\u0026WXqs\\/gOXdr\\$\\:r\\'do0\\;b4c\\(f_Gr\\=\\\"\\\\4\\)\\[01T7ajQJvL\\$W\\~mL_sS\\/4h\\:x\\*\\[ZN\\=KLs\\\u0026L5zX\\/\\/\\\u003eit\\,o\\:aU\\(\\;Z\\\u003epW\\\u0026T7oP\\'2K\\^E\\:x9\\'c\\[\\%z\\-\\,64JQ5AeH_G\\#KijUKghQw\\^\\\\vea3a\\?kka_G\\$8\\#\\`\\*kynsxzBLru\\'\\]k_\\[7FrVx\\}\\^\\=\\$blx\\\u003es\\-N\\%j\\;D\\*aZDnsw\\:YKZ\\%Q\\.Kne9\\#hP\\?\\+b3\\(SOvL\\,\\^\\;\\\u0026u5\\@\\?5C5Bhb\\=m\\-vEh_L15Jl\\]U\\)0RP6\\{q\\%L\\^_z5E\\'Dw6X\\b\"\n\n",
+   "expected": "\"\\$\\\u003c\\.X\\+ix\\[d1b\\!H\\#\\?vV0vrK\\:ZH1\\=2M\\\u003eiV\\;\\?aPhFB\\\u003c\\*vW\\@QW\\@sO9\\}cfZA\\-i\\'w\\%hKd6gt1UJP\\,15_\\#QY\\$M\\^Mss_U\\/\\]\\\u0026LK9\\[5vQub\\^w\\[KDD\\\u003cEjmhUZ\\?\\.akp2dF\\\u003eqmj\\;2\\}YWFdYx\\.Ap\\]hjCPTP\\(n28k\\+3\\;o\\\u0026WXqs\\/gOXdr\\$\\:r\\'do0\\;b4c\\(f_Gr\\=\\\"\\\\4\\)\\[01T7ajQJvL\\$W\\~mL_sS\\/4h\\:x\\*\\[ZN\\=KLs\\\u0026L5zX\\/\\/\\\u003eit\\,o\\:aU\\(\\;Z\\\u003epW\\\u0026T7oP\\'2K\\^E\\:x9\\'c\\[\\%z\\-\\,64JQ5AeH_G\\#KijUKghQw\\^\\\\vea3a\\?kka_G\\$8\\#\\`\\*kynsxzBLru\\'\\]k_\\[7FrVx\\}\\^\\=\\$blx\\\u003es\\-N\\%j\\;D\\*aZDnsw\\:YKZ\\%Q\\.Kne9\\#hP\\?\\+b3\\(SOvL\\,\\^\\;\\\u0026u5\\@\\?5C5Bhb\\=m\\-vEh_L15Jl\\]U\\)0RP6\\{q\\%L\\^_z5E\\'Dw6X\\b\"\nMemory allocation - compiled block : 952\nMemory allocation - code portion   : 816\n------------------------------------------------------------------\n  0 812 Bra\n  3     $\u003c.X+ix[d1b!H#?vV0vrK:ZH1=2M\u003eiV;?aPhFB\u003c*vW@QW@sO9}cfZA-i'w%hKd6gt1UJP,15_#QY$M^Mss_U/]\u0026LK9[5vQub^w[KDD\u003cEjmhUZ?.akp2dF\u003eqmj;2}YWFdYx.Ap]hjCPTP(n28k+3;o\u0026WXqs/gOXdr$:r'do0;b4c(f_Gr=\"\\4)[01T7ajQJvL$W~mL_sS/4h:x*[ZN=KLs\u0026L5zX//\u003eit,o:aU(;Z\u003epW\u0026T7oP'2K^E:x9'c[%z-,64JQ5AeH_G#KijUKghQw^\\vea3a?kka_G$8#`*kynsxzBLru']k_[7FrVx}^=$blx\u003es-N%j;D*aZDnsw:YKZ%Q.Kne9#hP?+b3(SOvL,^;\u0026u5@?5C5Bhb=m-vEh_L15Jl]U)0RP6{q%L^_z5E'Dw6X\n811     \\b\n812 812 Ket\n815     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0015",
+   "kind": "pattern",
+   "line": 38,
+   "input": "/(a(?1)b)/\n\n",
+   "expected": "/(a(?1)b)/\nMemory allocation - compiled block : 158\nMemory allocation - code portion   : 22\n------------------------------------------------------------------\n  0  18 Bra\n  3  12 CBra 1\n  8     a\n 10   3 Recurse\n 13     b\n 15  12 Ket\n 18  18 Ket\n 21     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0016",
+   "kind": "pattern",
+   "line": 40,
+   "input": "/(a(?1)+b)/\n\n",
+   "expected": "/(a(?1)+b)/\nMemory allocation - compiled block : 164\nMemory allocation - code portion   : 28\n------------------------------------------------------------------\n  0  24 Bra\n  3  18 CBra 1\n  8     a\n 10   6 SBra\n 13   3 Recurse\n 16   6 KetRmax\n 19     b\n 21  18 Ket\n 24  24 Ket\n 27     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0017",
+   "kind": "pattern",
+   "line": 42,
+   "input": "/a(?P\u003cname1\u003eb|c)d(?P\u003clongername2\u003ee)/\n\n",
+   "expected": "/a(?P\u003cname1\u003eb|c)d(?P\u003clongername2\u003ee)/\nMemory allocation - compiled block : 200\nMemory allocation - code portion   : 36\n------------------------------------------------------------------\n  0  32 Bra\n  3     a\n  5   7 CBra 1\n 10     b\n 12   5 Alt\n 15     c\n 17  12 Ket\n 20     d\n 22   7 CBra 2\n 27     e\n 29   7 Ket\n 32  32 Ket\n 35     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0018",
+   "kind": "pattern",
+   "line": 44,
+   "input": "/(?:a(?P\u003cc\u003ec(?P\u003cd\u003ed)))(?P\u003ca\u003ea)/\n\n",
+   "expected": "/(?:a(?P\u003cc\u003ec(?P\u003cd\u003ed)))(?P\u003ca\u003ea)/\nMemory allocation - compiled block : 193\nMemory allocation - code portion   : 45\n------------------------------------------------------------------\n  0  41 Bra\n  3  25 Bra\n  6     a\n  8  17 CBra 1\n 13     c\n 15   7 CBra 2\n 20     d\n 22   7 Ket\n 25  17 Ket\n 28  25 Ket\n 31   7 CBra 3\n 36     a\n 38   7 Ket\n 41  41 Ket\n 44     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0019",
+   "kind": "pattern",
+   "line": 46,
+   "input": "/(?P\u003ca\u003ea)...(?P=a)bbb(?P\u003ea)d/\n\n",
+   "expected": "/(?P\u003ca\u003ea)...(?P=a)bbb(?P\u003ea)d/\nMemory allocation - compiled block : 174\nMemory allocation - code portion   : 34\n------------------------------------------------------------------\n  0  30 Bra\n  3   7 CBra 1\n  8     a\n 10   7 Ket\n 13     Any\n 14     Any\n 15     Any\n 16     \\1\n 19     bbb\n 25   3 Recurse\n 28     d\n 30  30 Ket\n 33     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0020",
+   "kind": "pattern",
+   "line": 48,
+   "input": "/abc(?C255)de(?C)f/\n\n",
+   "expected": "/abc(?C255)de(?C)f/\nMemory allocation - compiled block : 167\nMemory allocation - code portion   : 31\n------------------------------------------------------------------\n  0  27 Bra\n  3     abc\n  9     Callout 255 10 1\n 15     de\n 19     Callout 0 16 1\n 25     f\n 27  27 Ket\n 30     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0021",
+   "kind": "pattern",
+   "line": 50,
+   "input": "/abcde/auto_callout\n\n",
+   "expected": "/abcde/auto_callout\nMemory allocation - compiled block : 189\nMemory allocation - code portion   : 53\n------------------------------------------------------------------\n  0  49 Bra\n  3     Callout 255 0 1\n  9     a\n 11     Callout 255 1 1\n 17     b\n 19     Callout 255 2 1\n 25     c\n 27     Callout 255 3 1\n 33     d\n 35     Callout 255 4 1\n 41     e\n 43     Callout 255 5 0\n 49  49 Ket\n 52     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0022",
+   "kind": "pattern",
+   "line": 52,
+   "input": "/\\x{100}/utf\n\n",
+   "expected": "/\\x{100}/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     \\x{100}\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0023",
+   "kind": "pattern",
+   "line": 54,
+   "input": "/\\x{1000}/utf\n\n",
+   "expected": "/\\x{1000}/utf\nMemory allocation - compiled block : 147\nMemory allocation - code portion   : 11\n------------------------------------------------------------------\n  0   7 Bra\n  3     \\x{1000}\n  7   7 Ket\n 10     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0024",
+   "kind": "pattern",
+   "line": 56,
+   "input": "/\\x{10000}/utf\n\n",
+   "expected": "/\\x{10000}/utf\nMemory allocation - compiled block : 148\nMemory allocation - code portion   : 12\n------------------------------------------------------------------\n  0   8 Bra\n  3     \\x{10000}\n  8   8 Ket\n 11     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0025",
+   "kind": "pattern",
+   "line": 58,
+   "input": "/\\x{100000}/utf\n\n",
+   "expected": "/\\x{100000}/utf\nMemory allocation - compiled block : 148\nMemory allocation - code portion   : 12\n------------------------------------------------------------------\n  0   8 Bra\n  3     \\x{100000}\n  8   8 Ket\n 11     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0026",
+   "kind": "pattern",
+   "line": 60,
+   "input": "/\\x{10ffff}/utf\n\n",
+   "expected": "/\\x{10ffff}/utf\nMemory allocation - compiled block : 148\nMemory allocation - code portion   : 12\n------------------------------------------------------------------\n  0   8 Bra\n  3     \\x{10ffff}\n  8   8 Ket\n 11     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0027",
+   "kind": "pattern",
+   "line": 62,
+   "input": "/\\x{110000}/utf\n\n",
+   "expected": "/\\x{110000}/utf\nFailed: error 134 at offset 9: character code point value in \\x{} or \\o{} is too large\n\n"
+  },
+  {
+   "id": "8:0028",
+   "kind": "pattern",
+   "line": 64,
+   "input": "/[\\x{ff}]/utf\n\n",
+   "expected": "/[\\x{ff}]/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     \\x{ff}\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0029",
+   "kind": "pattern",
+   "line": 66,
+   "input": "/[\\x{100}]/utf\n\n",
+   "expected": "/[\\x{100}]/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     \\x{100}\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0030",
+   "kind": "pattern",
+   "line": 68,
+   "input": "/\\x80/utf\n\n",
+   "expected": "/\\x80/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     \\x{80}\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0031",
+   "kind": "pattern",
+   "line": 70,
+   "input": "/\\xff/utf\n\n",
+   "expected": "/\\xff/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     \\x{ff}\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0032",
+   "kind": "pattern",
+   "line": 72,
+   "input": "/\\x{0041}\\x{2262}\\x{0391}\\x{002e}/I,utf\n\n",
+   "expected": "/\\x{0041}\\x{2262}\\x{0391}\\x{002e}/I,utf\nMemory allocation - compiled block : 154\nMemory allocation - code portion   : 18\n------------------------------------------------------------------\n  0  14 Bra\n  3     A\\x{2262}\\x{391}.\n 14  14 Ket\n 17     End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = 'A'\nLast code unit = '.'\nSubject length lower bound = 4\n\n"
+  },
+  {
+   "id": "8:0033",
+   "kind": "pattern",
+   "line": 74,
+   "input": "/\\x{D55c}\\x{ad6d}\\x{C5B4}/I,utf\n\n",
+   "expected": "/\\x{D55c}\\x{ad6d}\\x{C5B4}/I,utf\nMemory allocation - compiled block : 155\nMemory allocation - code portion   : 19\n------------------------------------------------------------------\n  0  15 Bra\n  3     \\x{d55c}\\x{ad6d}\\x{c5b4}\n 15  15 Ket\n 18     End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xed\nLast code unit = \\xb4\nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "8:0034",
+   "kind": "pattern",
+   "line": 76,
+   "input": "/\\x{65e5}\\x{672c}\\x{8a9e}/I,utf\n\n",
+   "expected": "/\\x{65e5}\\x{672c}\\x{8a9e}/I,utf\nMemory allocation - compiled block : 155\nMemory allocation - code portion   : 19\n------------------------------------------------------------------\n  0  15 Bra\n  3     \\x{65e5}\\x{672c}\\x{8a9e}\n 15  15 Ket\n 18     End\n------------------------------------------------------------------\nCapture group count = 0\nOptions: utf\nFirst code unit = \\xe6\nLast code unit = \\x9e\nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "8:0035",
+   "kind": "pattern",
+   "line": 78,
+   "input": "/[\\x{100}]/utf\n\n",
+   "expected": "/[\\x{100}]/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     \\x{100}\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0036",
+   "kind": "pattern",
+   "line": 80,
+   "input": "/[Z\\x{100}]/utf\n\n",
+   "expected": "/[Z\\x{100}]/utf\nMemory allocation - compiled block : 183\nMemory allocation - code portion   : 47\n------------------------------------------------------------------\n  0  43 Bra\n  3     [Z\\x{100}]\n 43  43 Ket\n 46     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0037",
+   "kind": "pattern",
+   "line": 82,
+   "input": "/^[\\x{100}\\E-\\Q\\E\\x{150}]/utf\n\n",
+   "expected": "/^[\\x{100}\\E-\\Q\\E\\x{150}]/utf\nMemory allocation - compiled block : 154\nMemory allocation - code portion   : 18\n------------------------------------------------------------------\n  0  14 Bra\n  3     ^\n  4     [\\x{100}-\\x{150}]\n 14  14 Ket\n 17     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0038",
+   "kind": "pattern",
+   "line": 84,
+   "input": "/^[\\QĀ\\E-\\QŐ\\E]/utf\n\n",
+   "expected": "/^[\\QĀ\\E-\\QŐ\\E]/utf\nMemory allocation - compiled block : 154\nMemory allocation - code portion   : 18\n------------------------------------------------------------------\n  0  14 Bra\n  3     ^\n  4     [\\x{100}-\\x{150}]\n 14  14 Ket\n 17     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0039",
+   "kind": "pattern",
+   "line": 86,
+   "input": "/^[\\QĀ\\E-\\QŐ\\E/utf\n\n",
+   "expected": "/^[\\QĀ\\E-\\QŐ\\E/utf\nFailed: error 106 at offset 15: missing terminating ] for character class\n\n"
+  },
+  {
+   "id": "8:0040",
+   "kind": "pattern",
+   "line": 88,
+   "input": "/[\\p{L}]/\n\n",
+   "expected": "/[\\p{L}]/\nMemory allocation - compiled block : 151\nMemory allocation - code portion   : 15\n------------------------------------------------------------------\n  0  11 Bra\n  3     [\\p{L}]\n 11  11 Ket\n 14     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0041",
+   "kind": "pattern",
+   "line": 90,
+   "input": "/[\\p{^L}]/\n\n",
+   "expected": "/[\\p{^L}]/\nMemory allocation - compiled block : 151\nMemory allocation - code portion   : 15\n------------------------------------------------------------------\n  0  11 Bra\n  3     [\\P{L}]\n 11  11 Ket\n 14     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0042",
+   "kind": "pattern",
+   "line": 92,
+   "input": "/[\\P{L}]/\n\n",
+   "expected": "/[\\P{L}]/\nMemory allocation - compiled block : 151\nMemory allocation - code portion   : 15\n------------------------------------------------------------------\n  0  11 Bra\n  3     [\\P{L}]\n 11  11 Ket\n 14     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0043",
+   "kind": "pattern",
+   "line": 94,
+   "input": "/[\\P{^L}]/\n\n",
+   "expected": "/[\\P{^L}]/\nMemory allocation - compiled block : 151\nMemory allocation - code portion   : 15\n------------------------------------------------------------------\n  0  11 Bra\n  3     [\\p{L}]\n 11  11 Ket\n 14     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0044",
+   "kind": "pattern",
+   "line": 96,
+   "input": "/[abc\\p{L}\\x{0660}]/utf\n\n",
+   "expected": "/[abc\\p{L}\\x{0660}]/utf\nMemory allocation - compiled block : 186\nMemory allocation - code portion   : 50\n------------------------------------------------------------------\n  0  46 Bra\n  3     [a-c\\p{L}\\x{660}]\n 46  46 Ket\n 49     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0045",
+   "kind": "pattern",
+   "line": 98,
+   "input": "/[\\p{Nd}]/utf\n\n",
+   "expected": "/[\\p{Nd}]/utf\nMemory allocation - compiled block : 151\nMemory allocation - code portion   : 15\n------------------------------------------------------------------\n  0  11 Bra\n  3     [\\p{Nd}]\n 11  11 Ket\n 14     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0046",
+   "kind": "pattern",
+   "line": 100,
+   "input": "/[\\p{Nd}+-]+/utf\n\n",
+   "expected": "/[\\p{Nd}+-]+/utf\nMemory allocation - compiled block : 184\nMemory allocation - code portion   : 48\n------------------------------------------------------------------\n  0  44 Bra\n  3     [+\\-\\p{Nd}]++\n 44  44 Ket\n 47     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0047",
+   "kind": "pattern",
+   "line": 102,
+   "input": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/i,utf\n\n",
+   "expected": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/i,utf\nMemory allocation - compiled block : 161\nMemory allocation - code portion   : 25\n------------------------------------------------------------------\n  0  21 Bra\n  3  /i A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}\n 21  21 Ket\n 24     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0048",
+   "kind": "pattern",
+   "line": 104,
+   "input": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/utf\n\n",
+   "expected": "/A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}/utf\nMemory allocation - compiled block : 161\nMemory allocation - code portion   : 25\n------------------------------------------------------------------\n  0  21 Bra\n  3     A\\x{391}\\x{10427}\\x{ff3a}\\x{1fb0}\n 21  21 Ket\n 24     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0049",
+   "kind": "pattern",
+   "line": 106,
+   "input": "/[\\x{105}-\\x{109}]/i,utf\n\n",
+   "expected": "/[\\x{105}-\\x{109}]/i,utf\nMemory allocation - compiled block : 153\nMemory allocation - code portion   : 17\n------------------------------------------------------------------\n  0  13 Bra\n  3     [\\x{104}-\\x{109}]\n 13  13 Ket\n 16     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0050",
+   "kind": "pattern",
+   "line": 108,
+   "input": "/( ( (?(1)0|) )*   )/x\n\n",
+   "expected": "/( ( (?(1)0|) )*   )/x\nMemory allocation - compiled block : 174\nMemory allocation - code portion   : 38\n------------------------------------------------------------------\n  0  34 Bra\n  3  28 CBra 1\n  8     Brazero\n  9  19 SCBra 2\n 14   8 Cond\n 17   1 Cond ref\n 20     0\n 22   3 Alt\n 25  11 Ket\n 28  19 KetRmax\n 31  28 Ket\n 34  34 Ket\n 37     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0051",
+   "kind": "pattern",
+   "line": 110,
+   "input": "/(  (?(1)0|)*   )/x\n\n",
+   "expected": "/(  (?(1)0|)*   )/x\nMemory allocation - compiled block : 166\nMemory allocation - code portion   : 30\n------------------------------------------------------------------\n  0  26 Bra\n  3  20 CBra 1\n  8     Brazero\n  9   8 SCond\n 12   1 Cond ref\n 15     0\n 17   3 Alt\n 20  11 KetRmax\n 23  20 Ket\n 26  26 Ket\n 29     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0052",
+   "kind": "pattern",
+   "line": 112,
+   "input": "/[a]/\n\n",
+   "expected": "/[a]/\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     a\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0053",
+   "kind": "pattern",
+   "line": 114,
+   "input": "/[a]/utf\n\n",
+   "expected": "/[a]/utf\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     a\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0054",
+   "kind": "pattern",
+   "line": 116,
+   "input": "/[\\xaa]/\n\n",
+   "expected": "/[\\xaa]/\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     \\x{aa}\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0055",
+   "kind": "pattern",
+   "line": 118,
+   "input": "/[\\xaa]/utf\n\n",
+   "expected": "/[\\xaa]/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     \\x{aa}\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0056",
+   "kind": "pattern",
+   "line": 120,
+   "input": "/[^a]/\n\n",
+   "expected": "/[^a]/\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     [^a]\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0057",
+   "kind": "pattern",
+   "line": 122,
+   "input": "/[^a]/utf\n\n",
+   "expected": "/[^a]/utf\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     [^a]\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0058",
+   "kind": "pattern",
+   "line": 124,
+   "input": "/[^\\xaa]/\n\n",
+   "expected": "/[^\\xaa]/\nMemory allocation - compiled block : 145\nMemory allocation - code portion   : 9\n------------------------------------------------------------------\n  0   5 Bra\n  3     [^\\x{aa}]\n  5   5 Ket\n  8     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0059",
+   "kind": "pattern",
+   "line": 126,
+   "input": "/[^\\xaa]/utf\n\n",
+   "expected": "/[^\\xaa]/utf\nMemory allocation - compiled block : 146\nMemory allocation - code portion   : 10\n------------------------------------------------------------------\n  0   6 Bra\n  3     [^\\x{aa}]\n  6   6 Ket\n  9     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0060",
+   "kind": "command",
+   "line": 128,
+   "input": "#pattern -memory\n",
+   "expected": "#pattern -memory\n"
+  },
+  {
+   "id": "8:0061",
+   "kind": "pattern",
+   "line": 129,
+   "input": "\n/[^\\d]/utf,ucp\n\n",
+   "expected": "\n/[^\\d]/utf,ucp\n------------------------------------------------------------------\n  0  11 Bra\n  3     [^\\p{Nd}]\n 11  11 Ket\n 14     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0062",
+   "kind": "pattern",
+   "line": 132,
+   "input": "/[[:^alpha:][:^cntrl:]]+/utf,ucp\n\n",
+   "expected": "/[[:^alpha:][:^cntrl:]]+/utf,ucp\n------------------------------------------------------------------\n  0  15 Bra\n  3     [\\P{L}\\P{Cc}]++\n 15  15 Ket\n 18     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0063",
+   "kind": "pattern",
+   "line": 134,
+   "input": "/[[:^cntrl:][:^alpha:]]+/utf,ucp\n\n",
+   "expected": "/[[:^cntrl:][:^alpha:]]+/utf,ucp\n------------------------------------------------------------------\n  0  15 Bra\n  3     [\\P{Cc}\\P{L}]++\n 15  15 Ket\n 18     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0064",
+   "kind": "pattern",
+   "line": 136,
+   "input": "/[[:alpha:]]+/utf,ucp\n\n",
+   "expected": "/[[:alpha:]]+/utf,ucp\n------------------------------------------------------------------\n  0  12 Bra\n  3     [\\p{L}]++\n 12  12 Ket\n 15     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0065",
+   "kind": "pattern",
+   "line": 138,
+   "input": "/[[:^alpha:]\\S]+/utf,ucp\n\n",
+   "expected": "/[[:^alpha:]\\S]+/utf,ucp\n------------------------------------------------------------------\n  0  15 Bra\n  3     [\\P{L}\\P{Xsp}]++\n 15  15 Ket\n 18     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0066",
+   "kind": "pattern",
+   "line": 140,
+   "input": "/abc(d|e)(*THEN)x(123(*THEN)4|567(b|q)(*THEN)xx)/\n\n",
+   "expected": "/abc(d|e)(*THEN)x(123(*THEN)4|567(b|q)(*THEN)xx)/\n------------------------------------------------------------------\n  0  73 Bra\n  3     abc\n  9   7 CBra 1\n 14     d\n 16   5 Alt\n 19     e\n 21  12 Ket\n 24     *THEN\n 25     x\n 27  14 CBra 2\n 32     123\n 38     *THEN\n 39     4\n 41  29 Alt\n 44     567\n 50   7 CBra 3\n 55     b\n 57   5 Alt\n 60     q\n 62  12 Ket\n 65     *THEN\n 66     xx\n 70  43 Ket\n 73  73 Ket\n 76     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0067",
+   "kind": "pattern",
+   "line": 142,
+   "input": "/(((a\\2)|(a*)\\g\u003c-1\u003e))*a?/\n\n",
+   "expected": "/(((a\\2)|(a*)\\g\u003c-1\u003e))*a?/\n------------------------------------------------------------------\n  0  51 Bra\n  3     Brazero\n  4  42 SCBra 1\n  9  18 CBra 2\n 14  10 CBra 3\n 19     a\n 21     \\2\n 24  10 Ket\n 27  16 Alt\n 30   7 CBra 4\n 35     a*\n 37   7 Ket\n 40  30 Recurse\n 43  34 Ket\n 46  42 KetRmax\n 49     a?+\n 51  51 Ket\n 54     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0068",
+   "kind": "pattern",
+   "line": 144,
+   "input": "/((?+1)(\\1))/\n\n",
+   "expected": "/((?+1)(\\1))/\n------------------------------------------------------------------\n  0  25 Bra\n  3  19 CBra 1\n  8  11 Recurse\n 11   8 CBra 2\n 16     \\1\n 19   8 Ket\n 22  19 Ket\n 25  25 Ket\n 28     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0069",
+   "kind": "pattern",
+   "line": 146,
+   "input": "\"(?1)(?#?'){2}(a)\"\n\n",
+   "expected": "\"(?1)(?#?'){2}(a)\"\n------------------------------------------------------------------\n  0  19 Bra\n  3   9 Recurse\n  6   9 Recurse\n  9   7 CBra 1\n 14     a\n 16   7 Ket\n 19  19 Ket\n 22     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0070",
+   "kind": "pattern",
+   "line": 148,
+   "input": "/.((?2)(?R)|\\1|$)()/\n\n",
+   "expected": "/.((?2)(?R)|\\1|$)()/\n------------------------------------------------------------------\n  0  36 Bra\n  3     Any\n  4  11 CBra 1\n  9  28 Recurse\n 12   0 Recurse\n 15   6 Alt\n 18     \\1\n 21   4 Alt\n 24     $\n 25  21 Ket\n 28   5 CBra 2\n 33   5 Ket\n 36  36 Ket\n 39     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0071",
+   "kind": "pattern",
+   "line": 150,
+   "input": "/.((?3)(?R)()(?2)|\\1|$)()/\n\n",
+   "expected": "/.((?3)(?R)()(?2)|\\1|$)()/\n------------------------------------------------------------------\n  0  47 Bra\n  3     Any\n  4  22 CBra 1\n  9  39 Recurse\n 12   0 Recurse\n 15   5 CBra 2\n 20   5 Ket\n 23  15 Recurse\n 26   6 Alt\n 29     \\1\n 32   4 Alt\n 35     $\n 36  32 Ket\n 39   5 CBra 3\n 44   5 Ket\n 47  47 Ket\n 50     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0072",
+   "kind": "pattern",
+   "line": 152,
+   "input": "/(?1)()((((((\\1++))\\x85)+)|))/\n\n",
+   "expected": "/(?1)()((((((\\1++))\\x85)+)|))/\n------------------------------------------------------------------\n  0  77 Bra\n  3   6 Recurse\n  6   5 CBra 1\n 11   5 Ket\n 14  60 CBra 2\n 19  49 CBra 3\n 24  41 CBra 4\n 29  33 CBra 5\n 34  23 CBra 6\n 39  15 CBra 7\n 44   7 Once\n 47     \\1+\n 51   7 Ket\n 54  15 Ket\n 57  23 Ket\n 60     \\x{85}\n 62  33 KetRmax\n 65  41 Ket\n 68   3 Alt\n 71  52 Ket\n 74  60 Ket\n 77  77 Ket\n 80     End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "8:0073",
+   "kind": "pattern",
+   "line": 154,
+   "input": "# Check the absolute limit on nesting (?| etc. This varies with code unit\n# width because the workspace is a different number of bytes. It will fail\n# with link size 2 in 8-bit and 16-bit but not in 32-bit.\n\n/(?|(?|(?J:(?|(?x:(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|\n)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))\n/parens_nest_limit=1000,-fullbincode\n\n",
+   "expected": "# Check the absolute limit on nesting (?| etc. This varies with code unit\n# width because the workspace is a different number of bytes. It will fail\n# with link size 2 in 8-bit and 16-bit but not in 32-bit.\n\n/(?|(?|(?J:(?|(?x:(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|(?|\n)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))\n/parens_nest_limit=1000,-fullbincode\nFailed: error 184 at offset 1129: (?| and/or (?J: or (?x: parentheses are too deeply nested\n\n"
+  },
+  {
+   "id": "8:0074",
+   "kind": "pattern",
+   "line": 162,
+   "input": "# Use \"expand\" to create some very long patterns with nested parentheses, in\n# order to test workspace overflow. Again, this varies with code unit width,\n# and even when it fails in two modes, the error offset differs. It also varies\n# with link size - hence multiple tests with different values.\n\n/(?'ABC'\\[[bar](]{792}*THEN:\\[A]{255}\\[)]{793}/expand,-fullbincode,parens_nest_limit=1000\n\n",
+   "expected": "# Use \"expand\" to create some very long patterns with nested parentheses, in\n# order to test workspace overflow. Again, this varies with code unit width,\n# and even when it fails in two modes, the error offset differs. It also varies\n# with link size - hence multiple tests with different values.\n\n/(?'ABC'\\[[bar](]{792}*THEN:\\[A]{255}\\[)]{793}/expand,-fullbincode,parens_nest_limit=1000\n\n"
+  },
+  {
+   "id": "8:0075",
+   "kind": "pattern",
+   "line": 169,
+   "input": "/(?'ABC'\\[[bar](]{793}*THEN:\\[A]{255}\\[)]{794}/expand,-fullbincode,parens_nest_limit=1000\n\n",
+   "expected": "/(?'ABC'\\[[bar](]{793}*THEN:\\[A]{255}\\[)]{794}/expand,-fullbincode,parens_nest_limit=1000\n\n"
+  },
+  {
+   "id": "8:0076",
+   "kind": "pattern",
+   "line": 171,
+   "input": "/(?'ABC'\\[[bar](]{1793}*THEN:\\[A]{255}\\[)]{1794}/expand,-fullbincode,parens_nest_limit=2000\n\n",
+   "expected": "/(?'ABC'\\[[bar](]{1793}*THEN:\\[A]{255}\\[)]{1794}/expand,-fullbincode,parens_nest_limit=2000\nFailed: error 186 at offset 12820: regular expression is too complicated\n\n"
+  },
+  {
+   "id": "8:0077",
+   "kind": "pattern",
+   "line": 173,
+   "input": "/(?(1)(?1)){8,}+()/debug\n    abcd\n\n",
+   "expected": "/(?(1)(?1)){8,}+()/debug\n------------------------------------------------------------------\n  0 119 Bra\n  3 105 Once\n  6   9 Cond\n  9   1 Cond ref\n 12 111 Recurse\n 15   9 Ket\n 18   9 Cond\n 21   1 Cond ref\n 24 111 Recurse\n 27   9 Ket\n 30   9 Cond\n 33   1 Cond ref\n 36 111 Recurse\n 39   9 Ket\n 42   9 Cond\n 45   1 Cond ref\n 48 111 Recurse\n 51   9 Ket\n 54   9 Cond\n 57   1 Cond ref\n 60 111 Recurse\n 63   9 Ket\n 66   9 Cond\n 69   1 Cond ref\n 72 111 Recurse\n 75   9 Ket\n 78   9 Cond\n 81   1 Cond ref\n 84 111 Recurse\n 87   9 Ket\n 90  15 SBraPos\n 93   9 SCond\n 96   1 Cond ref\n 99 111 Recurse\n102   9 Ket\n105  15 KetRpos\n108 105 Ket\n111   5 CBra 1\n116   5 Ket\n119 119 Ket\n122     End\n------------------------------------------------------------------\nCapture group count = 1\nMax back reference = 1\nMay match empty string\nSubject length lower bound = 0\n    abcd\n 0: \n 1: \n\n"
+  },
+  {
+   "id": "8:0078",
+   "kind": "pattern",
+   "line": 176,
+   "input": "/(?(1)|a(?1)b){2,}+()/debug\n    abcde\n\n",
+   "expected": "/(?(1)|a(?1)b){2,}+()/debug\n------------------------------------------------------------------\n  0  61 Bra\n  3  47 Once\n  6   6 Cond\n  9   1 Cond ref\n 12  10 Alt\n 15     a\n 17  53 Recurse\n 20     b\n 22  16 Ket\n 25  22 SBraPos\n 28   6 SCond\n 31   1 Cond ref\n 34  10 Alt\n 37     a\n 39  53 Recurse\n 42     b\n 44  16 Ket\n 47  22 KetRpos\n 50  47 Ket\n 53   5 CBra 1\n 58   5 Ket\n 61  61 Ket\n 64     End\n------------------------------------------------------------------\nCapture group count = 1\nMax back reference = 1\nMay match empty string\nSubject length lower bound = 0\n    abcde\nNo match\n\n"
+  },
+  {
+   "id": "8:0079",
+   "kind": "pattern",
+   "line": 179,
+   "input": "/((?1)(?2)(?3)(?4)(?5)(?6)(?7)(?8)(?9)(?9)(?8)(?7)(?6)(?5)(?4)(?3)(?2)(?1)(?0)){2,}()()()()()()()()()/debug\n\n",
+   "expected": "/((?1)(?2)(?3)(?4)(?5)(?6)(?7)(?8)(?9)(?9)(?8)(?7)(?6)(?5)(?4)(?3)(?2)(?1)(?0)){2,}()()()()()()()()()/debug\n------------------------------------------------------------------\n  0 205 Bra\n  3  62 CBra 1\n  8   3 Recurse\n 11 133 Recurse\n 14 141 Recurse\n 17 149 Recurse\n 20 157 Recurse\n 23 165 Recurse\n 26 173 Recurse\n 29 181 Recurse\n 32 189 Recurse\n 35 189 Recurse\n 38 181 Recurse\n 41 173 Recurse\n 44 165 Recurse\n 47 157 Recurse\n 50 149 Recurse\n 53 141 Recurse\n 56 133 Recurse\n 59   3 Recurse\n 62   0 Recurse\n 65  62 Ket\n 68  62 SCBra 1\n 73   3 Recurse\n 76 133 Recurse\n 79 141 Recurse\n 82 149 Recurse\n 85 157 Recurse\n 88 165 Recurse\n 91 173 Recurse\n 94 181 Recurse\n 97 189 Recurse\n100 189 Recurse\n103 181 Recurse\n106 173 Recurse\n109 165 Recurse\n112 157 Recurse\n115 149 Recurse\n118 141 Recurse\n121 133 Recurse\n124   3 Recurse\n127   0 Recurse\n130  62 KetRmax\n133   5 CBra 2\n138   5 Ket\n141   5 CBra 3\n146   5 Ket\n149   5 CBra 4\n154   5 Ket\n157   5 CBra 5\n162   5 Ket\n165   5 CBra 6\n170   5 Ket\n173   5 CBra 7\n178   5 Ket\n181   5 CBra 8\n186   5 Ket\n189   5 CBra 9\n194   5 Ket\n197   5 CBra 10\n202   5 Ket\n205 205 Ket\n208     End\n------------------------------------------------------------------\nCapture group count = 10\nMay match empty string\nSubject length lower bound = 0\n\n"
+  },
+  {
+   "id": "8:0080",
+   "kind": "pattern",
+   "line": 181,
+   "input": "/([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00](*ACCEPT)/\n\n",
+   "expected": "/([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00](*ACCEPT)/\nFailed: error 114 at offset 509: missing closing parenthesis\n\n"
+  },
+  {
+   "id": "8:0081",
+   "kind": "pattern",
+   "line": 183,
+   "input": "/([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00](*ACCEPT)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))/-fullbincode\n\n",
+   "expected": "/([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00]([00](*ACCEPT)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))/-fullbincode\n\n"
+  },
+  {
+   "id": "8:0082",
+   "kind": "command",
+   "line": 185,
+   "input": "#pattern -fullbincode\n",
+   "expected": "#pattern -fullbincode\n"
+  },
+  {
+   "id": "8:0083",
+   "kind": "pattern",
+   "line": 186,
+   "input": "\n/\\[()]{65535}/expand\n\n",
+   "expected": "\n/\\[()]{65535}/expand\nFailed: error 120 at offset 131070: regular expression is too large\n\n"
+  },
+  {
+   "id": "8:0084",
+   "kind": "command",
+   "line": 189,
+   "input": "# End of testinput8\n",
+   "expected": "# End of testinput8\n"
+  }
+ ]
+}

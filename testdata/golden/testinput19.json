@@ -1,0 +1,61 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput19",
+ "testoutput": "testoutput19",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "19:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# This set of tests is run only with the 8-bit library. It tests the POSIX\n# interface with UTF/UCP support, which is supported only with the 8-bit\n# library. This test should not be run with JIT (which is not available for the\n# POSIX interface).\n\n#pattern posix\n",
+   "expected": "# This set of tests is run only with the 8-bit library. It tests the POSIX\n# interface with UTF/UCP support, which is supported only with the 8-bit\n# library. This test should not be run with JIT (which is not available for the\n# POSIX interface).\n\n#pattern posix\n"
+  },
+  {
+   "id": "19:0002",
+   "kind": "pattern",
+   "line": 7,
+   "input": "\n/a\\x{1234}b/utf\n    a\\x{1234}b\n\n",
+   "expected": "\n/a\\x{1234}b/utf\n    a\\x{1234}b\n 0: a\\x{1234}b\n\n"
+  },
+  {
+   "id": "19:0003",
+   "kind": "pattern",
+   "line": 11,
+   "input": "/\\w/\n\\= Expect no match\n    +++\\x{c2}\n\n",
+   "expected": "/\\w/\n\\= Expect no match\n    +++\\x{c2}\nNo match: POSIX code 17: match failed\n\n"
+  },
+  {
+   "id": "19:0004",
+   "kind": "pattern",
+   "line": 15,
+   "input": "/\\w/ucp\n    +++\\x{c2}\n\n",
+   "expected": "/\\w/ucp\n    +++\\x{c2}\n 0: \\xc2\n\n"
+  },
+  {
+   "id": "19:0005",
+   "kind": "pattern",
+   "line": 18,
+   "input": "/\"^AB\" 00 \"\\x{1234}$\"/hex,utf\n    AB\\x{00}\\x{1234}\\=posix_startend=0:6\n\n",
+   "expected": "/\"^AB\" 00 \"\\x{1234}$\"/hex,utf\n    AB\\x{00}\\x{1234}\\=posix_startend=0:6\n 0: AB\\x{00}\\x{1234}\n\n"
+  },
+  {
+   "id": "19:0006",
+   "kind": "pattern",
+   "line": 21,
+   "input": "/\\w/utf\n\\= Expect UTF error\n    A\\xabB\n\n",
+   "expected": "/\\w/utf\n\\= Expect UTF error\n    A\\xabB\nNo match: POSIX code 16: bad argument\n\n"
+  },
+  {
+   "id": "19:0007",
+   "kind": "command",
+   "line": 25,
+   "input": "# End of testdata/testinput19\n",
+   "expected": "# End of testdata/testinput19\n"
+  }
+ ]
+}

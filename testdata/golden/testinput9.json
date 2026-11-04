@@ -1,0 +1,229 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput9",
+ "testoutput": "testoutput9",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "9:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# This set of tests is run only with the 8-bit library. They must not require \n# UTF-8 or Unicode property support. */\n    \n#forbid_utf\n",
+   "expected": "# This set of tests is run only with the 8-bit library. They must not require \n# UTF-8 or Unicode property support. */\n    \n#forbid_utf\n"
+  },
+  {
+   "id": "9:0002",
+   "kind": "command",
+   "line": 5,
+   "input": "#newline_default lf any anycrlf\n",
+   "expected": "#newline_default lf any anycrlf\n"
+  },
+  {
+   "id": "9:0003",
+   "kind": "pattern",
+   "line": 6,
+   "input": "\n/ab/\n\\= Expect error message (too big char) and no match\n    A\\x{123}B\n    A\\o{443}B\n  \n",
+   "expected": "\n/ab/\n\\= Expect error message (too big char) and no match\n    A\\x{123}B\n** Character \\x{123} is greater than 255 and UTF-8 mode is not enabled.\n** Truncation will probably give the wrong result.\nNo match\n    A\\o{443}B\n** Character \\x{123} is greater than 255 and UTF-8 mode is not enabled.\n** Truncation will probably give the wrong result.\nNo match\n  \n"
+  },
+  {
+   "id": "9:0004",
+   "kind": "pattern",
+   "line": 12,
+   "input": "/\\x{100}/I\n\n",
+   "expected": "/\\x{100}/I\nFailed: error 134 at offset 6: character code point value in \\x{} or \\o{} is too large\n\n"
+  },
+  {
+   "id": "9:0005",
+   "kind": "pattern",
+   "line": 14,
+   "input": "/\\o{400}/I\n\n",
+   "expected": "/\\o{400}/I\nFailed: error 134 at offset 6: character code point value in \\x{} or \\o{} is too large\n\n"
+  },
+  {
+   "id": "9:0006",
+   "kind": "pattern",
+   "line": 16,
+   "input": "/  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*                          # optional leading comment\n(?:    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)                    # initial word\n(?:  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)  )* # further okay, if led by a period\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n# address\n|                     #  or\n(?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)             # one word, optionally followed by....\n(?:\n[^()\u003c\u003e@,;:\".\\\\\\[\\]\\x80-\\xff\\000-\\010\\012-\\037]  |  # atom and space parts, or...\n\\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)       |  # comments, or...\n\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n# quoted strings\n)*\n\u003c  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*                     # leading \u003c\n(?:  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n\n(?:  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  ,  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n)* # further okay, if led by comma\n:                                # closing colon\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  )? #       optional route\n(?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)                    # initial word\n(?:  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)  )* # further okay, if led by a period\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n#       address spec\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \u003e #                  trailing \u003e\n# name and address\n)  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*                       # optional trailing comment\n/Ix\n\n",
+   "expected": "/  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*                          # optional leading comment\n(?:    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)                    # initial word\n(?:  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)  )* # further okay, if led by a period\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n# address\n|                     #  or\n(?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)             # one word, optionally followed by....\n(?:\n[^()\u003c\u003e@,;:\".\\\\\\[\\]\\x80-\\xff\\000-\\010\\012-\\037]  |  # atom and space parts, or...\n\\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)       |  # comments, or...\n\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n# quoted strings\n)*\n\u003c  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*                     # leading \u003c\n(?:  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n\n(?:  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  ,  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n)* # further okay, if led by comma\n:                                # closing colon\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  )? #       optional route\n(?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)                    # initial word\n(?:  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|\n\" (?:                      # opening quote...\n[^\\\\\\x80-\\xff\\n\\015\"]                #   Anything except backslash and quote\n|                     #    or\n\\\\ [^\\x80-\\xff]           #   Escaped something (something != CR)\n)* \"  # closing quote\n)  )* # further okay, if led by a period\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  @  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*    (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                           # initial subdomain\n(?:                                  #\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \\.                        # if led by a period...\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*   (?:\n[^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]+    # some number of atom characters...\n(?![^(\\040)\u003c\u003e@,;:\".\\\\\\[\\]\\000-\\037\\x80-\\xff]) # ..not followed by something that could be part of an atom\n|   \\[                         # [\n(?: [^\\\\\\x80-\\xff\\n\\015\\[\\]] |  \\\\ [^\\x80-\\xff]  )*    #    stuff\n\\]                        #           ]\n)                     #   ...further okay\n)*\n#       address spec\n(?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*  \u003e #                  trailing \u003e\n# name and address\n)  (?: [\\040\\t] |  \\(\n(?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  |  \\( (?:  [^\\\\\\x80-\\xff\\n\\015()]  |  \\\\ [^\\x80-\\xff]  )* \\)  )*\n\\)  )*                       # optional trailing comment\n/Ix\nCapture group count = 0\nContains explicit CR or LF match\nOptions: extended\nStarting code units: \\x09 \\x20 ! \" # $ % \u0026 ' ( * + - / 0 1 2 3 4 5 6 7 8 \n  9 = ? A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ^ _ ` a b c d e \n  f g h i j k l m n o p q r s t u v w x y z { | } ~ \\x7f \nSubject length lower bound = 3\n\n"
+  },
+  {
+   "id": "9:0007",
+   "kind": "pattern",
+   "line": 211,
+   "input": "/\\h/I\n\n",
+   "expected": "/\\h/I\nCapture group count = 0\nStarting code units: \\x09 \\x20 \\xa0 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "9:0008",
+   "kind": "pattern",
+   "line": 213,
+   "input": "/\\H/I\n\n",
+   "expected": "/\\H/I\nCapture group count = 0\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "9:0009",
+   "kind": "pattern",
+   "line": 215,
+   "input": "/\\v/I\n\n",
+   "expected": "/\\v/I\nCapture group count = 0\nStarting code units: \\x0a \\x0b \\x0c \\x0d \\x85 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "9:0010",
+   "kind": "pattern",
+   "line": 217,
+   "input": "/\\V/I\n\n",
+   "expected": "/\\V/I\nCapture group count = 0\nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "9:0011",
+   "kind": "pattern",
+   "line": 219,
+   "input": "/\\R/I\n\n",
+   "expected": "/\\R/I\nCapture group count = 0\nStarting code units: \\x0a \\x0b \\x0c \\x0d \\x85 \nSubject length lower bound = 1\n\n"
+  },
+  {
+   "id": "9:0012",
+   "kind": "pattern",
+   "line": 221,
+   "input": "/[\\h]/B\n    \u003e\\x09\u003c\n\n",
+   "expected": "/[\\h]/B\n------------------------------------------------------------------\n        Bra\n        [\\x09 \\xa0]\n        Ket\n        End\n------------------------------------------------------------------\n    \u003e\\x09\u003c\n 0: \\x09\n\n"
+  },
+  {
+   "id": "9:0013",
+   "kind": "pattern",
+   "line": 224,
+   "input": "/[\\h]+/B\n    \u003e\\x09\\x20\\xa0\u003c\n\n",
+   "expected": "/[\\h]+/B\n------------------------------------------------------------------\n        Bra\n        [\\x09 \\xa0]++\n        Ket\n        End\n------------------------------------------------------------------\n    \u003e\\x09\\x20\\xa0\u003c\n 0: \\x09 \\xa0\n\n"
+  },
+  {
+   "id": "9:0014",
+   "kind": "pattern",
+   "line": 227,
+   "input": "/[\\v]/B\n\n",
+   "expected": "/[\\v]/B\n------------------------------------------------------------------\n        Bra\n        [\\x0a-\\x0d\\x85]\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "9:0015",
+   "kind": "pattern",
+   "line": 229,
+   "input": "/[\\H]/B\n\n",
+   "expected": "/[\\H]/B\n------------------------------------------------------------------\n        Bra\n        [\\x00-\\x08\\x0a-\\x1f!-\\x9f\\xa1-\\xff]\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "9:0016",
+   "kind": "pattern",
+   "line": 231,
+   "input": "/[^\\h]/B\n\n",
+   "expected": "/[^\\h]/B\n------------------------------------------------------------------\n        Bra\n        [\\x00-\\x08\\x0a-\\x1f!-\\x9f\\xa1-\\xff] (neg)\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "9:0017",
+   "kind": "pattern",
+   "line": 233,
+   "input": "/[\\V]/B\n\n",
+   "expected": "/[\\V]/B\n------------------------------------------------------------------\n        Bra\n        [\\x00-\\x09\\x0e-\\x84\\x86-\\xff]\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "9:0018",
+   "kind": "pattern",
+   "line": 235,
+   "input": "/[\\x0a\\V]/B\n\n",
+   "expected": "/[\\x0a\\V]/B\n------------------------------------------------------------------\n        Bra\n        [\\x00-\\x0a\\x0e-\\x84\\x86-\\xff]\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "9:0019",
+   "kind": "pattern",
+   "line": 237,
+   "input": "/\\777/I\n\n",
+   "expected": "/\\777/I\nFailed: error 151 at offset 4: octal value is greater than \\377 in 8-bit non-UTF-8 mode\n\n"
+  },
+  {
+   "id": "9:0020",
+   "kind": "pattern",
+   "line": 239,
+   "input": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF)XX/mark\n    XX\n     \n",
+   "expected": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF)XX/mark\nFailed: error 176 at offset 259: name is too long in (*MARK), (*PRUNE), (*SKIP), or (*THEN)\n    XX\n     \n"
+  },
+  {
+   "id": "9:0021",
+   "kind": "pattern",
+   "line": 242,
+   "input": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF)XX/mark,alt_verbnames\n    XX\n     \n",
+   "expected": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF)XX/mark,alt_verbnames\nFailed: error 176 at offset 259: name is too long in (*MARK), (*PRUNE), (*SKIP), or (*THEN)\n    XX\n     \n"
+  },
+  {
+   "id": "9:0022",
+   "kind": "pattern",
+   "line": 245,
+   "input": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDE)XX/mark\n    XX\n\n",
+   "expected": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDE)XX/mark\n    XX\n 0: XX\nMK: 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDE\n\n"
+  },
+  {
+   "id": "9:0023",
+   "kind": "pattern",
+   "line": 248,
+   "input": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDE)XX/mark,alt_verbnames\n    XX\n\n",
+   "expected": "/(*:0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDE)XX/mark,alt_verbnames\n    XX\n 0: XX\nMK: 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDE\n\n"
+  },
+  {
+   "id": "9:0024",
+   "kind": "pattern",
+   "line": 251,
+   "input": "/\\u0100/alt_bsux,allow_empty_class,match_unset_backref,dupnames\n\n",
+   "expected": "/\\u0100/alt_bsux,allow_empty_class,match_unset_backref,dupnames\nFailed: error 177 at offset 6: character code point value in \\u.... sequence is too large\n\n"
+  },
+  {
+   "id": "9:0025",
+   "kind": "pattern",
+   "line": 253,
+   "input": "/[\\u0100-\\u0200]/alt_bsux,allow_empty_class,match_unset_backref,dupnames\n\n",
+   "expected": "/[\\u0100-\\u0200]/alt_bsux,allow_empty_class,match_unset_backref,dupnames\nFailed: error 177 at offset 7: character code point value in \\u.... sequence is too large\n\n"
+  },
+  {
+   "id": "9:0026",
+   "kind": "pattern",
+   "line": 255,
+   "input": "/[^\\x00-a]{12,}[^b-\\xff]*/B\n\n",
+   "expected": "/[^\\x00-a]{12,}[^b-\\xff]*/B\n------------------------------------------------------------------\n        Bra\n        [b-\\xff] (neg){12,}+\n        [\\x00-a] (neg)*+\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "9:0027",
+   "kind": "pattern",
+   "line": 257,
+   "input": "/[^\\s]*\\s* [^\\W]+\\W+ [^\\d]*?\\d0 [^\\d\\w]{4,6}?\\w*A/B\n\n",
+   "expected": "/[^\\s]*\\s* [^\\W]+\\W+ [^\\d]*?\\d0 [^\\d\\w]{4,6}?\\w*A/B\n------------------------------------------------------------------\n        Bra\n        [\\x00-\\x08\\x0e-\\x1f!-\\xff] (neg)*+\n        \\s*\n         \n        [0-9A-Z_a-z]++\n        \\W+\n         \n        [\\x00-/:-\\xff] (neg)*+\n        \\d\n        0 \n        [\\x00-/:-@[-^`{-\\xff] (neg){4,6}+\n        \\w*\n        A\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "9:0028",
+   "kind": "pattern",
+   "line": 259,
+   "input": "/(*MARK:a\\x{100}b)z/alt_verbnames \n\n",
+   "expected": "/(*MARK:a\\x{100}b)z/alt_verbnames \nFailed: error 134 at offset 14: character code point value in \\x{} or \\o{} is too large\n\n"
+  },
+  {
+   "id": "9:0029",
+   "kind": "pattern",
+   "line": 261,
+   "input": "/(*:*++++++++++++''''''''''''''''''''+''+++'+++x+++++++++++++++++++++++++++++++++++(++++++++++++++++++++:++++++%++:''''''''''''''''''''''''+++++++++++++++++++++++++++++++++++++++++++++++++++++-++++++++k+++++++''''+++'+++++++++++++++++++++++''''++++++++++++':ƿ)/\n\n",
+   "expected": "/(*:*++++++++++++''''''''''''''''''''+''+++'+++x+++++++++++++++++++++++++++++++++++(++++++++++++++++++++:++++++%++:''''''''''''''''''''''''+++++++++++++++++++++++++++++++++++++++++++++++++++++-++++++++k+++++++''''+++'+++++++++++++++++++++++''''++++++++++++':ƿ)/\nFailed: error 176 at offset 259: name is too long in (*MARK), (*PRUNE), (*SKIP), or (*THEN)\n\n"
+  },
+  {
+   "id": "9:0030",
+   "kind": "pattern",
+   "line": 263,
+   "input": "/(?i:A{1,}\\6666666666)/\n    A\\x{1b6}6666666\n\n",
+   "expected": "/(?i:A{1,}\\6666666666)/\nFailed: error 151 at offset 13: octal value is greater than \\377 in 8-bit non-UTF-8 mode\n    A\\x{1b6}6666666\n\n"
+  },
+  {
+   "id": "9:0031",
+   "kind": "command",
+   "line": 266,
+   "input": "# End of testinput9\n",
+   "expected": "# End of testinput9\n"
+  }
+ ]
+}

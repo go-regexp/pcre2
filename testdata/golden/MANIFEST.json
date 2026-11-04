@@ -1,0 +1,280 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "mode": "8-bit, no JIT, UTF/UCP (Unicode 15.0.0), link size 2",
+ "source": "PCRE2 10.44 testdata, RunTest selection",
+ "entries": [
+  {
+   "number": 1,
+   "testinput": "testinput1",
+   "testoutput": "testoutput1",
+   "included": true,
+   "reason": "RunTest test 1: main non-UTF functionality, always run",
+   "golden": "testinput1.json",
+   "cases": 1298,
+   "counted": 1290
+  },
+  {
+   "number": 2,
+   "testinput": "testinput2",
+   "testoutput": "testoutput2",
+   "included": true,
+   "reason": "RunTest test 2: API, errors, internals, always run; RunTest appends 'pcre2test -error' output",
+   "golden": "testinput2.json",
+   "cases": 1848,
+   "counted": 1844,
+   "features": [
+    "serialize-none"
+   ],
+   "extra_args": [
+    [
+     "-error",
+     "-70,-62,-2,-1,0,100,101,191,300"
+    ]
+   ]
+  },
+  {
+   "number": 3,
+   "testinput": "testinput3",
+   "included": false,
+   "reason": "RunTest test 3 needs a French locale (fr_FR, french, fr or fr_CA) and accepts one of three alternative outputs (testoutput3, 3A, 3B); outputs depend on the host's locale tables, so it is not a stable oracle"
+  },
+  {
+   "number": 4,
+   "testinput": "testinput4",
+   "testoutput": "testoutput4",
+   "included": true,
+   "reason": "RunTest test 4: UTF and Unicode property support (Unicode build)",
+   "golden": "testinput4.json",
+   "cases": 620,
+   "counted": 617
+  },
+  {
+   "number": 5,
+   "testinput": "testinput5",
+   "testoutput": "testoutput5",
+   "included": true,
+   "reason": "RunTest test 5: API and internals for UTF/UCP (Unicode build)",
+   "golden": "testinput5.json",
+   "cases": 626,
+   "counted": 624
+  },
+  {
+   "number": 6,
+   "testinput": "testinput6",
+   "testoutput": "testoutput6",
+   "included": true,
+   "reason": "RunTest test 6: DFA matching main functionality, always run",
+   "golden": "testinput6.json",
+   "cases": 947,
+   "counted": 943,
+   "features": [
+    "dfa"
+   ]
+  },
+  {
+   "number": 7,
+   "testinput": "testinput7",
+   "testoutput": "testoutput7",
+   "included": true,
+   "reason": "RunTest test 7: DFA matching with UTF/UCP (Unicode build)",
+   "golden": "testinput7.json",
+   "cases": 522,
+   "counted": 519,
+   "features": [
+    "dfa"
+   ]
+  },
+  {
+   "number": 8,
+   "testinput": "testinput8",
+   "testoutput": "testoutput8-8-2",
+   "included": true,
+   "reason": "RunTest test 8: internal offsets and code size, 8-bit, link size 2",
+   "golden": "testinput8.json",
+   "cases": 84,
+   "counted": 80,
+   "features": [
+    "bincode"
+   ]
+  },
+  {
+   "number": 9,
+   "testinput": "testinput9",
+   "testoutput": "testoutput9",
+   "included": true,
+   "reason": "RunTest test 9: specials for the basic 8-bit library",
+   "golden": "testinput9.json",
+   "cases": 31,
+   "counted": 28
+  },
+  {
+   "number": 10,
+   "testinput": "testinput10",
+   "testoutput": "testoutput10",
+   "included": true,
+   "reason": "RunTest test 10: specials for the 8-bit library with UTF-8 and UCP",
+   "golden": "testinput10.json",
+   "cases": 163,
+   "counted": 161
+  },
+  {
+   "number": 11,
+   "testinput": "testinput11",
+   "included": false,
+   "reason": "RunTest test 11 runs only with the 16-bit and 32-bit libraries ('Skipped when running 8-bit tests')"
+  },
+  {
+   "number": 12,
+   "testinput": "testinput12",
+   "included": false,
+   "reason": "RunTest test 12 runs only with the 16-bit and 32-bit libraries ('Skipped when running 8-bit tests')"
+  },
+  {
+   "number": 13,
+   "testinput": "testinput13",
+   "included": false,
+   "reason": "RunTest test 13 runs only with the 16-bit and 32-bit libraries ('Skipped when running 8-bit tests')"
+  },
+  {
+   "number": 14,
+   "testinput": "testinput14",
+   "testoutput": "testoutput14-8",
+   "included": true,
+   "reason": "RunTest test 14: DFA UTF and UCP features, 8-bit output",
+   "golden": "testinput14.json",
+   "cases": 20,
+   "counted": 18,
+   "features": [
+    "dfa"
+   ]
+  },
+  {
+   "number": 15,
+   "testinput": "testinput15",
+   "testoutput": "testoutput15",
+   "included": true,
+   "reason": "RunTest test 15: non-JIT match and depth limits, run when JIT is not available",
+   "golden": "testinput15.json",
+   "cases": 63,
+   "counted": 60
+  },
+  {
+   "number": 16,
+   "testinput": "testinput16",
+   "testoutput": "testoutput16",
+   "included": true,
+   "reason": "RunTest test 16: JIT-specific features when JIT is not available (this oracle build has no JIT)",
+   "golden": "testinput16.json",
+   "cases": 3,
+   "counted": 2
+  },
+  {
+   "number": 17,
+   "testinput": "testinput17",
+   "included": false,
+   "reason": "RunTest test 17 runs only when JIT is available and not disabled; the oracle build has no JIT and this port has none"
+  },
+  {
+   "number": 18,
+   "testinput": "testinput18",
+   "testoutput": "testoutput18",
+   "included": true,
+   "reason": "RunTest test 18: POSIX interface without UTF/UCP, 8-bit only",
+   "golden": "testinput18.json",
+   "cases": 43,
+   "counted": 40,
+   "features": [
+    "posix"
+   ]
+  },
+  {
+   "number": 19,
+   "testinput": "testinput19",
+   "testoutput": "testoutput19",
+   "included": true,
+   "reason": "RunTest test 19: POSIX interface with UTF/UCP, 8-bit only",
+   "golden": "testinput19.json",
+   "cases": 7,
+   "counted": 5,
+   "features": [
+    "posix"
+   ]
+  },
+  {
+   "number": 20,
+   "testinput": "testinput20",
+   "testoutput": "testoutput20",
+   "included": true,
+   "reason": "RunTest test 20: serialization and code copy tests",
+   "golden": "testinput20.json",
+   "cases": 43,
+   "counted": 32,
+   "features": [
+    "serialize"
+   ]
+  },
+  {
+   "number": 21,
+   "testinput": "testinput21",
+   "testoutput": "testoutput21",
+   "included": true,
+   "reason": "RunTest test 21: \\C tests without UTF (\\C is supported by the oracle build); RunTest also runs it with -dfa, which this golden does not cover",
+   "golden": "testinput21.json",
+   "cases": 6,
+   "counted": 5
+  },
+  {
+   "number": 22,
+   "testinput": "testinput22",
+   "testoutput": "testoutput22-8",
+   "included": true,
+   "reason": "RunTest test 22: \\C tests with UTF, 8-bit output",
+   "golden": "testinput22.json",
+   "cases": 21,
+   "counted": 20
+  },
+  {
+   "number": 23,
+   "testinput": "testinput23",
+   "included": false,
+   "reason": "RunTest test 23 runs only when \\C is disabled at build time (NEVER_BACKSLASH_C); the oracle build supports \\C"
+  },
+  {
+   "number": 24,
+   "testinput": "testinput24",
+   "testoutput": "testoutput24",
+   "included": true,
+   "reason": "RunTest test 24: non-UTF pattern conversion tests",
+   "golden": "testinput24.json",
+   "cases": 117,
+   "counted": 106,
+   "features": [
+    "convert"
+   ]
+  },
+  {
+   "number": 25,
+   "testinput": "testinput25",
+   "testoutput": "testoutput25",
+   "included": true,
+   "reason": "RunTest test 25: UTF pattern conversion tests",
+   "golden": "testinput25.json",
+   "cases": 5,
+   "counted": 2,
+   "features": [
+    "convert"
+   ]
+  },
+  {
+   "number": 26,
+   "testinput": "testinput26",
+   "testoutput": "testoutput26",
+   "included": true,
+   "reason": "RunTest test 26: auto-generated Unicode property tests",
+   "golden": "testinput26.json",
+   "cases": 762,
+   "counted": 761
+  }
+ ]
+}
