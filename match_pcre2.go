@@ -41,7 +41,7 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 
 		frameSize, heapframesSize uint64
 
-		cb  CalloutBlock
+		cb  *CalloutBlock
 		amb matchBlock
 		mb  = &amb
 
@@ -203,7 +203,13 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 	}
 
 	// pcre2_match.c:6950: the fixed fields of the callout block.
-	mb.cb = &cb
+	// (The block is cached in the match data: no allocation per match.)
+	if md.calloutBlock == nil {
+		md.calloutBlock = new(CalloutBlock)
+	}
+	cb = md.calloutBlock
+	*cb = CalloutBlock{}
+	mb.cb = cb
 	cb.Version = 2
 	cb.Subject = subject
 	cb.SubjectLength = uint64(endSubject)

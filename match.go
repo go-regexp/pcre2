@@ -235,7 +235,6 @@ func match(startEptr, startEcode int, topBracket uint16, frameSize int, md *Matc
 		offset            int
 		length            int
 		rrc               int
-		proptype          int
 		i, fc, number     uint32
 		reptype           uint32
 		groupFrameType    uint32
@@ -1783,11 +1782,8 @@ nextOp:
 	default:
 		return PCRE2_ERROR_INTERNAL
 	}
-	// Do not insert any code in here without much thought; it is assumed that
-	// "goto nextOp" in the code above comes out to here to repeat the main loop.
-
-	// The "break" and "continue" of the C switch both repeat the main loop.
-	goto nextOp
+	// Every case of the switch ends in a goto: the "break" and "continue" of the
+	// C switch, which repeat the main loop, are "goto nextOp" here.
 
 	// Common code for all repeated single-character matches (pcre2_match.c:1276).
 	// tempSize = Loclength, tempSptr[0] = Lstart_eptr, tempSptr[1] = Lcharptr,
@@ -3149,13 +3145,4 @@ returnSwitch:
 	default:
 		return PCRE2_ERROR_INTERNAL
 	}
-
-	_, _, _, _, _, _ = branchEnd, branchStart, condition, curIsWord, prevIsWord, assertAcceptFrame
-	_ = pi
-	_ = proptype
-	_ = number
-	_ = reptype
-	_ = length
-	_ = i
-	return PCRE2_ERROR_INTERNAL
 }
