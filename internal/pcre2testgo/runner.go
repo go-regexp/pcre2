@@ -123,6 +123,7 @@ type Runner struct {
 	code         Code
 	dfaMatched   int
 	dfaWS        []int32
+	pbufSize     int // pbuffer8_size of pcre2test.c: input buffer size, doubled on demand
 	patCtl       mods.PatCtl
 	cc           mods.CompileCtx
 	utf          bool
@@ -143,7 +144,30 @@ func New(lib Lib) *Runner {
 	}
 	r.defMC = mods.MatchCtx{MatchLimit: defaultMatchLimit, DepthLimit: defaultDepthLimit, HeapLimit: defaultHeapLimit, OffsetLimit: unsetSize}
 	r.unsupported = map[string]bool{}
+	r.pbufSize = 50000
 	return r
+}
+
+// readAccount mimics extend_inputline(): a line of n bytes read into the input
+// buffer from offset used makes the buffer double (permanently) whenever 1000
+// bytes or fewer remain before the line is complete.
+func (r *Runner) readAccount(used, n int) {
+	for {
+		rlen := r.pbufSize - used
+		if rlen > 1000 {
+			take := n
+			if take > rlen-1 {
+				take = rlen - 1
+			}
+			used += take
+			n -= take
+			if n == 0 {
+				return
+			}
+		} else {
+			r.pbufSize *= 2
+		}
+	}
 }
 
 func (r *Runner) unsup(feature string) { r.unsupported[feature] = true }
@@ -171,6 +195,7 @@ func (r *Runner) Run(input []byte) Result {
 			break
 		}
 		r.out.Write(line)
+		r.readAccount(0, len(line))
 		r.handleLine(line)
 	}
 	res := Result{Output: r.out.Bytes(), Abend: r.abend}
@@ -373,6 +398,7 @@ func (r *Runner) processPattern(first []byte) int {
 			return prAbend
 		}
 		r.out.Write(l)
+		r.readAccount(len(buf), len(l))
 		buf = append(buf, l...)
 	}
 	if at(buf, p+1) == '\\' {
@@ -493,6 +519,9 @@ func (r *Runner) processPattern(first []byte) int {
 					}
 				}
 			}
+			for len(out)+count*length > r.pbufSize {
+				r.pbufSize *= 2 // expand_input_buffers()
+			}
 			for ; count > 0; count-- {
 				out = append(out, pat[pcIdx:pcIdx+length]...)
 			}
@@ -541,8 +570,10 @@ func (r *Runner) processPattern(first []byte) int {
 		r.unsup("pattern stack (push)")
 	}
 	if pc.ConvertType != mods.ConvertUnset {
-		r.unsup("pattern conversion")
-		return prSkip
+		var rc int
+		if pat, rc = r.convertPattern(pat, utf); rc != prOK {
+			return rc
+		}
 	}
 
 	if pc.Control2&mods.CTL2_NL_SET == 0 && r.localNL != 0 {
@@ -611,10 +642,10 @@ func (r *Runner) processPattern(first []byte) int {
 	}
 
 	if pc.Control&mods.CTL_MEMORY != 0 {
-		r.unsup("memory info")
+		r.showMemoryInfo()
 	}
 	if pc.Control2&mods.CTL2_FRAMESIZE != 0 {
-		r.unsup("frame size")
+		r.showFrameSize()
 	}
 	if pc.Control&mods.CTL_ANYINFO != 0 {
 		if rc := r.showPatternInfo(jitrc); rc != prOK {
@@ -1026,7 +1057,9 @@ func (r *Runner) showPatternInfo(jitrc int) int {
 		}
 	}
 	if pc.Control&mods.CTL_CALLOUT_INFO != 0 {
-		r.unsup("callout enumeration (callout_info)")
+		if rc := r.calloutEnumerate(); rc != prOK {
+			return rc
+		}
 	}
 	_ = jitrc
 	return prOK

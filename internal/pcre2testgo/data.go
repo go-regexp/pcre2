@@ -308,15 +308,11 @@ func (r *Runner) processData(line []byte) int {
 			return prOK
 		}
 	}
-	if dat.Control&(mods.CTL_FINDLIMITS|mods.CTL_FINDLIMITS_NOHEAP) != 0 {
-		r.unsup("limit finding (find_limits)")
-		return prOK
-	}
-	if dat.Control&mods.CTL_CALLOUT_NONE == 0 && r.hasCallout {
+	calloutsOK := false
+	if cc, ok := r.code.(CalloutCapable); ok && cc.SupportsCallouts() {
+		calloutsOK = true
+	} else if dat.Control&mods.CTL_CALLOUT_NONE == 0 && r.hasCallout {
 		r.unsup("callouts")
-	}
-	if dat.Control2&mods.CTL2_HEAPFRAMES_SIZE != 0 {
-		r.unsup("heap frames size")
 	}
 
 	var subject []byte
@@ -352,13 +348,31 @@ func (r *Runner) processData(line []byte) int {
 	ovecsave := [3]uint64{unsetSize, unsetSize, unsetSize}
 	subj := subject
 	curLen := ulen
+matchLoop:
 	for gmatched := 0; ; gmatched++ {
 		ovector = md.Ovector()
 		for j := range ovector {
 			ovector[j] = junkOffset
 		}
+		if calloutsOK && dat.Control&mods.CTL_CALLOUT_NONE == 0 {
+			ms.Callout = r.calloutFunc(&dat)
+		}
 		var capcount int
-		if dfa != nil {
+		if dat.Control&(mods.CTL_FINDLIMITS|mods.CTL_FINDLIMITS_NOHEAP) != 0 {
+			// No callouts while hunting for limits (the C code sets them in
+			// the plain-match branch only).
+			ms.Callout = nil
+			base := dat.Options | gnotempty
+			if dat.Control&mods.CTL_FINDLIMITS_NOHEAP == 0 {
+				r.checkMatchLimit(subj, &dat, base, md, ms, dfa, errHeapLimit, "heap")
+			}
+			capcount = r.checkMatchLimit(subj, &dat, base, md, ms, dfa, errMatchLimit, "match")
+			capcount = r.checkMatchLimit(subj, &dat, base, md, ms, dfa, errDepthLimit, "depth")
+			if capcount == 0 {
+				r.printf("Matched, but offsets vector is too small to show all matches\n")
+				capcount = int(dat.Oveccount)
+			}
+		} else if dfa != nil {
 			if r.dfaWS == nil {
 				r.dfaWS = make([]int32, DFAWorkspaceSize)
 			}
@@ -519,7 +533,7 @@ func (r *Runner) processData(line []byte) int {
 			if dat.Control2&mods.CTL2_ALLVECTOR != 0 {
 				r.showOvector(ovector, oveccount)
 			}
-			return prOK
+			break matchLoop
 
 		case gnotempty != 0:
 			start := uint64(dat.Offset)
@@ -566,7 +580,7 @@ func (r *Runner) processData(line []byte) int {
 				}
 				r.printf("\n")
 			}
-			return prOK
+			break matchLoop
 		}
 
 		if dat.Control&mods.CTL_ANYGLOB == 0 {
@@ -611,6 +625,10 @@ func (r *Runner) processData(line []byte) int {
 			curLen -= endOffset
 			ulen = curLen
 		}
+	}
+	// All matching is done; show the resulting heapframe size if requested.
+	if dat.Control2&mods.CTL2_HEAPFRAMES_SIZE != 0 && dat.Control&mods.CTL_DFA == 0 {
+		r.showHeapFramesSize(md)
 	}
 	return prOK
 }

@@ -89,5 +89,64 @@ func (r *Runner) substitute(dat *mods.DatCtl, ms MatchSettings, subject []byte, 
 	if dat.Control2&mods.CTL2_ALLVECTOR != 0 {
 		r.showOvector(md.Ovector(), oveccount)
 	}
+	if dat.Control2&mods.CTL2_HEAPFRAMES_SIZE != 0 && dat.Control&mods.CTL_DFA == 0 {
+		r.showHeapFramesSize(md)
+	}
 	return prOK
+}
+
+// convertPattern ports the pcre2_pattern_convert() branch of process_pattern().
+// It returns the pattern to compile.
+func (r *Runner) convertPattern(pat []byte, utf bool) ([]byte, int) {
+	pc := &r.patCtl
+	conv, ok := r.lib.(PatternConverter)
+	if !ok {
+		r.unsup("pattern conversion")
+		return pat, prSkip
+	}
+	opts := pc.ConvertType
+	if utf {
+		opts |= mods.CONVERT_UTF
+	}
+	if pc.Options&mods.NO_UTF_CHECK != 0 {
+		opts |= mods.CONVERT_NO_UTF_CHECK
+	}
+	var g GlobSettings
+	if pc.GlobEscape != 0 {
+		g.EscapeSet = true
+		g.Escape = pc.GlobEscape
+		if pc.GlobEscape == '0' {
+			g.Escape = 0
+		}
+	}
+	if pc.GlobSeparator != 0 {
+		g.SeparatorSet = true
+		g.Separator = pc.GlobSeparator
+	}
+	res := conv.Convert(pat, opts, g, uint64(pc.ConvertLength))
+	switch {
+	case res.BadEscape:
+		r.printf("** Invalid glob escape '%c'\n", pc.GlobEscape)
+		return pat, prSkip
+	case res.BadSeparator:
+		r.printf("** Invalid glob separator '%c'\n", pc.GlobSeparator)
+		return pat, prSkip
+	case res.RC != 0:
+		r.printf("** Pattern conversion error at offset %d: ", res.ErrOffset)
+		if !r.printError(res.RC, "", "\n") {
+			return pat, prAbend
+		}
+		return pat, prSkip
+	}
+	pchars(res.Out, utf, r.out)
+	r.printf("\n")
+	if len(res.Out)+1 > r.pbufSize {
+		r.printf("** Pattern conversion is too long for the buffer\n")
+		return pat, prSkip
+	}
+	out := res.Out
+	if out == nil {
+		out = []byte{}
+	}
+	return out, prOK
 }

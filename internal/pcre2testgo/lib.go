@@ -19,6 +19,10 @@ type CompileSettings struct {
 type MatchSettings struct {
 	mods.MatchCtx
 	Null bool
+	// Callout, when non-nil, is to be called for every callout; the result
+	// is the callout's return value. Only set for a Code that implements
+	// CalloutCapable.
+	Callout func(*CalloutBlock) int
 }
 
 // CodeExtra carries information that pcre2test reads from the internals of a
@@ -83,6 +87,29 @@ type Substituter interface {
 		replacement []byte, nullReplacement bool, outCap uint64) (rc int, out []byte, outlen uint64)
 }
 
+// PatternConverter is implemented by a Lib that offers pcre2_pattern_convert()
+// (the "convert" pattern modifier).
+type PatternConverter interface {
+	Convert(pattern []byte, options uint32, glob GlobSettings, outCap uint64) ConvertResult
+}
+
+// GlobSettings are the convert-context values the modifiers set.
+type GlobSettings struct {
+	EscapeSet    bool
+	Escape       uint32 // 0 means "no escape"
+	SeparatorSet bool
+	Separator    uint32
+}
+
+// ConvertResult is the outcome of Convert.
+type ConvertResult struct {
+	Out          []byte
+	RC           int    // 0 or a PCRE2_ERROR_* code
+	ErrOffset    uint64 // pcre2_pattern_convert's converted-length output on error
+	BadEscape    bool   // pcre2_set_glob_escape() refused the character
+	BadSeparator bool   // pcre2_set_glob_separator() refused the character
+}
+
 // Substitute option bits (pcre2.h).
 const (
 	SubstituteGlobal          = 0x00000100
@@ -122,4 +149,57 @@ type Lib interface {
 	// ErrorMessage is pcre2_get_error_message(); ok is false for an unknown
 	// error number (PCRE2_ERROR_BADDATA).
 	ErrorMessage(code int) (msg string, ok bool)
+}
+
+// CalloutBlock is pcre2_callout_block (8-bit).
+type CalloutBlock struct {
+	Version             uint32
+	CalloutNumber       uint32
+	CaptureTop          uint32
+	CaptureLast         uint32
+	OffsetVector        []uint64
+	Mark                []byte // nil when no mark
+	Subject             []byte
+	StartMatch          uint64
+	CurrentPosition     uint64
+	PatternPosition     uint64
+	NextItemLength      uint64
+	CalloutStringOffset uint64
+	CalloutString       []byte // nil for a numbered callout
+	// CalloutDelimiter is the delimiter that opened CalloutString (the code
+	// unit just before the string in the library's copy).
+	CalloutDelimiter byte
+	CalloutFlags     uint32
+}
+
+// Callout flags (pcre2.h).
+const (
+	CalloutStartMatch = 0x00000001
+	CalloutBacktrack  = 0x00000002
+)
+
+// ErrorCallout is PCRE2_ERROR_CALLOUT.
+const ErrorCallout = -37
+
+// CalloutEnumBlock is pcre2_callout_enumerate_block (8-bit).
+type CalloutEnumBlock struct {
+	PatternPosition     uint64
+	NextItemLength      uint64
+	CalloutNumber       uint32
+	CalloutStringOffset uint64
+	CalloutString       []byte // nil for a numbered callout
+	CalloutDelimiter    byte
+}
+
+// CalloutCapable is implemented by a Code whose Match calls MatchSettings.Callout.
+type CalloutCapable interface {
+	SupportsCallouts() bool
+}
+
+// CalloutEnumerator is implemented by a Code that offers
+// pcre2_callout_enumerate().
+type CalloutEnumerator interface {
+	// CalloutEnumerate calls fn for every callout in the pattern; a non-zero
+	// result of fn stops the scan and is returned.
+	CalloutEnumerate(fn func(CalloutEnumBlock) int) int
 }
