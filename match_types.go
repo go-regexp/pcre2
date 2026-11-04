@@ -251,7 +251,7 @@ func (mb *matchBlock) typeMaxStep(F *heapframe, utf bool) (adv, partial, bad boo
 	return false, false, true
 }
 
-func b2u32(b bool) uint32 {
+func matchBool32(b bool) uint32 {
 	if b {
 		return 1
 	}

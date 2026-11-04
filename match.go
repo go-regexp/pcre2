@@ -1034,7 +1034,7 @@ nextOp:
 	// temp32[0] = Lmin, [1] = Lmax, [2] = Lcaseless, tempSptr[0] = Lstart,
 	// tempSize = Loffset.
 	case OP_DNREF, OP_DNREFI:
-		F.temp32[2] = b2u32(F.op == OP_DNREFI)
+		F.temp32[2] = matchBool32(F.op == OP_DNREFI)
 		{
 			count := GET2(code, F.ecode+1+IMM2_SIZE)
 			slot := int(mb.nameEntrySize) * GET2(code, F.ecode+1)
@@ -1050,7 +1050,7 @@ nextOp:
 		goto refRepeat
 
 	case OP_REF, OP_REFI:
-		F.temp32[2] = b2u32(F.op == OP_REFI)
+		F.temp32[2] = matchBool32(F.op == OP_REFI)
 		F.tempSize = (GET2(code, F.ecode+1) << 1) - 2
 		F.ecode += 1 + IMM2_SIZE
 		goto refRepeat
@@ -1251,7 +1251,7 @@ nextOp:
 		default:
 			// The condition is an assertion. Run code similar to the assertion
 			// code above. temp32[0] = Lpositive, tempSptr[0] = Lstart_branch.
-			F.temp32[0] = b2u32(code[F.ecode] == OP_ASSERT || code[F.ecode] == OP_ASSERTBACK)
+			F.temp32[0] = matchBool32(code[F.ecode] == OP_ASSERT || code[F.ecode] == OP_ASSERTBACK)
 			F.tempSptr[0] = F.ecode
 			goto condAssertLoop
 		}
