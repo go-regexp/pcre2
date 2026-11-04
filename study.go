@@ -7,17 +7,17 @@ package pcre2
 
 // MAX_CACHE_BACKREF is the maximum remembered capturing brackets minimum
 // (pcre2_study.c:53).
-const MAX_CACHE_BACKREF = 128
+const xMAX_CACHE_BACKREF = 128
 
 const uint16Max = 0xffff // UINT16_MAX
 
 // Returns from set_start_bits() (pcre2_study.c:61).
 const (
-	SSB_FAIL = iota
-	SSB_DONE
-	SSB_CONTINUE
-	SSB_UNKNOWN
-	SSB_TOODEEP
+	xSSB_FAIL = iota
+	xSSB_DONE
+	xSSB_CONTINUE
+	xSSB_UNKNOWN
+	xSSB_TOODEEP
 )
 
 // studyRecurseCheck is recurse_check (pcre2_intmodedep.h:684-687): a chain used
@@ -49,20 +49,20 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 	once_fudge := 0
 	had_recurse := false
 	dupcapused := re.flags&PCRE2_DUPCAPUSED != 0
-	nextbranch := cc0 + GET(code, cc0+1)
-	cc := cc0 + 1 + LINK_SIZE
+	nextbranch := cc0 + xGET(code, cc0+1)
+	cc := cc0 + 1 + xLINK_SIZE
 	var this_recurse studyRecurseCheck
 
 	// If this is a "could be empty" group, its minimum length is 0.
 
-	if code[cc0] >= OP_SBRA && code[cc0] <= OP_SCOND {
+	if code[cc0] >= xOP_SBRA && code[cc0] <= xOP_SCOND {
 		return 0
 	}
 
 	// Skip over capturing bracket number
 
-	if code[cc0] == OP_CBRA || code[cc0] == OP_CBRAPOS {
-		cc += IMM2_SIZE
+	if code[cc0] == xOP_CBRA || code[cc0] == xOP_CBRAPOS {
+		cc += xIMM2_SIZE
 	}
 
 	// A large and/or complex regex can take too long to process.
@@ -81,12 +81,12 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		}
 		branchlength += d
 		for {
-			cc += GET(code, cc+1)
-			if code[cc] != OP_ALT {
+			cc += xGET(code, cc+1)
+			if code[cc] != xOP_ALT {
 				break
 			}
 		}
-		cc += 1 + LINK_SIZE
+		cc += 1 + xLINK_SIZE
 		return 0
 	}
 
@@ -94,18 +94,18 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 	repeatBackReference := func(d int) {
 		var min int
 		switch code[cc] {
-		case OP_CRSTAR, OP_CRMINSTAR, OP_CRQUERY, OP_CRMINQUERY,
-			OP_CRPOSSTAR, OP_CRPOSQUERY:
+		case xOP_CRSTAR, xOP_CRMINSTAR, xOP_CRQUERY, xOP_CRMINQUERY,
+			xOP_CRPOSSTAR, xOP_CRPOSQUERY:
 			min = 0
 			cc++
 
-		case OP_CRPLUS, OP_CRMINPLUS, OP_CRPOSPLUS:
+		case xOP_CRPLUS, xOP_CRMINPLUS, xOP_CRPOSPLUS:
 			min = 1
 			cc++
 
-		case OP_CRRANGE, OP_CRMINRANGE, OP_CRPOSRANGE:
-			min = GET2(code, cc+1)
-			cc += 1 + 2*IMM2_SIZE
+		case xOP_CRRANGE, xOP_CRMINRANGE, xOP_CRPOSRANGE:
+			min = xGET2(code, cc+1)
+			cc += 1 + 2*xIMM2_SIZE
 
 		default:
 			min = 1
@@ -136,38 +136,38 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 
 		op := code[cc]
 		switch op {
-		case OP_COND, OP_SCOND:
+		case xOP_COND, xOP_SCOND:
 			// If there is only one branch in a condition, the implied branch has
 			// zero length, so we don't add anything. This covers the DEFINE
 			// "condition" automatically. If there are two branches we can treat
 			// it the same as any other non-capturing subpattern.
 
-			cs := cc + GET(code, cc+1)
-			if code[cs] != OP_ALT {
-				cc = cs + 1 + LINK_SIZE
+			cs := cc + xGET(code, cc+1)
+			if code[cs] != xOP_ALT {
+				cc = cs + 1 + xLINK_SIZE
 				break
 			}
 			if d = processNonCapture(); d < 0 {
 				return d
 			}
 
-		case OP_BRA:
+		case xOP_BRA:
 			// There's a special case of OP_BRA, when it is wrapped round a
 			// repeated OP_RECURSE. We'd like to process the latter at this level
 			// so that remembering the value works for repeated cases. So we do
 			// nothing, but set a fudge value to skip over the OP_KET after the
 			// recurse.
 
-			if code[cc+1+LINK_SIZE] == OP_RECURSE && code[cc+2*(1+LINK_SIZE)] == OP_KET {
-				once_fudge = 1 + LINK_SIZE
-				cc += 1 + LINK_SIZE
+			if code[cc+1+xLINK_SIZE] == xOP_RECURSE && code[cc+2*(1+xLINK_SIZE)] == xOP_KET {
+				once_fudge = 1 + xLINK_SIZE
+				cc += 1 + xLINK_SIZE
 				break
 			}
 			if d = processNonCapture(); d < 0 {
 				return d
 			}
 
-		case OP_ONCE, OP_SCRIPT_RUN, OP_SBRA, OP_BRAPOS, OP_SBRAPOS:
+		case xOP_ONCE, xOP_SCRIPT_RUN, xOP_SBRA, xOP_BRAPOS, xOP_SBRAPOS:
 			if d = processNonCapture(); d < 0 {
 				return d
 			}
@@ -177,8 +177,8 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		// the unnumbered ones above. Nor can we do this if (?| is present in the
 		// pattern because captures with the same number are not then identical.
 
-		case OP_CBRA, OP_SCBRA, OP_CBRAPOS, OP_SCBRAPOS:
-			recno = GET2(code, cc+1+LINK_SIZE)
+		case xOP_CBRA, xOP_SCBRA, xOP_CBRAPOS, xOP_SCBRAPOS:
+			recno = xGET2(code, cc+1+xLINK_SIZE)
 			if dupcapused || recno != prev_cap_recno {
 				prev_cap_recno = recno
 				prev_cap_d = find_minlength(re, code, cc, utf, recurses, countptr, backref_cache)
@@ -188,18 +188,18 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 			}
 			branchlength += prev_cap_d
 			for {
-				cc += GET(code, cc+1)
-				if code[cc] != OP_ALT {
+				cc += xGET(code, cc+1)
+				if code[cc] != xOP_ALT {
 					break
 				}
 			}
-			cc += 1 + LINK_SIZE
+			cc += 1 + xLINK_SIZE
 
 		// ACCEPT makes things far too complicated; we have to give up. In fact,
 		// from 10.34 onwards, if a pattern contains (*ACCEPT), this function is
 		// not used. However, leave the code in place, just in case.
 
-		case OP_ACCEPT, OP_ASSERT_ACCEPT:
+		case xOP_ACCEPT, xOP_ASSERT_ACCEPT:
 			return -1
 
 		// Reached end of a branch; if it's a ket it is the end of a nested
@@ -208,67 +208,67 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		// the length of any branch is zero, there is no need to scan any
 		// subsequent branches.
 
-		case OP_ALT, OP_KET, OP_KETRMAX, OP_KETRMIN, OP_KETRPOS, OP_END:
+		case xOP_ALT, xOP_KET, xOP_KETRMAX, xOP_KETRMIN, xOP_KETRPOS, xOP_END:
 			if length < 0 || (!had_recurse && branchlength < length) {
 				length = branchlength
 			}
-			if op != OP_ALT || length == 0 {
+			if op != xOP_ALT || length == 0 {
 				return length
 			}
-			nextbranch = cc + GET(code, cc+1)
-			cc += 1 + LINK_SIZE
+			nextbranch = cc + xGET(code, cc+1)
+			cc += 1 + xLINK_SIZE
 			branchlength = 0
 			had_recurse = false
 
 		// Skip over assertive subpatterns
 
-		case OP_ASSERT, OP_ASSERT_NOT, OP_ASSERTBACK, OP_ASSERTBACK_NOT,
-			OP_ASSERT_NA, OP_ASSERTBACK_NA:
+		case xOP_ASSERT, xOP_ASSERT_NOT, xOP_ASSERTBACK, xOP_ASSERTBACK_NOT,
+			xOP_ASSERT_NA, xOP_ASSERTBACK_NA:
 			for {
-				cc += GET(code, cc+1)
-				if code[cc] != OP_ALT {
+				cc += xGET(code, cc+1)
+				if code[cc] != xOP_ALT {
 					break
 				}
 			}
-			cc += int(OP_lengths[code[cc]])
+			cc += int(xOP_lengths[code[cc]])
 
 		// Skip over things that don't match chars
 
-		case OP_REVERSE, OP_VREVERSE, OP_CREF, OP_DNCREF, OP_RREF, OP_DNRREF,
-			OP_FALSE, OP_TRUE, OP_CALLOUT, OP_SOD, OP_SOM, OP_EOD, OP_EODN,
-			OP_CIRC, OP_CIRCM, OP_DOLL, OP_DOLLM, OP_NOT_WORD_BOUNDARY,
-			OP_WORD_BOUNDARY, OP_NOT_UCP_WORD_BOUNDARY, OP_UCP_WORD_BOUNDARY:
-			cc += int(OP_lengths[code[cc]])
+		case xOP_REVERSE, xOP_VREVERSE, xOP_CREF, xOP_DNCREF, xOP_RREF, xOP_DNRREF,
+			xOP_FALSE, xOP_TRUE, xOP_CALLOUT, xOP_SOD, xOP_SOM, xOP_EOD, xOP_EODN,
+			xOP_CIRC, xOP_CIRCM, xOP_DOLL, xOP_DOLLM, xOP_NOT_WORD_BOUNDARY,
+			xOP_WORD_BOUNDARY, xOP_NOT_UCP_WORD_BOUNDARY, xOP_UCP_WORD_BOUNDARY:
+			cc += int(xOP_lengths[code[cc]])
 
-		case OP_CALLOUT_STR:
-			cc += GET(code, cc+1+2*LINK_SIZE)
+		case xOP_CALLOUT_STR:
+			cc += xGET(code, cc+1+2*xLINK_SIZE)
 
 		// Skip over a subpattern that has a {0} or {0,x} quantifier
 
-		case OP_BRAZERO, OP_BRAMINZERO, OP_BRAPOSZERO, OP_SKIPZERO:
-			cc += int(OP_lengths[code[cc]])
+		case xOP_BRAZERO, xOP_BRAMINZERO, xOP_BRAPOSZERO, xOP_SKIPZERO:
+			cc += int(xOP_lengths[code[cc]])
 			for {
-				cc += GET(code, cc+1)
-				if code[cc] != OP_ALT {
+				cc += xGET(code, cc+1)
+				if code[cc] != xOP_ALT {
 					break
 				}
 			}
-			cc += 1 + LINK_SIZE
+			cc += 1 + xLINK_SIZE
 
 		// Handle literal characters and + repetitions
 
-		case OP_CHAR, OP_CHARI, OP_NOT, OP_NOTI, OP_PLUS, OP_PLUSI, OP_MINPLUS,
-			OP_MINPLUSI, OP_POSPLUS, OP_POSPLUSI, OP_NOTPLUS, OP_NOTPLUSI,
-			OP_NOTMINPLUS, OP_NOTMINPLUSI, OP_NOTPOSPLUS, OP_NOTPOSPLUSI:
+		case xOP_CHAR, xOP_CHARI, xOP_NOT, xOP_NOTI, xOP_PLUS, xOP_PLUSI, xOP_MINPLUS,
+			xOP_MINPLUSI, xOP_POSPLUS, xOP_POSPLUSI, xOP_NOTPLUS, xOP_NOTPLUSI,
+			xOP_NOTMINPLUS, xOP_NOTMINPLUSI, xOP_NOTPOSPLUS, xOP_NOTPOSPLUSI:
 			branchlength++
 			cc += 2
-			if utf && HAS_EXTRALEN(uint32(code[cc-1])) {
-				cc += GET_EXTRALEN(uint32(code[cc-1]))
+			if utf && xHAS_EXTRALEN(uint32(code[cc-1])) {
+				cc += xGET_EXTRALEN(uint32(code[cc-1]))
 			}
 
-		case OP_TYPEPLUS, OP_TYPEMINPLUS, OP_TYPEPOSPLUS:
+		case xOP_TYPEPLUS, xOP_TYPEMINPLUS, xOP_TYPEPOSPLUS:
 			branchlength++
-			if code[cc+1] == OP_PROP || code[cc+1] == OP_NOTPROP {
+			if code[cc+1] == xOP_PROP || code[cc+1] == xOP_NOTPROP {
 				cc += 4
 			} else {
 				cc += 2
@@ -277,37 +277,37 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		// Handle exact repetitions. The count is already in characters, but we
 		// may need to skip over a multibyte character in UTF mode.
 
-		case OP_EXACT, OP_EXACTI, OP_NOTEXACT, OP_NOTEXACTI:
-			branchlength += GET2(code, cc+1)
-			cc += 2 + IMM2_SIZE
-			if utf && HAS_EXTRALEN(uint32(code[cc-1])) {
-				cc += GET_EXTRALEN(uint32(code[cc-1]))
+		case xOP_EXACT, xOP_EXACTI, xOP_NOTEXACT, xOP_NOTEXACTI:
+			branchlength += xGET2(code, cc+1)
+			cc += 2 + xIMM2_SIZE
+			if utf && xHAS_EXTRALEN(uint32(code[cc-1])) {
+				cc += xGET_EXTRALEN(uint32(code[cc-1]))
 			}
 
-		case OP_TYPEEXACT:
-			branchlength += GET2(code, cc+1)
-			if code[cc+1+IMM2_SIZE] == OP_PROP || code[cc+1+IMM2_SIZE] == OP_NOTPROP {
+		case xOP_TYPEEXACT:
+			branchlength += xGET2(code, cc+1)
+			if code[cc+1+xIMM2_SIZE] == xOP_PROP || code[cc+1+xIMM2_SIZE] == xOP_NOTPROP {
 				cc += 2
 			}
-			cc += 2 + IMM2_SIZE
+			cc += 2 + xIMM2_SIZE
 
 		// Handle single-char non-literal matchers
 
-		case OP_PROP, OP_NOTPROP:
+		case xOP_PROP, xOP_NOTPROP:
 			cc += 2
 			branchlength++
 			cc++
 
-		case OP_NOT_DIGIT, OP_DIGIT, OP_NOT_WHITESPACE, OP_WHITESPACE,
-			OP_NOT_WORDCHAR, OP_WORDCHAR, OP_ANY, OP_ALLANY, OP_EXTUNI,
-			OP_HSPACE, OP_NOT_HSPACE, OP_VSPACE, OP_NOT_VSPACE:
+		case xOP_NOT_DIGIT, xOP_DIGIT, xOP_NOT_WHITESPACE, xOP_WHITESPACE,
+			xOP_NOT_WORDCHAR, xOP_WORDCHAR, xOP_ANY, xOP_ALLANY, xOP_EXTUNI,
+			xOP_HSPACE, xOP_NOT_HSPACE, xOP_VSPACE, xOP_NOT_VSPACE:
 			branchlength++
 			cc++
 
 		// "Any newline" might match two characters, but it also might match just
 		// one.
 
-		case OP_ANYNL:
+		case xOP_ANYNL:
 			branchlength += 1
 			cc++
 
@@ -315,7 +315,7 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		// non-UTF mode \C will actually be turned into OP_ALLANY, so won't ever
 		// appear, but leave the code, just in case.)
 
-		case OP_ANYBYTE:
+		case xOP_ANYBYTE:
 			if utf {
 				return -1
 			}
@@ -325,40 +325,40 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		// For repeated character types, we have to test for \p and \P, which have
 		// an extra two bytes of parameters.
 
-		case OP_TYPESTAR, OP_TYPEMINSTAR, OP_TYPEQUERY, OP_TYPEMINQUERY,
-			OP_TYPEPOSSTAR, OP_TYPEPOSQUERY:
-			if code[cc+1] == OP_PROP || code[cc+1] == OP_NOTPROP {
+		case xOP_TYPESTAR, xOP_TYPEMINSTAR, xOP_TYPEQUERY, xOP_TYPEMINQUERY,
+			xOP_TYPEPOSSTAR, xOP_TYPEPOSQUERY:
+			if code[cc+1] == xOP_PROP || code[cc+1] == xOP_NOTPROP {
 				cc += 2
 			}
-			cc += int(OP_lengths[op])
+			cc += int(xOP_lengths[op])
 
-		case OP_TYPEUPTO, OP_TYPEMINUPTO, OP_TYPEPOSUPTO:
-			if code[cc+1+IMM2_SIZE] == OP_PROP || code[cc+1+IMM2_SIZE] == OP_NOTPROP {
+		case xOP_TYPEUPTO, xOP_TYPEMINUPTO, xOP_TYPEPOSUPTO:
+			if code[cc+1+xIMM2_SIZE] == xOP_PROP || code[cc+1+xIMM2_SIZE] == xOP_NOTPROP {
 				cc += 2
 			}
-			cc += int(OP_lengths[op])
+			cc += int(xOP_lengths[op])
 
 		// Check a class for variable quantification
 
-		case OP_CLASS, OP_NCLASS, OP_XCLASS:
-			if op == OP_XCLASS {
-				cc += GET(code, cc+1)
+		case xOP_CLASS, xOP_NCLASS, xOP_XCLASS:
+			if op == xOP_XCLASS {
+				cc += xGET(code, cc+1)
 			} else {
-				cc += int(OP_lengths[OP_CLASS])
+				cc += int(xOP_lengths[xOP_CLASS])
 			}
 
 			switch code[cc] {
-			case OP_CRPLUS, OP_CRMINPLUS, OP_CRPOSPLUS:
+			case xOP_CRPLUS, xOP_CRMINPLUS, xOP_CRPOSPLUS:
 				branchlength++
 				cc++
 
-			case OP_CRSTAR, OP_CRMINSTAR, OP_CRQUERY, OP_CRMINQUERY,
-				OP_CRPOSSTAR, OP_CRPOSQUERY:
+			case xOP_CRSTAR, xOP_CRMINSTAR, xOP_CRQUERY, xOP_CRMINQUERY,
+				xOP_CRPOSSTAR, xOP_CRPOSQUERY:
 				cc++
 
-			case OP_CRRANGE, OP_CRMINRANGE, OP_CRPOSRANGE:
-				branchlength += GET2(code, cc+1)
-				cc += 1 + 2*IMM2_SIZE
+			case xOP_CRRANGE, xOP_CRMINRANGE, xOP_CRPOSRANGE:
+				branchlength += xGET2(code, cc+1)
+				cc += 1 + 2*xIMM2_SIZE
 
 			default:
 				branchlength++
@@ -382,10 +382,10 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 
 		// Duplicate named pattern back reference.
 
-		case OP_DNREF, OP_DNREFI:
+		case xOP_DNREF, xOP_DNREFI:
 			if !dupcapused && re.overallOptions&PCRE2_MATCH_UNSET_BACKREF == 0 {
-				count := GET2(code, cc+1+IMM2_SIZE)
-				slot := GET2(code, cc+1) * int(re.nameEntrySize)
+				count := xGET2(code, cc+1+xIMM2_SIZE)
+				slot := xGET2(code, cc+1) * int(re.nameEntrySize)
 
 				d = 0x7fffffff // INT_MAX
 
@@ -393,7 +393,7 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 
 				for ; count > 0; count-- {
 					var dd int
-					recno = GET2(re.code, slot)
+					recno = xGET2(re.code, slot)
 
 					if recno <= backref_cache[0] && backref_cache[recno] >= 0 {
 						dd = backref_cache[recno]
@@ -404,8 +404,8 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 						}
 						ce := cs
 						for {
-							ce += GET(code, ce+1)
-							if code[ce] != OP_ALT {
+							ce += xGET(code, ce+1)
+							if code[ce] != xOP_ALT {
 								break
 							}
 						}
@@ -453,14 +453,14 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 			} else {
 				d = 0
 			}
-			cc += 1 + 2*IMM2_SIZE
+			cc += 1 + 2*xIMM2_SIZE
 			repeatBackReference(d)
 
 		// Single back reference by number. References by name are converted to by
 		// number when there is no duplication.
 
-		case OP_REF, OP_REFI:
-			recno = GET2(code, cc+1)
+		case xOP_REF, xOP_REFI:
+			recno = xGET2(code, cc+1)
 			if recno <= backref_cache[0] && backref_cache[recno] >= 0 {
 				d = backref_cache[recno]
 			} else {
@@ -473,8 +473,8 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 					}
 					ce := cs
 					for {
-						ce += GET(code, ce+1)
-						if code[ce] != OP_ALT {
+						ce += xGET(code, ce+1)
+						if code[ce] != xOP_ALT {
 							break
 						}
 					}
@@ -511,7 +511,7 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 				backref_cache[0] = recno
 			}
 
-			cc += 1 + IMM2_SIZE
+			cc += 1 + xIMM2_SIZE
 
 			// Handle repeated back references
 			repeatBackReference(d)
@@ -520,16 +520,16 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		// given number. Therefore, we can always make use of caching, even when
 		// the pattern contains multiple subpatterns with the same number.
 
-		case OP_RECURSE:
-			cs := GET(code, cc+1)
+		case xOP_RECURSE:
+			cs := xGET(code, cc+1)
 			ce := cs
-			recno = GET2(code, cs+1+LINK_SIZE)
+			recno = xGET2(code, cs+1+xLINK_SIZE)
 			if recno == prev_recurse_recno {
 				branchlength += prev_recurse_d
 			} else {
 				for {
-					ce += GET(code, ce+1)
-					if code[ce] != OP_ALT {
+					ce += xGET(code, ce+1)
+					if code[ce] != xOP_ALT {
 						break
 					}
 				}
@@ -557,7 +557,7 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 					}
 				}
 			}
-			cc += 1 + LINK_SIZE + once_fudge
+			cc += 1 + xLINK_SIZE + once_fudge
 			once_fudge = 0
 
 		// Anything else does not or need not match a character. We can get the
@@ -568,31 +568,31 @@ func find_minlength(re *Code, code []byte, cc0 int, utf bool, recurses *studyRec
 		// list. However, in future that may change, so we include them here so as
 		// not to leave a gotcha for a future maintainer.
 
-		case OP_UPTO, OP_UPTOI, OP_NOTUPTO, OP_NOTUPTOI, OP_MINUPTO, OP_MINUPTOI,
-			OP_NOTMINUPTO, OP_NOTMINUPTOI, OP_POSUPTO, OP_POSUPTOI, OP_NOTPOSUPTO,
-			OP_NOTPOSUPTOI,
+		case xOP_UPTO, xOP_UPTOI, xOP_NOTUPTO, xOP_NOTUPTOI, xOP_MINUPTO, xOP_MINUPTOI,
+			xOP_NOTMINUPTO, xOP_NOTMINUPTOI, xOP_POSUPTO, xOP_POSUPTOI, xOP_NOTPOSUPTO,
+			xOP_NOTPOSUPTOI,
 
-			OP_STAR, OP_STARI, OP_NOTSTAR, OP_NOTSTARI, OP_MINSTAR, OP_MINSTARI,
-			OP_NOTMINSTAR, OP_NOTMINSTARI, OP_POSSTAR, OP_POSSTARI, OP_NOTPOSSTAR,
-			OP_NOTPOSSTARI,
+			xOP_STAR, xOP_STARI, xOP_NOTSTAR, xOP_NOTSTARI, xOP_MINSTAR, xOP_MINSTARI,
+			xOP_NOTMINSTAR, xOP_NOTMINSTARI, xOP_POSSTAR, xOP_POSSTARI, xOP_NOTPOSSTAR,
+			xOP_NOTPOSSTARI,
 
-			OP_QUERY, OP_QUERYI, OP_NOTQUERY, OP_NOTQUERYI, OP_MINQUERY,
-			OP_MINQUERYI, OP_NOTMINQUERY, OP_NOTMINQUERYI, OP_POSQUERY,
-			OP_POSQUERYI, OP_NOTPOSQUERY, OP_NOTPOSQUERYI:
-			cc += int(OP_lengths[op])
-			if utf && HAS_EXTRALEN(uint32(code[cc-1])) {
-				cc += GET_EXTRALEN(uint32(code[cc-1]))
+			xOP_QUERY, xOP_QUERYI, xOP_NOTQUERY, xOP_NOTQUERYI, xOP_MINQUERY,
+			xOP_MINQUERYI, xOP_NOTMINQUERY, xOP_NOTMINQUERYI, xOP_POSQUERY,
+			xOP_POSQUERYI, xOP_NOTPOSQUERY, xOP_NOTPOSQUERYI:
+			cc += int(xOP_lengths[op])
+			if utf && xHAS_EXTRALEN(uint32(code[cc-1])) {
+				cc += xGET_EXTRALEN(uint32(code[cc-1]))
 			}
 
 		// Skip these, but we need to add in the name length.
 
-		case OP_MARK, OP_COMMIT_ARG, OP_PRUNE_ARG, OP_SKIP_ARG, OP_THEN_ARG:
-			cc += int(OP_lengths[op]) + int(code[cc+1])
+		case xOP_MARK, xOP_COMMIT_ARG, xOP_PRUNE_ARG, xOP_SKIP_ARG, xOP_THEN_ARG:
+			cc += int(xOP_lengths[op]) + int(code[cc+1])
 
 		// The remaining opcodes are just skipped over.
 
-		case OP_CLOSE, OP_COMMIT, OP_FAIL, OP_PRUNE, OP_SET_SOM, OP_SKIP, OP_THEN:
-			cc += int(OP_lengths[op])
+		case xOP_CLOSE, xOP_COMMIT, xOP_FAIL, xOP_PRUNE, xOP_SET_SOM, xOP_SKIP, xOP_THEN:
+			cc += int(xOP_lengths[op])
 
 		// This should not occur: we list all opcodes explicitly so that when
 		// new ones get added they are properly considered.
@@ -617,7 +617,7 @@ func set_table_bit(re *Code, code []byte, p int, caseless, utf, ucp bool) int {
 
 	if utf {
 		if c >= 0xc0 {
-			c, p = GETCHARINC(code, p-1)
+			c, p = xGETCHARINC(code, p-1)
 		}
 	}
 
@@ -625,7 +625,7 @@ func set_table_bit(re *Code, code []byte, p int, caseless, utf, ucp bool) int {
 
 	if caseless {
 		if utf || ucp {
-			c = UCD_OTHERCASE(c)
+			c = xUCD_OTHERCASE(c)
 			if utf {
 				var buff [6]byte
 				ord2utf(c, buff[:])
@@ -680,8 +680,8 @@ func set_nottype_bits(re *Code, cbit_type int, table_limit uint32) {
 // ssbHSpace sets the bits of the first code units of horizontal space
 // characters (the HSPACE blocks of pcre2_study.c:1348-1379 and 1487-1518).
 func ssbHSpace(re *Code, utf bool) {
-	re.setBit(CHAR_HT)
-	re.setBit(CHAR_SPACE)
+	re.setBit(xCHAR_HT)
+	re.setBit(xCHAR_SPACE)
 
 	// For the 8-bit library in UTF-8 mode, set the bits for the first code
 	// units of horizontal space characters.
@@ -699,16 +699,16 @@ func ssbHSpace(re *Code, utf bool) {
 // ssbVSpace is the same for vertical space and \R (pcre2_study.c:1384-1413 and
 // 1521-1550).
 func ssbVSpace(re *Code, utf bool) {
-	re.setBit(CHAR_LF)
-	re.setBit(CHAR_VT)
-	re.setBit(CHAR_FF)
-	re.setBit(CHAR_CR)
+	re.setBit(xCHAR_LF)
+	re.setBit(xCHAR_VT)
+	re.setBit(xCHAR_FF)
+	re.setBit(xCHAR_CR)
 
 	if utf {
 		re.setBit(0xC2) // For U+0085 (NEL)
 		re.setBit(0xE2) // For U+2028, U+2029
 	} else {
-		re.setBit(CHAR_NEL)
+		re.setBit(xCHAR_NEL)
 	}
 }
 
@@ -748,12 +748,12 @@ func ssbClassTail(re *Code, code []byte, tcode int, classmap []byte, utf bool) (
 	// otherwise stop processing.
 
 	switch code[tcode] {
-	case OP_CRSTAR, OP_CRMINSTAR, OP_CRQUERY, OP_CRMINQUERY, OP_CRPOSSTAR, OP_CRPOSQUERY:
+	case xOP_CRSTAR, xOP_CRMINSTAR, xOP_CRQUERY, xOP_CRMINQUERY, xOP_CRPOSSTAR, xOP_CRPOSQUERY:
 		return tcode + 1, true
 
-	case OP_CRRANGE, OP_CRMINRANGE, OP_CRPOSRANGE:
-		if GET2(code, tcode+1) == 0 {
-			return tcode + 1 + 2*IMM2_SIZE, true
+	case xOP_CRRANGE, xOP_CRMINRANGE, xOP_CRPOSRANGE:
+		if xGET2(code, tcode+1) == 0 {
+			return tcode + 1 + 2*xIMM2_SIZE, true
 		}
 		return tcode, false
 	}
@@ -768,7 +768,7 @@ func ssbClassTail(re *Code, code []byte, tcode int, classmap []byte, utf bool) (
 // opcode) or SSB_TOODEEP (recursion too deep). (pcre2_study.c:955-1741)
 func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int) int {
 	var c uint32
-	yield := SSB_DONE
+	yield := xSSB_DONE
 
 	table_limit := uint32(32)
 	if utf {
@@ -777,16 +777,16 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 
 	*depthptr++
 	if *depthptr > 1000 {
-		return SSB_TOODEEP
+		return xSSB_TOODEEP
 	}
 
 	for {
 		try_next := true
-		tcode := pos + 1 + LINK_SIZE
+		tcode := pos + 1 + xLINK_SIZE
 
-		if code[pos] == OP_CBRA || code[pos] == OP_SCBRA ||
-			code[pos] == OP_CBRAPOS || code[pos] == OP_SCBRAPOS {
-			tcode += IMM2_SIZE
+		if code[pos] == xOP_CBRA || code[pos] == xOP_SCBRA ||
+			code[pos] == xOP_CBRAPOS || code[pos] == xOP_SCBRAPOS {
+			tcode += xIMM2_SIZE
 		}
 
 		for try_next { // Loop for items in this branch
@@ -799,48 +799,48 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// Hopefully this problem will be discovered during testing.
 
 			default:
-				return SSB_UNKNOWN
+				return xSSB_UNKNOWN
 
 			// Fail for a valid opcode that implies no starting bits.
 
-			case OP_ACCEPT, OP_ASSERT_ACCEPT, OP_ALLANY, OP_ANY, OP_ANYBYTE,
-				OP_CIRCM, OP_CLOSE, OP_COMMIT, OP_COMMIT_ARG, OP_COND, OP_CREF,
-				OP_FALSE, OP_TRUE, OP_DNCREF, OP_DNREF, OP_DNREFI, OP_DNRREF,
-				OP_DOLL, OP_DOLLM, OP_END, OP_EOD, OP_EODN, OP_EXTUNI, OP_FAIL,
-				OP_MARK, OP_NOT, OP_NOTEXACT, OP_NOTEXACTI, OP_NOTI,
-				OP_NOTMINPLUS, OP_NOTMINPLUSI, OP_NOTMINQUERY, OP_NOTMINQUERYI,
-				OP_NOTMINSTAR, OP_NOTMINSTARI, OP_NOTMINUPTO, OP_NOTMINUPTOI,
-				OP_NOTPLUS, OP_NOTPLUSI, OP_NOTPOSPLUS, OP_NOTPOSPLUSI,
-				OP_NOTPOSQUERY, OP_NOTPOSQUERYI, OP_NOTPOSSTAR, OP_NOTPOSSTARI,
-				OP_NOTPOSUPTO, OP_NOTPOSUPTOI, OP_NOTPROP, OP_NOTQUERY,
-				OP_NOTQUERYI, OP_NOTSTAR, OP_NOTSTARI, OP_NOTUPTO, OP_NOTUPTOI,
-				OP_NOT_HSPACE, OP_NOT_VSPACE, OP_PRUNE, OP_PRUNE_ARG, OP_RECURSE,
-				OP_REF, OP_REFI, OP_REVERSE, OP_VREVERSE, OP_RREF, OP_SCOND,
-				OP_SET_SOM, OP_SKIP, OP_SKIP_ARG, OP_SOD, OP_SOM, OP_THEN,
-				OP_THEN_ARG:
-				return SSB_FAIL
+			case xOP_ACCEPT, xOP_ASSERT_ACCEPT, xOP_ALLANY, xOP_ANY, xOP_ANYBYTE,
+				xOP_CIRCM, xOP_CLOSE, xOP_COMMIT, xOP_COMMIT_ARG, xOP_COND, xOP_CREF,
+				xOP_FALSE, xOP_TRUE, xOP_DNCREF, xOP_DNREF, xOP_DNREFI, xOP_DNRREF,
+				xOP_DOLL, xOP_DOLLM, xOP_END, xOP_EOD, xOP_EODN, xOP_EXTUNI, xOP_FAIL,
+				xOP_MARK, xOP_NOT, xOP_NOTEXACT, xOP_NOTEXACTI, xOP_NOTI,
+				xOP_NOTMINPLUS, xOP_NOTMINPLUSI, xOP_NOTMINQUERY, xOP_NOTMINQUERYI,
+				xOP_NOTMINSTAR, xOP_NOTMINSTARI, xOP_NOTMINUPTO, xOP_NOTMINUPTOI,
+				xOP_NOTPLUS, xOP_NOTPLUSI, xOP_NOTPOSPLUS, xOP_NOTPOSPLUSI,
+				xOP_NOTPOSQUERY, xOP_NOTPOSQUERYI, xOP_NOTPOSSTAR, xOP_NOTPOSSTARI,
+				xOP_NOTPOSUPTO, xOP_NOTPOSUPTOI, xOP_NOTPROP, xOP_NOTQUERY,
+				xOP_NOTQUERYI, xOP_NOTSTAR, xOP_NOTSTARI, xOP_NOTUPTO, xOP_NOTUPTOI,
+				xOP_NOT_HSPACE, xOP_NOT_VSPACE, xOP_PRUNE, xOP_PRUNE_ARG, xOP_RECURSE,
+				xOP_REF, xOP_REFI, xOP_REVERSE, xOP_VREVERSE, xOP_RREF, xOP_SCOND,
+				xOP_SET_SOM, xOP_SKIP, xOP_SKIP_ARG, xOP_SOD, xOP_SOM, xOP_THEN,
+				xOP_THEN_ARG:
+				return xSSB_FAIL
 
 			// OP_CIRC happens only at the start of an anchored branch (multiline
 			// ^ uses OP_CIRCM). Skip over it.
 
-			case OP_CIRC:
-				tcode += int(OP_lengths[OP_CIRC])
+			case xOP_CIRC:
+				tcode += int(xOP_lengths[xOP_CIRC])
 
 			// A "real" property test implies no starting bits, but the fake
 			// property PT_CLIST identifies a list of characters. These lists are
 			// short, as they are used for characters with more than one "other
 			// case", so there is no point in recognizing them for OP_NOTPROP.
 
-			case OP_PROP:
-				if code[tcode+1] != PT_CLIST {
-					return SSB_FAIL
+			case xOP_PROP:
+				if code[tcode+1] != xPT_CLIST {
+					return xSSB_FAIL
 				}
 				{
 					p := int(code[tcode+2])
 					for {
 						c = ucd_caseless_sets[p]
 						p++
-						if c >= NOTACHAR {
+						if c >= xNOTACHAR {
 							break
 						}
 						if utf {
@@ -859,8 +859,8 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 
 			// We can ignore word boundary tests.
 
-			case OP_WORD_BOUNDARY, OP_NOT_WORD_BOUNDARY, OP_UCP_WORD_BOUNDARY,
-				OP_NOT_UCP_WORD_BOUNDARY:
+			case xOP_WORD_BOUNDARY, xOP_NOT_WORD_BOUNDARY, xOP_UCP_WORD_BOUNDARY,
+				xOP_NOT_UCP_WORD_BOUNDARY:
 				tcode++
 
 			// For a positive lookahead assertion, inspect what immediately
@@ -868,34 +868,34 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// item is one that sets a mandatory character, skip this assertion.
 			// Otherwise, treat it the same as other bracket groups.
 
-			case OP_ASSERT, OP_ASSERT_NA:
-				ncode := tcode + GET(code, tcode+1)
-				for code[ncode] == OP_ALT {
-					ncode += GET(code, ncode+1)
+			case xOP_ASSERT, xOP_ASSERT_NA:
+				ncode := tcode + xGET(code, tcode+1)
+				for code[ncode] == xOP_ALT {
+					ncode += xGET(code, ncode+1)
 				}
-				ncode += 1 + LINK_SIZE
+				ncode += 1 + xLINK_SIZE
 
 				// Skip irrelevant items
 
 				for done := false; !done; {
 					switch code[ncode] {
-					case OP_ASSERT, OP_ASSERT_NOT, OP_ASSERTBACK, OP_ASSERTBACK_NOT,
-						OP_ASSERT_NA, OP_ASSERTBACK_NA:
-						ncode += GET(code, ncode+1)
-						for code[ncode] == OP_ALT {
-							ncode += GET(code, ncode+1)
+					case xOP_ASSERT, xOP_ASSERT_NOT, xOP_ASSERTBACK, xOP_ASSERTBACK_NOT,
+						xOP_ASSERT_NA, xOP_ASSERTBACK_NA:
+						ncode += xGET(code, ncode+1)
+						for code[ncode] == xOP_ALT {
+							ncode += xGET(code, ncode+1)
 						}
-						ncode += 1 + LINK_SIZE
+						ncode += 1 + xLINK_SIZE
 
-					case OP_WORD_BOUNDARY, OP_NOT_WORD_BOUNDARY, OP_UCP_WORD_BOUNDARY,
-						OP_NOT_UCP_WORD_BOUNDARY:
+					case xOP_WORD_BOUNDARY, xOP_NOT_WORD_BOUNDARY, xOP_UCP_WORD_BOUNDARY,
+						xOP_NOT_UCP_WORD_BOUNDARY:
 						ncode++
 
-					case OP_CALLOUT:
-						ncode += int(OP_lengths[OP_CALLOUT])
+					case xOP_CALLOUT:
+						ncode += int(xOP_lengths[xOP_CALLOUT])
 
-					case OP_CALLOUT_STR:
-						ncode += GET(code, ncode+1+2*LINK_SIZE)
+					case xOP_CALLOUT_STR:
+						ncode += xGET(code, ncode+1+2*xLINK_SIZE)
 
 					default:
 						done = true
@@ -905,18 +905,18 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 				// Now check the next significant item.
 
 				switch code[ncode] {
-				case OP_PROP:
-					if code[ncode+1] == PT_CLIST {
+				case xOP_PROP:
+					if code[ncode+1] == xPT_CLIST {
 						tcode = ncode
 						continue // With the following significant opcode
 					}
 
-				case OP_ANYNL, OP_CHAR, OP_CHARI, OP_EXACT, OP_EXACTI, OP_HSPACE,
-					OP_MINPLUS, OP_MINPLUSI, OP_PLUS, OP_PLUSI, OP_POSPLUS,
-					OP_POSPLUSI, OP_VSPACE,
+				case xOP_ANYNL, xOP_CHAR, xOP_CHARI, xOP_EXACT, xOP_EXACTI, xOP_HSPACE,
+					xOP_MINPLUS, xOP_MINPLUSI, xOP_PLUS, xOP_PLUSI, xOP_POSPLUS,
+					xOP_POSPLUSI, xOP_VSPACE,
 					// Note that these types will only be present in non-UCP mode.
-					OP_DIGIT, OP_NOT_DIGIT, OP_WORDCHAR, OP_NOT_WORDCHAR,
-					OP_WHITESPACE, OP_NOT_WHITESPACE:
+					xOP_DIGIT, xOP_NOT_DIGIT, xOP_WORDCHAR, xOP_NOT_WORDCHAR,
+					xOP_WHITESPACE, xOP_NOT_WHITESPACE:
 					tcode = ncode
 					continue // With the following significant opcode
 				}
@@ -928,19 +928,19 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// finds some mandatory character(s), we are done for this branch.
 			// Otherwise, carry on scanning after the subpattern.
 
-			case OP_BRA, OP_SBRA, OP_CBRA, OP_SCBRA, OP_BRAPOS, OP_SBRAPOS,
-				OP_CBRAPOS, OP_SCBRAPOS, OP_ONCE, OP_SCRIPT_RUN:
+			case xOP_BRA, xOP_SBRA, xOP_CBRA, xOP_SCBRA, xOP_BRAPOS, xOP_SBRAPOS,
+				xOP_CBRAPOS, xOP_SCBRAPOS, xOP_ONCE, xOP_SCRIPT_RUN:
 				rc = set_start_bits(re, code, tcode, utf, ucp, depthptr)
-				if rc == SSB_DONE {
+				if rc == xSSB_DONE {
 					try_next = false
-				} else if rc == SSB_CONTINUE {
+				} else if rc == xSSB_CONTINUE {
 					for {
-						tcode += GET(code, tcode+1)
-						if code[tcode] != OP_ALT {
+						tcode += xGET(code, tcode+1)
+						if code[tcode] != xOP_ALT {
 							break
 						}
 					}
-					tcode += 1 + LINK_SIZE
+					tcode += 1 + xLINK_SIZE
 				} else {
 					return rc // FAIL, UNKNOWN, or TOODEEP
 				}
@@ -953,91 +953,91 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// that indicates failure, but after a nested subpattern, it causes
 			// scanning to continue.
 
-			case OP_ALT:
-				yield = SSB_CONTINUE
+			case xOP_ALT:
+				yield = xSSB_CONTINUE
 				try_next = false
 
-			case OP_KET, OP_KETRMAX, OP_KETRMIN, OP_KETRPOS:
-				return SSB_CONTINUE
+			case xOP_KET, xOP_KETRMAX, xOP_KETRMIN, xOP_KETRPOS:
+				return xSSB_CONTINUE
 
 			// Skip over callout
 
-			case OP_CALLOUT:
-				tcode += int(OP_lengths[OP_CALLOUT])
+			case xOP_CALLOUT:
+				tcode += int(xOP_lengths[xOP_CALLOUT])
 
-			case OP_CALLOUT_STR:
-				tcode += GET(code, tcode+1+2*LINK_SIZE)
+			case xOP_CALLOUT_STR:
+				tcode += xGET(code, tcode+1+2*xLINK_SIZE)
 
 			// Skip over lookbehind and negative lookahead assertions
 
-			case OP_ASSERT_NOT, OP_ASSERTBACK, OP_ASSERTBACK_NOT, OP_ASSERTBACK_NA:
+			case xOP_ASSERT_NOT, xOP_ASSERTBACK, xOP_ASSERTBACK_NOT, xOP_ASSERTBACK_NA:
 				for {
-					tcode += GET(code, tcode+1)
-					if code[tcode] != OP_ALT {
+					tcode += xGET(code, tcode+1)
+					if code[tcode] != xOP_ALT {
 						break
 					}
 				}
-				tcode += 1 + LINK_SIZE
+				tcode += 1 + xLINK_SIZE
 
 			// BRAZERO does the bracket, but carries on.
 
-			case OP_BRAZERO, OP_BRAMINZERO, OP_BRAPOSZERO:
+			case xOP_BRAZERO, xOP_BRAMINZERO, xOP_BRAPOSZERO:
 				tcode++
 				rc = set_start_bits(re, code, tcode, utf, ucp, depthptr)
-				if rc == SSB_FAIL || rc == SSB_UNKNOWN || rc == SSB_TOODEEP {
+				if rc == xSSB_FAIL || rc == xSSB_UNKNOWN || rc == xSSB_TOODEEP {
 					return rc
 				}
 				for {
-					tcode += GET(code, tcode+1)
-					if code[tcode] != OP_ALT {
+					tcode += xGET(code, tcode+1)
+					if code[tcode] != xOP_ALT {
 						break
 					}
 				}
-				tcode += 1 + LINK_SIZE
+				tcode += 1 + xLINK_SIZE
 
 			// SKIPZERO skips the bracket.
 
-			case OP_SKIPZERO:
+			case xOP_SKIPZERO:
 				tcode++
 				for {
-					tcode += GET(code, tcode+1)
-					if code[tcode] != OP_ALT {
+					tcode += xGET(code, tcode+1)
+					if code[tcode] != xOP_ALT {
 						break
 					}
 				}
-				tcode += 1 + LINK_SIZE
+				tcode += 1 + xLINK_SIZE
 
 			// Single-char * or ? sets the bit and tries the next item
 
-			case OP_STAR, OP_MINSTAR, OP_POSSTAR, OP_QUERY, OP_MINQUERY, OP_POSQUERY:
+			case xOP_STAR, xOP_MINSTAR, xOP_POSSTAR, xOP_QUERY, xOP_MINQUERY, xOP_POSQUERY:
 				tcode = set_table_bit(re, code, tcode+1, false, utf, ucp)
 
-			case OP_STARI, OP_MINSTARI, OP_POSSTARI, OP_QUERYI, OP_MINQUERYI, OP_POSQUERYI:
+			case xOP_STARI, xOP_MINSTARI, xOP_POSSTARI, xOP_QUERYI, xOP_MINQUERYI, xOP_POSQUERYI:
 				tcode = set_table_bit(re, code, tcode+1, true, utf, ucp)
 
 			// Single-char upto sets the bit and tries the next
 
-			case OP_UPTO, OP_MINUPTO, OP_POSUPTO:
-				tcode = set_table_bit(re, code, tcode+1+IMM2_SIZE, false, utf, ucp)
+			case xOP_UPTO, xOP_MINUPTO, xOP_POSUPTO:
+				tcode = set_table_bit(re, code, tcode+1+xIMM2_SIZE, false, utf, ucp)
 
-			case OP_UPTOI, OP_MINUPTOI, OP_POSUPTOI:
-				tcode = set_table_bit(re, code, tcode+1+IMM2_SIZE, true, utf, ucp)
+			case xOP_UPTOI, xOP_MINUPTOI, xOP_POSUPTOI:
+				tcode = set_table_bit(re, code, tcode+1+xIMM2_SIZE, true, utf, ucp)
 
 			// At least one single char sets the bit and stops
 
-			case OP_EXACT:
-				tcode += IMM2_SIZE
+			case xOP_EXACT:
+				tcode += xIMM2_SIZE
 				fallthrough
 
-			case OP_CHAR, OP_PLUS, OP_MINPLUS, OP_POSPLUS:
+			case xOP_CHAR, xOP_PLUS, xOP_MINPLUS, xOP_POSPLUS:
 				set_table_bit(re, code, tcode+1, false, utf, ucp)
 				try_next = false
 
-			case OP_EXACTI:
-				tcode += IMM2_SIZE
+			case xOP_EXACTI:
+				tcode += xIMM2_SIZE
 				fallthrough
 
-			case OP_CHARI, OP_PLUSI, OP_MINPLUSI, OP_POSPLUSI:
+			case xOP_CHARI, xOP_PLUSI, xOP_MINPLUSI, xOP_POSPLUSI:
 				set_table_bit(re, code, tcode+1, true, utf, ucp)
 				try_next = false
 
@@ -1047,11 +1047,11 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// relevant for finding the first character, so their code here is
 			// identical.
 
-			case OP_HSPACE:
+			case xOP_HSPACE:
 				ssbHSpace(re, utf)
 				try_next = false
 
-			case OP_ANYNL, OP_VSPACE:
+			case xOP_ANYNL, xOP_VSPACE:
 				ssbVSpace(re, utf)
 				try_next = false
 
@@ -1060,77 +1060,77 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// properties. Therefore, these apply in the case when only characters
 			// less than 256 are recognized to match the types.
 
-			case OP_NOT_DIGIT:
+			case xOP_NOT_DIGIT:
 				set_nottype_bits(re, cbit_digit, table_limit)
 				try_next = false
 
-			case OP_DIGIT:
+			case xOP_DIGIT:
 				set_type_bits(re, cbit_digit, table_limit)
 				try_next = false
 
-			case OP_NOT_WHITESPACE:
+			case xOP_NOT_WHITESPACE:
 				set_nottype_bits(re, cbit_space, table_limit)
 				try_next = false
 
-			case OP_WHITESPACE:
+			case xOP_WHITESPACE:
 				set_type_bits(re, cbit_space, table_limit)
 				try_next = false
 
-			case OP_NOT_WORDCHAR:
+			case xOP_NOT_WORDCHAR:
 				set_nottype_bits(re, cbit_word, table_limit)
 				try_next = false
 
-			case OP_WORDCHAR:
+			case xOP_WORDCHAR:
 				set_type_bits(re, cbit_word, table_limit)
 				try_next = false
 
 			// One or more character type fudges the pointer and restarts, knowing
 			// it will hit a single character type and stop there.
 
-			case OP_TYPEPLUS, OP_TYPEMINPLUS, OP_TYPEPOSPLUS:
+			case xOP_TYPEPLUS, xOP_TYPEMINPLUS, xOP_TYPEPOSPLUS:
 				tcode++
 
-			case OP_TYPEEXACT:
-				tcode += 1 + IMM2_SIZE
+			case xOP_TYPEEXACT:
+				tcode += 1 + xIMM2_SIZE
 
 			// Zero or more repeats of character types set the bits and then
 			// try again.
 
-			case OP_TYPEUPTO, OP_TYPEMINUPTO, OP_TYPEPOSUPTO:
-				tcode += IMM2_SIZE
+			case xOP_TYPEUPTO, xOP_TYPEMINUPTO, xOP_TYPEPOSUPTO:
+				tcode += xIMM2_SIZE
 				fallthrough
 
-			case OP_TYPESTAR, OP_TYPEMINSTAR, OP_TYPEPOSSTAR, OP_TYPEQUERY,
-				OP_TYPEMINQUERY, OP_TYPEPOSQUERY:
+			case xOP_TYPESTAR, xOP_TYPEMINSTAR, xOP_TYPEPOSSTAR, xOP_TYPEQUERY,
+				xOP_TYPEMINQUERY, xOP_TYPEPOSQUERY:
 				switch code[tcode+1] {
 				default:
-					return SSB_FAIL
+					return xSSB_FAIL
 
-				case OP_ANY, OP_ALLANY:
-					return SSB_FAIL
+				case xOP_ANY, xOP_ALLANY:
+					return xSSB_FAIL
 
-				case OP_HSPACE:
+				case xOP_HSPACE:
 					ssbHSpace(re, utf)
 
-				case OP_ANYNL, OP_VSPACE:
+				case xOP_ANYNL, xOP_VSPACE:
 					ssbVSpace(re, utf)
 
-				case OP_NOT_DIGIT:
+				case xOP_NOT_DIGIT:
 					set_nottype_bits(re, cbit_digit, table_limit)
 
-				case OP_DIGIT:
+				case xOP_DIGIT:
 					set_type_bits(re, cbit_digit, table_limit)
 
-				case OP_NOT_WHITESPACE:
+				case xOP_NOT_WHITESPACE:
 					set_nottype_bits(re, cbit_space, table_limit)
 
-				case OP_WHITESPACE:
+				case xOP_WHITESPACE:
 					set_type_bits(re, cbit_space, table_limit)
 
-				case OP_NOT_WORDCHAR:
+				case xOP_NOT_WORDCHAR:
 					set_nottype_bits(re, cbit_word, table_limit)
 
-				case OP_WORDCHAR:
+				case xOP_WORDCHAR:
 					set_type_bits(re, cbit_word, table_limit)
 				}
 
@@ -1143,36 +1143,36 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// points >= 255 are potential starters. In the UTF-8 case we can scan
 			// them and set bits for the relevant leading bytes.
 
-			case OP_XCLASS:
-				xclassflags := code[tcode+1+LINK_SIZE]
-				if xclassflags&XCL_HASPROP != 0 ||
-					xclassflags&(XCL_MAP|XCL_NOT) == XCL_NOT {
-					return SSB_FAIL
+			case xOP_XCLASS:
+				xclassflags := code[tcode+1+xLINK_SIZE]
+				if xclassflags&xXCL_HASPROP != 0 ||
+					xclassflags&(xXCL_MAP|xXCL_NOT) == xXCL_NOT {
+					return xSSB_FAIL
 				}
 
 				// We have a positive XCLASS or a negative one without a map. Set up
 				// the map pointer if there is one, and fall through.
 
-				if xclassflags&XCL_MAP != 0 {
-					classmap = code[tcode+1+LINK_SIZE+1 : tcode+1+LINK_SIZE+1+32]
+				if xclassflags&xXCL_MAP != 0 {
+					classmap = code[tcode+1+xLINK_SIZE+1 : tcode+1+xLINK_SIZE+1+32]
 				}
 
 				// In UTF-8 mode, scan the character list and set bits for leading
 				// bytes, then jump to handle the map.
 
-				if utf && xclassflags&XCL_NOT == 0 {
-					p := tcode + 1 + LINK_SIZE + 1
+				if utf && xclassflags&xXCL_NOT == 0 {
+					p := tcode + 1 + xLINK_SIZE + 1
 					if classmap != nil {
 						p += 32
 					}
-					tcode += GET(code, tcode+1)
+					tcode += xGET(code, tcode+1)
 
 				scan:
 					for {
 						k := code[p]
 						p++
 						switch k {
-						case XCL_SINGLE:
+						case xXCL_SINGLE:
 							b := code[p]
 							p++
 							for code[p]&0xc0 == 0x80 {
@@ -1180,7 +1180,7 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 							}
 							re.startBitmap[b/8] |= 1 << (b & 7)
 
-						case XCL_RANGE:
+						case xXCL_RANGE:
 							b := code[p]
 							p++
 							for code[p]&0xc0 == 0x80 {
@@ -1203,11 +1203,11 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 								}
 							}
 
-						case XCL_END:
+						case xXCL_END:
 							break scan // goto HANDLE_CLASSMAP
 
 						default:
-							return SSB_UNKNOWN // Internal error, should not occur
+							return xSSB_UNKNOWN // Internal error, should not occur
 						}
 					}
 					tcode, try_next = ssbClassTail(re, code, tcode, classmap, utf)
@@ -1221,7 +1221,7 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 						re.startBitmap[i] = 0xff
 					}
 				}
-				tcode += GET(code, tcode+1)
+				tcode += xGET(code, tcode+1)
 				tcode, try_next = ssbClassTail(re, code, tcode, classmap, utf)
 
 			// Enter here for a negative non-XCLASS. In the 8-bit library, if we
@@ -1229,7 +1229,7 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// valid starter because it starts a character with a value > 255. In
 			// 8-bit non-UTF mode, there is no difference between CLASS and NCLASS.
 
-			case OP_NCLASS:
+			case xOP_NCLASS:
 				if utf {
 					re.startBitmap[24] |= 0xf0 // Bits for 0xc4 - 0xc8
 					for i := 25; i < 32; i++ { // Bits for 0xc9 - 0xff
@@ -1243,7 +1243,7 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			// pointer. Otherwise, set up classmap for a a non-XCLASS and advance
 			// past it.
 
-			case OP_CLASS:
+			case xOP_CLASS:
 				tcode++
 				classmap = code[tcode : tcode+32]
 				tcode += 32
@@ -1251,8 +1251,8 @@ func set_start_bits(re *Code, code []byte, pos int, utf, ucp bool, depthptr *int
 			}
 		}
 
-		pos += GET(code, pos+1) // Advance to next branch
-		if code[pos] != OP_ALT {
+		pos += xGET(code, pos+1) // Advance to next branch
+		if code[pos] != xOP_ALT {
 			break
 		}
 	}
@@ -1280,7 +1280,7 @@ func study(re *Code) int {
 	if re.flags&(PCRE2_FIRSTSET|PCRE2_STARTLINE) == 0 {
 		depth := 0
 		rc := set_start_bits(re, code, 0, utf, ucp, &depth)
-		if rc == SSB_UNKNOWN {
+		if rc == xSSB_UNKNOWN {
 			return 1
 		}
 
@@ -1292,7 +1292,7 @@ func study(re *Code) int {
 		// caseless first code unit. This gives better performance and is
 		// plausibly worth doing for patterns such as [Ww]ord or (word|WORD).
 
-		if rc == SSB_DONE {
+		if rc == xSSB_DONE {
 			a := -1
 			b := -1
 			flags := uint32(PCRE2_FIRSTMAPSET)
@@ -1340,11 +1340,11 @@ func study(re *Code) int {
 							d := int(re.charTables()[fcc_offset+c])
 
 							if utf || ucp {
-								if UCD_CASESET(uint32(c)) != 0 {
+								if xUCD_CASESET(uint32(c)) != 0 {
 									return // Multiple case set
 								}
 								if c > 127 {
-									d = int(UCD_OTHERCASE(uint32(c)))
+									d = int(xUCD_OTHERCASE(uint32(c)))
 								}
 							}
 
@@ -1390,8 +1390,8 @@ func study(re *Code) int {
 	// Note that back reference minima are held as 16-bit numbers.
 
 	if re.flags&(PCRE2_MATCH_EMPTY|PCRE2_HASACCEPT) == 0 &&
-		re.topBackref <= MAX_CACHE_BACKREF {
-		var backref_cache [MAX_CACHE_BACKREF + 1]int
+		re.topBackref <= xMAX_CACHE_BACKREF {
+		var backref_cache [xMAX_CACHE_BACKREF + 1]int
 		backref_cache[0] = 0 // Highest one that is set
 		min := find_minlength(re, code, 0, utf, nil, &count, backref_cache[:])
 		switch min {

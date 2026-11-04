@@ -8,7 +8,7 @@ import (
 // never panic or hang, and a pattern that compiles must have a coherent
 // header. Resource bounds keep every iteration cheap: short patterns, a small
 // limit on the compiled size and on the nesting depth.
-func FuzzCompile(f *testing.F) {
+func xFuzzCompile(f *testing.F) {
 	for _, s := range []string{
 		"a+b", "(a|b)*c", "(?<n>x)\\k<n>", "[a-z]\\d{2,5}", "(?<=ab)c", "(a(b(?2)c)){0,2}",
 		"(?(DEFINE)(?<A>a))(?&A)", "(*UTF)\\x{100}+", "\\p{Greek}+", "(?i:[[:alpha:]]+)",

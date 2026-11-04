@@ -15,27 +15,27 @@ func Config(what uint32) (value uint32, text string, rc int) {
 	case PCRE2_CONFIG_COMPILED_WIDTHS:
 		return 1, "", 0 // SUPPORT_PCRE2_8 only
 	case PCRE2_CONFIG_DEPTHLIMIT:
-		return MATCH_LIMIT_DEPTH, "", 0
+		return xMATCH_LIMIT_DEPTH, "", 0
 	case PCRE2_CONFIG_HEAPLIMIT:
-		return HEAP_LIMIT, "", 0
+		return xHEAP_LIMIT, "", 0
 	case PCRE2_CONFIG_JIT:
 		return 0, "", 0
 	case PCRE2_CONFIG_JITTARGET:
 		return 0, "", PCRE2_ERROR_BADOPTION
 	case PCRE2_CONFIG_LINKSIZE:
-		return LINK_SIZE, "", 0
+		return xLINK_SIZE, "", 0
 	case PCRE2_CONFIG_MATCHLIMIT:
-		return MATCH_LIMIT, "", 0
+		return xMATCH_LIMIT, "", 0
 	case PCRE2_CONFIG_NEWLINE:
-		return NEWLINE_DEFAULT, "", 0
+		return xNEWLINE_DEFAULT, "", 0
 	case PCRE2_CONFIG_NEVER_BACKSLASH_C:
 		return 0, "", 0
 	case PCRE2_CONFIG_PARENSLIMIT:
-		return PARENS_NEST_LIMIT, "", 0
+		return xPARENS_NEST_LIMIT, "", 0
 	case PCRE2_CONFIG_STACKRECURSE: // obsolete
 		return 0, "", 0
 	case PCRE2_CONFIG_TABLES_LENGTH:
-		return TABLES_LENGTH, "", 0
+		return xTABLES_LENGTH, "", 0
 	case PCRE2_CONFIG_UNICODE_VERSION:
 		return 0, unicode_version, 1 + len(unicode_version)
 	case PCRE2_CONFIG_UNICODE:

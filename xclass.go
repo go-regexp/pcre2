@@ -10,7 +10,7 @@ package pcre2
 // It returns true if the character matches, else false. (pcre2_xclass.c:69)
 func xclass(c uint32, data []byte, utf bool) bool {
 	var t byte
-	negated := (data[0] & XCL_NOT) != 0
+	negated := (data[0] & xXCL_NOT) != 0
 
 	// In 8 bit mode, this must always be TRUE. (pcre2_xclass.c:74-77)
 	utf = true
@@ -19,13 +19,13 @@ func xclass(c uint32, data []byte, utf bool) bool {
 	// we still carry on, because there may be ranges that start below 256 in the
 	// additional data.
 	if c < 256 {
-		if (data[0] & XCL_HASPROP) == 0 {
-			if (data[0] & XCL_MAP) == 0 {
+		if (data[0] & xXCL_HASPROP) == 0 {
+			if (data[0] & xXCL_MAP) == 0 {
 				return negated
 			}
 			return (data[1+c/8] & (1 << (c & 7))) != 0
 		}
-		if (data[0]&XCL_MAP) != 0 && (data[1+c/8]&(1<<(c&7))) != 0 {
+		if (data[0]&xXCL_MAP) != 0 && (data[1+c/8]&(1<<(c&7))) != 0 {
 			return !negated // char found
 		}
 	}
@@ -33,20 +33,20 @@ func xclass(c uint32, data []byte, utf bool) bool {
 	// First skip the bit map if present. Then match against the list of Unicode
 	// properties or large chars or ranges that end with a large char.
 	p := 1
-	if (data[0] & XCL_MAP) != 0 {
+	if (data[0] & xXCL_MAP) != 0 {
 		p += 32
 	}
 
 	for {
 		t = data[p]
 		p++
-		if t == XCL_END {
+		if t == xXCL_END {
 			break
 		}
 		var x, y uint32
-		if t == XCL_SINGLE {
+		if t == xXCL_SINGLE {
 			if utf {
-				x, p = GETCHARINC(data, p)
+				x, p = xGETCHARINC(data, p)
 			} else {
 				x = uint32(data[p])
 				p++
@@ -54,10 +54,10 @@ func xclass(c uint32, data []byte, utf bool) bool {
 			if c == x {
 				return !negated
 			}
-		} else if t == XCL_RANGE {
+		} else if t == xXCL_RANGE {
 			if utf {
-				x, p = GETCHARINC(data, p)
-				y, p = GETCHARINC(data, p)
+				x, p = xGETCHARINC(data, p)
+				y, p = xGETCHARINC(data, p)
 			} else {
 				x = uint32(data[p])
 				y = uint32(data[p+1])
@@ -68,46 +68,46 @@ func xclass(c uint32, data []byte, utf bool) bool {
 			}
 		} else { // XCL_PROP & XCL_NOTPROP
 			var chartype uint8
-			prop := GET_UCD(c)
-			isprop := t == XCL_PROP
+			prop := xGET_UCD(c)
+			isprop := t == xXCL_PROP
 			var ok bool
 
 			switch data[p] {
-			case PT_ANY:
+			case xPT_ANY:
 				if isprop {
 					return !negated
 				}
 
-			case PT_LAMP:
+			case xPT_LAMP:
 				chartype = prop.chartype
 				if (chartype == ucp_Lu || chartype == ucp_Ll ||
 					chartype == ucp_Lt) == isprop {
 					return !negated
 				}
 
-			case PT_GC:
+			case xPT_GC:
 				if (uint32(data[p+1]) == ucp_gentype[prop.chartype]) == isprop {
 					return !negated
 				}
 
-			case PT_PC:
+			case xPT_PC:
 				if (data[p+1] == prop.chartype) == isprop {
 					return !negated
 				}
 
-			case PT_SC:
+			case xPT_SC:
 				if (data[p+1] == prop.script) == isprop {
 					return !negated
 				}
 
-			case PT_SCX:
+			case xPT_SCX:
 				ok = data[p+1] == prop.script ||
-					MAPBIT(ucd_script_sets[UCD_SCRIPTX_PROP(prop):], uint32(data[p+1]))
+					xMAPBIT(ucd_script_sets[xUCD_SCRIPTX_PROP(prop):], uint32(data[p+1]))
 				if ok == isprop {
 					return !negated
 				}
 
-			case PT_ALNUM:
+			case xPT_ALNUM:
 				chartype = prop.chartype
 				if (ucp_gentype[chartype] == ucp_L ||
 					ucp_gentype[chartype] == ucp_N) == isprop {
@@ -117,7 +117,7 @@ func xclass(c uint32, data []byte, utf bool) bool {
 			// Perl space used to exclude VT, but from Perl 5.18 it is included,
 			// which means that Perl space and POSIX space are now identical. PCRE
 			// was changed at release 8.34.
-			case PT_SPACE, PT_PXSPACE: // Perl space, POSIX space
+			case xPT_SPACE, xPT_PXSPACE: // Perl space, POSIX space
 				if xclassHVSpace(c) { // HSPACE_CASES, VSPACE_CASES
 					if isprop {
 						return !negated
@@ -126,7 +126,7 @@ func xclass(c uint32, data []byte, utf bool) bool {
 					return !negated
 				}
 
-			case PT_WORD:
+			case xPT_WORD:
 				chartype = prop.chartype
 				if (ucp_gentype[chartype] == ucp_L ||
 					ucp_gentype[chartype] == ucp_N ||
@@ -134,10 +134,10 @@ func xclass(c uint32, data []byte, utf bool) bool {
 					return !negated
 				}
 
-			case PT_UCNC:
+			case xPT_UCNC:
 				if c < 0xa0 {
-					if (c == CHAR_DOLLAR_SIGN || c == CHAR_COMMERCIAL_AT ||
-						c == CHAR_GRAVE_ACCENT) == isprop {
+					if (c == xCHAR_DOLLAR_SIGN || c == xCHAR_COMMERCIAL_AT ||
+						c == xCHAR_GRAVE_ACCENT) == isprop {
 						return !negated
 					}
 				} else {
@@ -146,13 +146,13 @@ func xclass(c uint32, data []byte, utf bool) bool {
 					}
 				}
 
-			case PT_BIDICL:
-				if (UCD_BIDICLASS_PROP(prop) == uint32(data[p+1])) == isprop {
+			case xPT_BIDICL:
+				if (xUCD_BIDICLASS_PROP(prop) == uint32(data[p+1])) == isprop {
 					return !negated
 				}
 
-			case PT_BOOL:
-				ok = MAPBIT(ucd_boolprop_sets[UCD_BPROPS_PROP(prop):], uint32(data[p+1]))
+			case xPT_BOOL:
+				ok = xMAPBIT(ucd_boolprop_sets[xUCD_BPROPS_PROP(prop):], uint32(data[p+1]))
 				if ok == isprop {
 					return !negated
 				}
@@ -167,7 +167,7 @@ func xclass(c uint32, data []byte, utf bool) bool {
 			//	U+061C           Arabic Letter Mark
 			//	U+180E           Mongolian Vowel Separator
 			//	U+2066 - U+2069  Various "isolate"s
-			case PT_PXGRAPH:
+			case xPT_PXGRAPH:
 				chartype = prop.chartype
 				if (ucp_gentype[chartype] != ucp_Z &&
 					(ucp_gentype[chartype] != ucp_C ||
@@ -178,7 +178,7 @@ func xclass(c uint32, data []byte, utf bool) bool {
 
 			// Printable character: same as graphic, with the addition of Zs, i.e.
 			// not Zl and not Zp, and U+180E.
-			case PT_PXPRINT:
+			case xPT_PXPRINT:
 				chartype = prop.chartype
 				if (chartype != ucp_Zl &&
 					chartype != ucp_Zp &&
@@ -191,7 +191,7 @@ func xclass(c uint32, data []byte, utf bool) bool {
 			// Punctuation: all Unicode punctuation, plus ASCII characters that
 			// Unicode treats as symbols rather than punctuation, for Perl
 			// compatibility (these are $+<=>^`|~).
-			case PT_PXPUNCT:
+			case xPT_PXPUNCT:
 				chartype = prop.chartype
 				if (ucp_gentype[chartype] == ucp_P ||
 					(c < 128 && ucp_gentype[chartype] == ucp_S)) == isprop {
@@ -199,10 +199,10 @@ func xclass(c uint32, data []byte, utf bool) bool {
 				}
 
 			// Perl has two sets of hex digits
-			case PT_PXXDIGIT:
-				if ((c >= CHAR_0 && c <= CHAR_9) ||
-					(c >= CHAR_A && c <= CHAR_F) ||
-					(c >= CHAR_a && c <= CHAR_f) ||
+			case xPT_PXXDIGIT:
+				if ((c >= xCHAR_0 && c <= xCHAR_9) ||
+					(c >= xCHAR_A && c <= xCHAR_F) ||
+					(c >= xCHAR_a && c <= xCHAR_f) ||
 					(c >= 0xff10 && c <= 0xff19) || // Fullwidth digits
 					(c >= 0xff21 && c <= 0xff26) || // Fullwidth letters
 					(c >= 0xff41 && c <= 0xff46)) == isprop {
@@ -226,10 +226,10 @@ func xclass(c uint32, data []byte, utf bool) bool {
 // of pcre2_internal.h:406-449 (Unicode variant).
 func xclassHVSpace(c uint32) bool {
 	switch c {
-	case CHAR_HT, CHAR_SPACE, CHAR_NBSP, // HSPACE_BYTE_CASES
+	case xCHAR_HT, xCHAR_SPACE, xCHAR_NBSP, // HSPACE_BYTE_CASES
 		0x1680, 0x180e, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005,
 		0x2006, 0x2007, 0x2008, 0x2009, 0x200a, 0x202f, 0x205f, 0x3000, // HSPACE_MULTIBYTE_CASES
-		CHAR_LF, CHAR_VT, CHAR_FF, CHAR_CR, CHAR_NEL, // VSPACE_BYTE_CASES
+		xCHAR_LF, xCHAR_VT, xCHAR_FF, xCHAR_CR, xCHAR_NEL, // VSPACE_BYTE_CASES
 		0x2028, 0x2029: // VSPACE_MULTIBYTE_CASES
 		return true
 	}

@@ -8,17 +8,17 @@ package pcre2
 func is_newline(s []byte, ptr int, typ uint32, endptr int, utf bool) (bool, uint32) {
 	var c uint32
 	if utf {
-		c = GETCHAR(s, ptr)
+		c = xGETCHAR(s, ptr)
 	} else {
 		c = uint32(s[ptr])
 	}
 
-	if typ == NLTYPE_ANYCRLF {
+	if typ == xNLTYPE_ANYCRLF {
 		switch c {
-		case CHAR_LF:
+		case xCHAR_LF:
 			return true, 1
-		case CHAR_CR:
-			if ptr < endptr-1 && s[ptr+1] == CHAR_LF {
+		case xCHAR_CR:
+			if ptr < endptr-1 && s[ptr+1] == xCHAR_LF {
 				return true, 2
 			}
 			return true, 1
@@ -29,14 +29,14 @@ func is_newline(s []byte, ptr int, typ uint32, endptr int, utf bool) (bool, uint
 
 	// NLTYPE_ANY
 	switch c {
-	case CHAR_LF, CHAR_VT, CHAR_FF:
+	case xCHAR_LF, xCHAR_VT, xCHAR_FF:
 		return true, 1
-	case CHAR_CR:
-		if ptr < endptr-1 && s[ptr+1] == CHAR_LF {
+	case xCHAR_CR:
+		if ptr < endptr-1 && s[ptr+1] == xCHAR_LF {
 			return true, 2
 		}
 		return true, 1
-	case CHAR_NEL:
+	case xCHAR_NEL:
 		if utf {
 			return true, 2
 		}
@@ -54,20 +54,20 @@ func was_newline(s []byte, ptr int, typ uint32, startptr int, utf bool) (bool, u
 	var c uint32
 	ptr--
 	if utf {
-		ptr = BACKCHAR(s, ptr)
-		c = GETCHAR(s, ptr)
+		ptr = xBACKCHAR(s, ptr)
+		c = xGETCHAR(s, ptr)
 	} else {
 		c = uint32(s[ptr])
 	}
 
-	if typ == NLTYPE_ANYCRLF {
+	if typ == xNLTYPE_ANYCRLF {
 		switch c {
-		case CHAR_LF:
-			if ptr > startptr && s[ptr-1] == CHAR_CR {
+		case xCHAR_LF:
+			if ptr > startptr && s[ptr-1] == xCHAR_CR {
 				return true, 2
 			}
 			return true, 1
-		case CHAR_CR:
+		case xCHAR_CR:
 			return true, 1
 		default:
 			return false, 0
@@ -76,14 +76,14 @@ func was_newline(s []byte, ptr int, typ uint32, startptr int, utf bool) (bool, u
 
 	// NLTYPE_ANY
 	switch c {
-	case CHAR_LF:
-		if ptr > startptr && s[ptr-1] == CHAR_CR {
+	case xCHAR_LF:
+		if ptr > startptr && s[ptr-1] == xCHAR_CR {
 			return true, 2
 		}
 		return true, 1
-	case CHAR_VT, CHAR_FF, CHAR_CR:
+	case xCHAR_VT, xCHAR_FF, xCHAR_CR:
 		return true, 1
-	case CHAR_NEL:
+	case xCHAR_NEL:
 		if utf {
 			return true, 2
 		}

@@ -78,10 +78,10 @@ func compile_branch(optionsptr *uint32, xoptionsptr *uint32, code []byte, codept
 	greedy_non_default = greedy_default ^ 1
 
 	firstcu, reqcu, zerofirstcu, zeroreqcu = 0, 0, 0, 0
-	firstcuflags, reqcuflags, zerofirstcuflags, zeroreqcuflags = REQ_UNSET, REQ_UNSET, REQ_UNSET, REQ_UNSET
+	firstcuflags, reqcuflags, zerofirstcuflags, zeroreqcuflags = xREQ_UNSET, xREQ_UNSET, xREQ_UNSET, xREQ_UNSET
 
 	if options&PCRE2_CASELESS != 0 {
-		req_caseopt = REQ_CASELESS
+		req_caseopt = xREQ_CASELESS
 	}
 
 	emit := func(b uint32) { code[cc] = byte(b); cc++ }
@@ -116,31 +116,31 @@ func compile_branch(optionsptr *uint32, xoptionsptr *uint32, code []byte, codept
 
 mainloop:
 	for ; ; pptr++ {
-		meta = META_CODE(pp[pptr])
-		meta_arg = META_DATA(pp[pptr])
+		meta = xMETA_CODE(pp[pptr])
+		meta_arg = xMETA_DATA(pp[pptr])
 
 		// In the pre-compile phase, accumulate the length used for the previous
 		// cycle of this loop, unless the next item is a quantifier.
 		if lengthptr != nil {
-			if uint64(cc) > cb.workspaceSize-WORK_SIZE_SAFETY_MARGIN {
+			if uint64(cc) > cb.workspaceSize-xWORK_SIZE_SAFETY_MARGIN {
 				if uint64(cc) >= cb.workspaceSize {
-					*errorcodeptr = ERR52
+					*errorcodeptr = xERR52
 				} else {
-					*errorcodeptr = ERR86
+					*errorcodeptr = xERR86
 				}
 				return 0
 			}
 			if cc < last_code {
 				cc = last_code
 			}
-			if meta < META_ASTERISK || meta > META_MINMAX_QUERY {
-				if uint64(OFLOW_MAX)-*lengthptr < uint64(cc-orig_code) {
-					*errorcodeptr = ERR20
+			if meta < xMETA_ASTERISK || meta > xMETA_MINMAX_QUERY {
+				if uint64(xOFLOW_MAX)-*lengthptr < uint64(cc-orig_code) {
+					*errorcodeptr = xERR20
 					return 0
 				}
 				*lengthptr += uint64(cc - orig_code)
-				if *lengthptr > MAX_PATTERN_SIZE {
-					*errorcodeptr = ERR20
+				if *lengthptr > xMAX_PATTERN_SIZE {
+					*errorcodeptr = xERR20
 					return 0
 				}
 				cc = orig_code
@@ -148,7 +148,7 @@ mainloop:
 			last_code = cc
 		}
 
-		if meta < META_ASTERISK || meta > META_MINMAX_QUERY {
+		if meta < xMETA_ASTERISK || meta > xMETA_MINMAX_QUERY {
 			previous = cc
 			if matched_char && !had_accept {
 				okreturn = 1
@@ -162,7 +162,7 @@ mainloop:
 
 		switch meta {
 		// The branch terminates at pattern end or | or ). (5816)
-		case META_END, META_ALT, META_KET:
+		case xMETA_END, xMETA_ALT, xMETA_KET:
 			*firstcuptr = firstcu
 			*firstcuflagsptr = firstcuflags
 			*reqcuptr = reqcu
@@ -172,67 +172,67 @@ mainloop:
 			return okreturn
 
 		// Single-character metacharacters. (5832)
-		case META_CIRCUMFLEX:
+		case xMETA_CIRCUMFLEX:
 			if options&PCRE2_MULTILINE != 0 {
-				if firstcuflags == REQ_UNSET {
-					firstcuflags = REQ_NONE
-					zerofirstcuflags = REQ_NONE
+				if firstcuflags == xREQ_UNSET {
+					firstcuflags = xREQ_NONE
+					zerofirstcuflags = xREQ_NONE
 				}
-				emit(OP_CIRCM)
+				emit(xOP_CIRCM)
 			} else {
-				emit(OP_CIRC)
+				emit(xOP_CIRC)
 			}
 			continue mainloop
 
-		case META_DOLLAR:
+		case xMETA_DOLLAR:
 			if options&PCRE2_MULTILINE != 0 {
-				emit(OP_DOLLM)
+				emit(xOP_DOLLM)
 			} else {
-				emit(OP_DOLL)
+				emit(xOP_DOLL)
 			}
 			continue mainloop
 
-		case META_DOT:
+		case xMETA_DOT:
 			matched_char = true
-			if firstcuflags == REQ_UNSET {
-				firstcuflags = REQ_NONE
+			if firstcuflags == xREQ_UNSET {
+				firstcuflags = xREQ_NONE
 			}
 			zerofirstcu = firstcu
 			zerofirstcuflags = firstcuflags
 			zeroreqcu = reqcu
 			zeroreqcuflags = reqcuflags
 			if options&PCRE2_DOTALL != 0 {
-				emit(OP_ALLANY)
+				emit(xOP_ALLANY)
 			} else {
-				emit(OP_ANY)
+				emit(xOP_ANY)
 			}
 			continue mainloop
 
 		// Empty classes. (5866)
-		case META_CLASS_EMPTY, META_CLASS_EMPTY_NOT:
+		case xMETA_CLASS_EMPTY, xMETA_CLASS_EMPTY_NOT:
 			matched_char = true
-			if meta == META_CLASS_EMPTY_NOT {
-				emit(OP_ALLANY)
+			if meta == xMETA_CLASS_EMPTY_NOT {
+				emit(xOP_ALLANY)
 			} else {
-				emit(OP_FAIL)
+				emit(xOP_FAIL)
 			}
-			if firstcuflags == REQ_UNSET {
-				firstcuflags = REQ_NONE
+			if firstcuflags == xREQ_UNSET {
+				firstcuflags = xREQ_NONE
 			}
 			zerofirstcu = firstcu
 			zerofirstcuflags = firstcuflags
 			continue mainloop
 
 		// Non-empty character class. (5889)
-		case META_CLASS_NOT, META_CLASS:
+		case xMETA_CLASS_NOT, xMETA_CLASS:
 			matched_char = true
-			negate_class = meta == META_CLASS_NOT
+			negate_class = meta == xMETA_CLASS_NOT
 
 			// One-character class optimization.
-			if pp[pptr+1] < META_END && pp[pptr+2] == META_CLASS_END {
+			if pp[pptr+1] < xMETA_END && pp[pptr+2] == xMETA_CLASS_END {
 				c := pp[pptr+1]
 				pptr += 2
-				if meta == META_CLASS {
+				if meta == xMETA_CLASS {
 					meta = c
 					goto NORMAL_CHAR_SET
 				}
@@ -240,39 +240,39 @@ mainloop:
 				// Negative one-character class.
 				zeroreqcu = reqcu
 				zeroreqcuflags = reqcuflags
-				if firstcuflags == REQ_UNSET {
-					firstcuflags = REQ_NONE
+				if firstcuflags == xREQ_UNSET {
+					firstcuflags = xREQ_NONE
 				}
 				zerofirstcu = firstcu
 				zerofirstcuflags = firstcuflags
 
-				if d := UCD_CASESET(c); (utf || ucp) && options&PCRE2_CASELESS != 0 &&
+				if d := xUCD_CASESET(c); (utf || ucp) && options&PCRE2_CASELESS != 0 &&
 					d != 0 &&
 					(xoptions&PCRE2_EXTRA_CASELESS_RESTRICT == 0 ||
 						ucd_caseless_sets[d] > 127) {
-					emit(OP_NOTPROP)
-					emit(PT_CLIST)
+					emit(xOP_NOTPROP)
+					emit(xPT_CLIST)
 					emit(uint32(d))
 					continue mainloop
 				}
 				if options&PCRE2_CASELESS != 0 {
-					emit(OP_NOTI)
+					emit(xOP_NOTI)
 				} else {
-					emit(OP_NOT)
+					emit(xOP_NOT)
 				}
-				cc += PUTCHAR(utf, c, code[cc:])
+				cc += xPUTCHAR(utf, c, code[cc:])
 				continue mainloop
 			}
 
 			// Exactly two characters in a positive class that are case partners.
-			if meta == META_CLASS && pp[pptr+1] < META_END && pp[pptr+2] < META_END &&
-				pp[pptr+3] == META_CLASS_END {
+			if meta == xMETA_CLASS && pp[pptr+1] < xMETA_END && pp[pptr+2] < xMETA_END &&
+				pp[pptr+3] == xMETA_CLASS_END {
 				c := pp[pptr+1]
-				if UCD_CASESET(c) == 0 ||
+				if xUCD_CASESET(c) == 0 ||
 					(xoptions&PCRE2_EXTRA_CASELESS_RESTRICT != 0 && c < 128 && pp[pptr+2] < 128) {
 					var d uint32
 					if (utf || ucp) && c > 127 {
-						d = UCD_OTHERCASE(c)
+						d = xUCD_OTHERCASE(c)
 					} else if c > 255 {
 						d = c
 					} else {
@@ -284,7 +284,7 @@ mainloop:
 						if options&PCRE2_CASELESS == 0 {
 							reset_caseful = true
 							options |= PCRE2_CASELESS
-							req_caseopt = REQ_CASELESS
+							req_caseopt = xREQ_CASELESS
 						}
 						goto CLASS_CASELESS_CHAR
 					}
@@ -295,7 +295,7 @@ mainloop:
 			match_all_or_no_wide_chars = false
 
 			xclass = false
-			class_uchardata = cc + LINK_SIZE + 2
+			class_uchardata = cc + xLINK_SIZE + 2
 			class_uchardata_base = class_uchardata
 
 			class_has_8bitchar = 0
@@ -308,13 +308,13 @@ mainloop:
 				isLiteral := false
 				pptr++
 				meta = pp[pptr]
-				if meta == META_CLASS_END {
+				if meta == xMETA_CLASS_END {
 					break
 				}
 
 				// POSIX classes.
-				if meta == META_POSIX || meta == META_POSIX_NEG {
-					local_negate := meta == META_POSIX_NEG
+				if meta == xMETA_POSIX || meta == xMETA_POSIX_NEG {
+					local_negate := meta == xMETA_POSIX_NEG
 					pptr++
 					posix_class := int(pp[pptr])
 					var pbits [32]byte
@@ -327,20 +327,20 @@ mainloop:
 
 					if options&PCRE2_UCP != 0 && xoptions&PCRE2_EXTRA_ASCII_POSIX == 0 {
 						switch posix_class {
-						case PC_GRAPH, PC_PRINT, PC_PUNCT:
+						case xPC_GRAPH, xPC_PRINT, xPC_PUNCT:
 							if local_negate {
-								code[class_uchardata] = XCL_NOTPROP
+								code[class_uchardata] = xXCL_NOTPROP
 							} else {
-								code[class_uchardata] = XCL_PROP
+								code[class_uchardata] = xXCL_PROP
 							}
 							class_uchardata++
 							switch posix_class {
-							case PC_GRAPH:
-								code[class_uchardata] = PT_PXGRAPH
-							case PC_PRINT:
-								code[class_uchardata] = PT_PXPRINT
+							case xPC_GRAPH:
+								code[class_uchardata] = xPT_PXGRAPH
+							case xPC_PRINT:
+								code[class_uchardata] = xPT_PXPRINT
 							default:
-								code[class_uchardata] = PT_PXPUNCT
+								code[class_uchardata] = xPT_PXPUNCT
 							}
 							class_uchardata++
 							code[class_uchardata] = 0
@@ -396,69 +396,69 @@ mainloop:
 					goto CONTINUE_CLASS
 				}
 
-				if meta == META_BIGVALUE {
+				if meta == xMETA_BIGVALUE {
 					pptr++
 					meta = pp[pptr]
 					isLiteral = true // CLASS_LITERAL
 				}
 
-				if !isLiteral && meta >= META_END {
-					if META_CODE(meta) != META_ESCAPE {
-						*errorcodeptr = ERR89
+				if !isLiteral && meta >= xMETA_END {
+					if xMETA_CODE(meta) != xMETA_ESCAPE {
+						*errorcodeptr = xERR89
 						return 0
 					}
-					escape = META_DATA(meta)
+					escape = xMETA_DATA(meta)
 
 					class_has_8bitchar++
 
 					switch escape {
-					case ESC_d:
+					case xESC_d:
 						for i := 0; i < 32; i++ {
 							classbits[i] |= cbits[i+cbit_digit]
 						}
-					case ESC_D:
+					case xESC_D:
 						should_flip_negation = true
 						for i := 0; i < 32; i++ {
 							classbits[i] |= ^cbits[i+cbit_digit]
 						}
-					case ESC_w:
+					case xESC_w:
 						for i := 0; i < 32; i++ {
 							classbits[i] |= cbits[i+cbit_word]
 						}
-					case ESC_W:
+					case xESC_W:
 						should_flip_negation = true
 						for i := 0; i < 32; i++ {
 							classbits[i] |= ^cbits[i+cbit_word]
 						}
-					case ESC_s:
+					case xESC_s:
 						for i := 0; i < 32; i++ {
 							classbits[i] |= cbits[i+cbit_space]
 						}
-					case ESC_S:
+					case xESC_S:
 						should_flip_negation = true
 						for i := 0; i < 32; i++ {
 							classbits[i] |= ^cbits[i+cbit_space]
 						}
-					case ESC_h:
+					case xESC_h:
 						add_list_to_class(classbits[:], code, &class_uchardata,
-							options&^PCRE2_CASELESS, xoptions, cb, hspace_list, NOTACHAR)
-					case ESC_H:
+							options&^PCRE2_CASELESS, xoptions, cb, hspace_list, xNOTACHAR)
+					case xESC_H:
 						add_not_list_to_class(classbits[:], code, &class_uchardata,
 							options&^PCRE2_CASELESS, xoptions, cb, hspace_list)
-					case ESC_v:
+					case xESC_v:
 						add_list_to_class(classbits[:], code, &class_uchardata,
-							options&^PCRE2_CASELESS, xoptions, cb, vspace_list, NOTACHAR)
-					case ESC_V:
+							options&^PCRE2_CASELESS, xoptions, cb, vspace_list, xNOTACHAR)
+					case xESC_V:
 						add_not_list_to_class(classbits[:], code, &class_uchardata,
 							options&^PCRE2_CASELESS, xoptions, cb, vspace_list)
-					case ESC_p, ESC_P:
+					case xESC_p, xESC_P:
 						pptr++
 						ptype := pp[pptr] >> 16
 						pdata := pp[pptr] & 0xffff
-						if escape == ESC_p {
-							code[class_uchardata] = XCL_PROP
+						if escape == xESC_p {
+							code[class_uchardata] = xXCL_PROP
 						} else {
-							code[class_uchardata] = XCL_NOTPROP
+							code[class_uchardata] = xXCL_NOTPROP
 						}
 						class_uchardata++
 						code[class_uchardata] = byte(ptype)
@@ -474,18 +474,18 @@ mainloop:
 					c := meta
 					d := meta
 
-					if c == CHAR_CR || c == CHAR_NL {
+					if c == xCHAR_CR || c == xCHAR_NL {
 						cb.externalFlags |= PCRE2_HASCRORLF
 					}
 
-					if pp[pptr+1] == META_RANGE_LITERAL || pp[pptr+1] == META_RANGE_ESCAPED {
+					if pp[pptr+1] == xMETA_RANGE_LITERAL || pp[pptr+1] == xMETA_RANGE_ESCAPED {
 						pptr += 2
 						d = pp[pptr]
-						if d == META_BIGVALUE {
+						if d == xMETA_BIGVALUE {
 							pptr++
 							d = pp[pptr]
 						}
-						if d == CHAR_CR || d == CHAR_NL {
+						if d == xCHAR_CR || d == xCHAR_NL {
 							cb.externalFlags |= PCRE2_HASCRORLF
 						}
 						class_has_8bitchar += int(add_to_class(classbits[:], code, &class_uchardata,
@@ -510,8 +510,8 @@ mainloop:
 			}
 
 			// No first char for a class, whatever the repeat count. (6377)
-			if firstcuflags == REQ_UNSET {
-				firstcuflags = REQ_NONE
+			if firstcuflags == xREQ_UNSET {
+				firstcuflags = xREQ_NONE
 			}
 			zerofirstcu = firstcu
 			zerofirstcuflags = firstcuflags
@@ -522,27 +522,27 @@ mainloop:
 			if xclass && (options&PCRE2_UCP != 0 || xclass_has_prop || !should_flip_negation) {
 				if match_all_or_no_wide_chars ||
 					(utf && should_flip_negation && !negate_class && options&PCRE2_UCP == 0) {
-					code[class_uchardata] = XCL_RANGE
+					code[class_uchardata] = xXCL_RANGE
 					class_uchardata++
 					class_uchardata += int(ord2utf(0x100, code[class_uchardata:]))
-					class_uchardata += int(ord2utf(MAX_UTF_CODE_POINT, code[class_uchardata:]))
+					class_uchardata += int(ord2utf(xMAX_UTF_CODE_POINT, code[class_uchardata:]))
 				}
-				code[class_uchardata] = XCL_END
+				code[class_uchardata] = xXCL_END
 				class_uchardata++
-				code[cc] = OP_XCLASS
+				code[cc] = xOP_XCLASS
 				cc++
-				cc += LINK_SIZE
+				cc += xLINK_SIZE
 				if negate_class {
-					code[cc] = XCL_NOT
+					code[cc] = xXCL_NOT
 				} else {
 					code[cc] = 0
 				}
 				if xclass_has_prop {
-					code[cc] |= XCL_HASPROP
+					code[cc] |= xXCL_HASPROP
 				}
 
 				if class_has_8bitchar > 0 {
-					code[cc] |= XCL_MAP
+					code[cc] |= xXCL_MAP
 					cc++
 					copy(code[cc+32:], code[cc:class_uchardata])
 					if negate_class && !xclass_has_prop {
@@ -556,14 +556,14 @@ mainloop:
 					cc = class_uchardata
 				}
 
-				PUT(code, previous+1, cc-previous)
+				xPUT(code, previous+1, cc-previous)
 				continue mainloop
 			}
 
 			if negate_class == should_flip_negation {
-				emit(OP_CLASS)
+				emit(xOP_CLASS)
 			} else {
-				emit(OP_NCLASS)
+				emit(xOP_NCLASS)
 			}
 			if lengthptr == nil {
 				if negate_class {
@@ -577,54 +577,54 @@ mainloop:
 			continue mainloop
 
 		// Verbs. (6496)
-		case META_ACCEPT:
+		case xMETA_ACCEPT:
 			cb.hadAccept = true
 			had_accept = true
 			for oc = open_caps; oc != nil && uint16(oc.assertDepth) >= cb.assertDepth; oc = oc.next {
 				if lengthptr != nil {
-					*lengthptr += 1 + IMM2_SIZE
+					*lengthptr += 1 + xIMM2_SIZE
 				} else {
-					emit(OP_CLOSE)
-					cc = PUT2INC(code, cc, int(oc.number))
+					emit(xOP_CLOSE)
+					cc = xPUT2INC(code, cc, int(oc.number))
 				}
 			}
 			if cb.assertDepth > 0 {
-				emit(OP_ASSERT_ACCEPT)
+				emit(xOP_ASSERT_ACCEPT)
 			} else {
-				emit(OP_ACCEPT)
+				emit(xOP_ACCEPT)
 			}
-			if firstcuflags == REQ_UNSET {
-				firstcuflags = REQ_NONE
+			if firstcuflags == xREQ_UNSET {
+				firstcuflags = xREQ_NONE
 			}
 			continue mainloop
 
-		case META_PRUNE, META_SKIP:
+		case xMETA_PRUNE, xMETA_SKIP:
 			cb.hadPruneorskip = true
-			emit(verbops[(meta-META_MARK)>>16])
+			emit(verbops[(meta-xMETA_MARK)>>16])
 			continue mainloop
 
-		case META_COMMIT, META_FAIL:
-			emit(verbops[(meta-META_MARK)>>16])
+		case xMETA_COMMIT, xMETA_FAIL:
+			emit(verbops[(meta-xMETA_MARK)>>16])
 			continue mainloop
 
-		case META_THEN:
+		case xMETA_THEN:
 			cb.externalFlags |= PCRE2_HASTHEN
-			emit(OP_THEN)
+			emit(xOP_THEN)
 			continue mainloop
 
-		case META_THEN_ARG:
+		case xMETA_THEN_ARG:
 			cb.externalFlags |= PCRE2_HASTHEN
 			goto VERB_ARG
 
-		case META_PRUNE_ARG, META_SKIP_ARG:
+		case xMETA_PRUNE_ARG, xMETA_SKIP_ARG:
 			cb.hadPruneorskip = true
 			goto VERB_ARG
 
-		case META_MARK, META_COMMIT_ARG:
+		case xMETA_MARK, xMETA_COMMIT_ARG:
 			goto VERB_ARG
 
 		// Options change. (6581)
-		case META_OPTIONS:
+		case xMETA_OPTIONS:
 			pptr++
 			options = pp[pptr]
 			*optionsptr = options
@@ -634,15 +634,15 @@ mainloop:
 			greedy_default = b2u32(options&PCRE2_UNGREEDY != 0)
 			greedy_non_default = greedy_default ^ 1
 			if options&PCRE2_CASELESS != 0 {
-				req_caseopt = REQ_CASELESS
+				req_caseopt = xREQ_CASELESS
 			} else {
 				req_caseopt = 0
 			}
 			continue mainloop
 
 		// Conditional subpatterns. (6597)
-		case META_COND_RNUMBER, META_COND_NAME, META_COND_RNAME:
-			bravalue = OP_COND
+		case xMETA_COND_RNUMBER, xMETA_COND_NAME, xMETA_COND_RNAME:
+			bravalue = xOP_COND
 			pptr++
 			dlength = pp[pptr]
 			getPlusOffset()
@@ -654,16 +654,16 @@ mainloop:
 					if dlength == uint32(ng.length) &&
 						strncmp(cb.startPattern[dname:], ng.name, uint64(dlength)) == 0 {
 						if ng.isdup == 0 {
-							if meta == META_COND_RNAME {
-								code[cc+1+LINK_SIZE] = OP_RREF
+							if meta == xMETA_COND_RNAME {
+								code[cc+1+xLINK_SIZE] = xOP_RREF
 							} else {
-								code[cc+1+LINK_SIZE] = OP_CREF
+								code[cc+1+xLINK_SIZE] = xOP_CREF
 							}
-							PUT2(code, cc+2+LINK_SIZE, int(ng.number))
+							xPUT2(code, cc+2+xLINK_SIZE, int(ng.number))
 							if ng.number > cb.topBackref {
 								cb.topBackref = ng.number
 							}
-							skipunits = 1 + IMM2_SIZE
+							skipunits = 1 + xIMM2_SIZE
 							goto GROUP_PROCESS_NOTE_EMPTY
 						}
 						break // Found a duplicated name
@@ -674,37 +674,37 @@ mainloop:
 			// Name not found: a bad reference, unless R<digits>.
 			if di >= uint32(cb.namesFound) {
 				groupnumber = 0
-				if meta == META_COND_RNUMBER {
+				if meta == xMETA_COND_RNUMBER {
 					for di = 1; di < dlength; di++ {
-						groupnumber = groupnumber*10 + uint32(cb.startPattern[dname+int(di)]) - CHAR_0
-						if groupnumber > MAX_GROUP_NUMBER {
-							*errorcodeptr = ERR61
+						groupnumber = groupnumber*10 + uint32(cb.startPattern[dname+int(di)]) - xCHAR_0
+						if groupnumber > xMAX_GROUP_NUMBER {
+							*errorcodeptr = xERR61
 							cb.erroroffset = offset + uint64(di)
 							return 0
 						}
 					}
 				}
 
-				if meta != META_COND_RNUMBER || groupnumber > cb.bracount {
-					*errorcodeptr = ERR15
+				if meta != xMETA_COND_RNUMBER || groupnumber > cb.bracount {
+					*errorcodeptr = xERR15
 					cb.erroroffset = offset
 					return 0
 				}
 
 				if groupnumber == 0 {
-					groupnumber = RREF_ANY
+					groupnumber = xRREF_ANY
 				}
-				code[cc+1+LINK_SIZE] = OP_RREF
-				PUT2(code, cc+2+LINK_SIZE, int(groupnumber))
-				skipunits = 1 + IMM2_SIZE
+				code[cc+1+xLINK_SIZE] = xOP_RREF
+				xPUT2(code, cc+2+xLINK_SIZE, int(groupnumber))
+				skipunits = 1 + xIMM2_SIZE
 				goto GROUP_PROCESS_NOTE_EMPTY
 			}
 
 			// A duplicated name was found.
-			if meta == META_COND_RNAME {
-				code[cc+1+LINK_SIZE] = OP_RREF
+			if meta == xMETA_COND_RNAME {
+				code[cc+1+xLINK_SIZE] = xOP_RREF
 			} else {
-				code[cc+1+LINK_SIZE] = OP_CREF
+				code[cc+1+xLINK_SIZE] = xOP_CREF
 			}
 
 			dcount = 0
@@ -714,27 +714,27 @@ mainloop:
 				return 0
 			}
 
-			code[cc+1+LINK_SIZE]++
-			skipunits = 1 + 2*IMM2_SIZE
-			PUT2(code, cc+2+LINK_SIZE, dindex)
-			PUT2(code, cc+2+LINK_SIZE+IMM2_SIZE, dcount)
+			code[cc+1+xLINK_SIZE]++
+			skipunits = 1 + 2*xIMM2_SIZE
+			xPUT2(code, cc+2+xLINK_SIZE, dindex)
+			xPUT2(code, cc+2+xLINK_SIZE+xIMM2_SIZE, dcount)
 			goto GROUP_PROCESS_NOTE_EMPTY
 
 		// The DEFINE condition is always false. (6700)
-		case META_COND_DEFINE:
-			bravalue = OP_COND
+		case xMETA_COND_DEFINE:
+			bravalue = xOP_COND
 			getPlusOffset()
-			code[cc+1+LINK_SIZE] = OP_DEFINE
+			code[cc+1+xLINK_SIZE] = xOP_DEFINE
 			skipunits = 1
 			goto GROUP_PROCESS
 
-		case META_COND_NUMBER:
-			bravalue = OP_COND
+		case xMETA_COND_NUMBER:
+			bravalue = xOP_COND
 			getPlusOffset()
 			pptr++
 			groupnumber = pp[pptr]
 			if groupnumber > cb.bracount {
-				*errorcodeptr = ERR15
+				*errorcodeptr = xERR15
 				cb.erroroffset = offset
 				return 0
 			}
@@ -742,84 +742,84 @@ mainloop:
 				cb.topBackref = groupnumber
 			}
 			offset -= 2 // Point at initial ( for too many branches error
-			code[cc+1+LINK_SIZE] = OP_CREF
-			skipunits = 1 + IMM2_SIZE
-			PUT2(code, cc+2+LINK_SIZE, int(groupnumber))
+			code[cc+1+xLINK_SIZE] = xOP_CREF
+			skipunits = 1 + xIMM2_SIZE
+			xPUT2(code, cc+2+xLINK_SIZE, int(groupnumber))
 			goto GROUP_PROCESS_NOTE_EMPTY
 
-		case META_COND_VERSION:
-			bravalue = OP_COND
+		case xMETA_COND_VERSION:
+			bravalue = xOP_COND
 			if pp[pptr+1] > 0 {
 				if PCRE2_MAJOR > pp[pptr+2] || (PCRE2_MAJOR == pp[pptr+2] && PCRE2_MINOR >= pp[pptr+3]) {
-					code[cc+1+LINK_SIZE] = OP_TRUE
+					code[cc+1+xLINK_SIZE] = xOP_TRUE
 				} else {
-					code[cc+1+LINK_SIZE] = OP_FALSE
+					code[cc+1+xLINK_SIZE] = xOP_FALSE
 				}
 			} else {
 				if PCRE2_MAJOR == pp[pptr+2] && PCRE2_MINOR == pp[pptr+3] {
-					code[cc+1+LINK_SIZE] = OP_TRUE
+					code[cc+1+xLINK_SIZE] = xOP_TRUE
 				} else {
-					code[cc+1+LINK_SIZE] = OP_FALSE
+					code[cc+1+xLINK_SIZE] = xOP_FALSE
 				}
 			}
 			skipunits = 1
 			pptr += 3
 			goto GROUP_PROCESS_NOTE_EMPTY
 
-		case META_COND_ASSERT:
-			bravalue = OP_COND
+		case xMETA_COND_ASSERT:
+			bravalue = xOP_COND
 			goto GROUP_PROCESS_NOTE_EMPTY
 
 		// Nested bracketed groups. (6752)
-		case META_LOOKAHEAD:
-			bravalue = OP_ASSERT
+		case xMETA_LOOKAHEAD:
+			bravalue = xOP_ASSERT
 			cb.assertDepth++
 			goto GROUP_PROCESS
 
-		case META_LOOKAHEAD_NA:
-			bravalue = OP_ASSERT_NA
+		case xMETA_LOOKAHEAD_NA:
+			bravalue = xOP_ASSERT_NA
 			cb.assertDepth++
 			goto GROUP_PROCESS
 
-		case META_LOOKAHEADNOT:
-			if pp[pptr+1] == META_KET && (pp[pptr+2] < META_ASTERISK || pp[pptr+2] > META_MINMAX_QUERY) {
-				emit(OP_FAIL)
+		case xMETA_LOOKAHEADNOT:
+			if pp[pptr+1] == xMETA_KET && (pp[pptr+2] < xMETA_ASTERISK || pp[pptr+2] > xMETA_MINMAX_QUERY) {
+				emit(xOP_FAIL)
 				pptr++
 				continue mainloop
 			}
-			bravalue = OP_ASSERT_NOT
+			bravalue = xOP_ASSERT_NOT
 			cb.assertDepth++
 			goto GROUP_PROCESS
 
-		case META_LOOKBEHIND:
-			bravalue = OP_ASSERTBACK
+		case xMETA_LOOKBEHIND:
+			bravalue = xOP_ASSERTBACK
 			cb.assertDepth++
 			goto GROUP_PROCESS
 
-		case META_LOOKBEHINDNOT:
-			bravalue = OP_ASSERTBACK_NOT
+		case xMETA_LOOKBEHINDNOT:
+			bravalue = xOP_ASSERTBACK_NOT
 			cb.assertDepth++
 			goto GROUP_PROCESS
 
-		case META_LOOKBEHIND_NA:
-			bravalue = OP_ASSERTBACK_NA
+		case xMETA_LOOKBEHIND_NA:
+			bravalue = xOP_ASSERTBACK_NA
 			cb.assertDepth++
 			goto GROUP_PROCESS
 
-		case META_ATOMIC:
-			bravalue = OP_ONCE
+		case xMETA_ATOMIC:
+			bravalue = xOP_ONCE
 			goto GROUP_PROCESS_NOTE_EMPTY
 
-		case META_SCRIPT_RUN:
-			bravalue = OP_SCRIPT_RUN
+		case xMETA_SCRIPT_RUN:
+			bravalue = xOP_SCRIPT_RUN
 			goto GROUP_PROCESS_NOTE_EMPTY
 
-		case META_NOCAPTURE:
-			bravalue = OP_BRA
+		case xMETA_NOCAPTURE:
+			bravalue = xOP_BRA
 			goto GROUP_PROCESS_NOTE_EMPTY
 
 		// Named backreferences and recursions. (7021)
-		case META_BACKREF_BYNAME, META_RECURSE_BYNAME:
+		case xMETA_BACKREF_BYNAME, xMETA_RECURSE_BYNAME:
 			is_dupname = false
 			pptr++
 			dlength = pp[pptr]
@@ -834,7 +834,7 @@ mainloop:
 					is_dupname = ng.isdup != 0
 					groupnumber = ng.number
 
-					if meta == META_RECURSE_BYNAME {
+					if meta == xMETA_RECURSE_BYNAME {
 						meta_arg = groupnumber
 						goto HANDLE_NUMERICAL_RECURSION
 					}
@@ -851,7 +851,7 @@ mainloop:
 			}
 
 			if groupnumber == 0 {
-				*errorcodeptr = ERR15
+				*errorcodeptr = xERR15
 				cb.erroroffset = offset
 				return 0
 			}
@@ -868,41 +868,41 @@ mainloop:
 				return 0
 			}
 
-			if firstcuflags == REQ_UNSET {
-				firstcuflags = REQ_NONE
+			if firstcuflags == xREQ_UNSET {
+				firstcuflags = xREQ_NONE
 			}
 			if options&PCRE2_CASELESS != 0 {
-				emit(OP_DNREFI)
+				emit(xOP_DNREFI)
 			} else {
-				emit(OP_DNREF)
+				emit(xOP_DNREF)
 			}
-			cc = PUT2INC(code, cc, dindex)
-			cc = PUT2INC(code, cc, dcount)
+			cc = xPUT2INC(code, cc, dindex)
+			cc = xPUT2INC(code, cc, dcount)
 			continue mainloop
 
 		// Numerical callout. (7104)
-		case META_CALLOUT_NUMBER:
-			code[cc] = OP_CALLOUT
-			PUT(code, cc+1, int(pp[pptr+1]))
-			PUT(code, cc+1+LINK_SIZE, int(pp[pptr+2]))
-			code[cc+1+2*LINK_SIZE] = byte(pp[pptr+3])
+		case xMETA_CALLOUT_NUMBER:
+			code[cc] = xOP_CALLOUT
+			xPUT(code, cc+1, int(pp[pptr+1]))
+			xPUT(code, cc+1+xLINK_SIZE, int(pp[pptr+2]))
+			code[cc+1+2*xLINK_SIZE] = byte(pp[pptr+3])
 			pptr += 3
-			cc += int(OP_lengths[OP_CALLOUT])
+			cc += int(xOP_lengths[xOP_CALLOUT])
 			continue mainloop
 
 		// Callout with a string argument. (7121)
-		case META_CALLOUT_STRING:
+		case xMETA_CALLOUT_STRING:
 			if lengthptr != nil {
-				*lengthptr += uint64(pp[pptr+3]) + (1 + 4*LINK_SIZE)
+				*lengthptr += uint64(pp[pptr+3]) + (1 + 4*xLINK_SIZE)
 				pptr += 3
 				pptr += 2 // SKIPOFFSET
 			} else {
 				length := pp[pptr+3]
-				callout_string := cc + (1 + 4*LINK_SIZE)
+				callout_string := cc + (1 + 4*xLINK_SIZE)
 
-				code[cc] = OP_CALLOUT_STR
-				PUT(code, cc+1, int(pp[pptr+1]))
-				PUT(code, cc+1+LINK_SIZE, int(pp[pptr+2]))
+				code[cc] = xOP_CALLOUT_STR
+				xPUT(code, cc+1, int(pp[pptr+1]))
+				xPUT(code, cc+1+xLINK_SIZE, int(pp[pptr+2]))
 
 				pptr += 3
 				getPlusOffset()
@@ -911,10 +911,10 @@ mainloop:
 				code[callout_string] = byte(delimiter)
 				callout_string++
 				ppi++
-				if delimiter == CHAR_LEFT_CURLY_BRACKET {
-					delimiter = CHAR_RIGHT_CURLY_BRACKET
+				if delimiter == xCHAR_LEFT_CURLY_BRACKET {
+					delimiter = xCHAR_RIGHT_CURLY_BRACKET
 				}
-				PUT(code, cc+1+3*LINK_SIZE, int(offset+1))
+				xPUT(code, cc+1+3*xLINK_SIZE, int(offset+1))
 
 				for {
 					length--
@@ -932,44 +932,44 @@ mainloop:
 						ppi++
 					}
 				}
-				code[callout_string] = CHAR_NUL
+				code[callout_string] = xCHAR_NUL
 				callout_string++
 
-				PUT(code, cc+1+2*LINK_SIZE, callout_string-cc)
+				xPUT(code, cc+1+2*xLINK_SIZE, callout_string-cc)
 				cc = callout_string
 			}
 			continue mainloop
 
 		// Repetition. (7182)
-		case META_MINMAX_PLUS, META_MINMAX_QUERY, META_MINMAX:
+		case xMETA_MINMAX_PLUS, xMETA_MINMAX_QUERY, xMETA_MINMAX:
 			pptr++
 			repeat_min = pp[pptr]
 			pptr++
 			repeat_max = pp[pptr]
 			goto REPEAT
 
-		case META_ASTERISK, META_ASTERISK_PLUS, META_ASTERISK_QUERY:
+		case xMETA_ASTERISK, xMETA_ASTERISK_PLUS, xMETA_ASTERISK_QUERY:
 			repeat_min = 0
-			repeat_max = REPEAT_UNLIMITED
+			repeat_max = xREPEAT_UNLIMITED
 			goto REPEAT
 
-		case META_PLUS, META_PLUS_PLUS, META_PLUS_QUERY:
+		case xMETA_PLUS, xMETA_PLUS_PLUS, xMETA_PLUS_QUERY:
 			repeat_min = 1
-			repeat_max = REPEAT_UNLIMITED
+			repeat_max = xREPEAT_UNLIMITED
 			goto REPEAT
 
-		case META_QUERY, META_QUERY_PLUS, META_QUERY_QUERY:
+		case xMETA_QUERY, xMETA_QUERY_PLUS, xMETA_QUERY_QUERY:
 			repeat_min = 0
 			repeat_max = 1
 			goto REPEAT
 
 		// 32-bit data character greater than META_END. (8017)
-		case META_BIGVALUE:
+		case xMETA_BIGVALUE:
 			pptr++
 			goto NORMAL_CHAR
 
 		// Back reference by number. (8029)
-		case META_BACKREF:
+		case xMETA_BACKREF:
 			if meta_arg < 10 {
 				offset = cb.smallRefOffset[meta_arg]
 			} else {
@@ -977,35 +977,35 @@ mainloop:
 			}
 			if meta_arg > cb.bracount {
 				cb.erroroffset = offset
-				*errorcodeptr = ERR15
+				*errorcodeptr = xERR15
 				return 0
 			}
 			goto HANDLE_SINGLE_REFERENCE
 
 		// Recursion. (8070)
-		case META_RECURSE:
+		case xMETA_RECURSE:
 			getPlusOffset()
 			if meta_arg > cb.bracount {
 				cb.erroroffset = offset
-				*errorcodeptr = ERR15
+				*errorcodeptr = xERR15
 				return 0
 			}
 			goto HANDLE_NUMERICAL_RECURSION
 
 		// Capturing parentheses. (8093)
-		case META_CAPTURE:
-			bravalue = OP_CBRA
-			skipunits = IMM2_SIZE
-			PUT2(code, cc+1+LINK_SIZE, int(meta_arg))
+		case xMETA_CAPTURE:
+			bravalue = xOP_CBRA
+			skipunits = xIMM2_SIZE
+			xPUT2(code, cc+1+xLINK_SIZE, int(meta_arg))
 			cb.lastcapture = meta_arg
 			goto GROUP_PROCESS_NOTE_EMPTY
 
 		// Escape sequence items. (8113)
-		case META_ESCAPE:
-			if meta_arg > ESC_b && meta_arg < ESC_Z {
+		case xMETA_ESCAPE:
+			if meta_arg > xESC_b && meta_arg < xESC_Z {
 				matched_char = true
-				if firstcuflags == REQ_UNSET {
-					firstcuflags = REQ_NONE
+				if firstcuflags == xREQ_UNSET {
+					firstcuflags = xREQ_NONE
 				}
 			}
 
@@ -1014,18 +1014,18 @@ mainloop:
 			zeroreqcu = reqcu
 			zeroreqcuflags = reqcuflags
 
-			if meta_arg == ESC_P || meta_arg == ESC_p {
+			if meta_arg == xESC_P || meta_arg == xESC_p {
 				pptr++
 				ptype := pp[pptr] >> 16
 				pdata := pp[pptr] & 0xffff
 
-				if meta_arg == ESC_p && ptype == PT_ANY {
-					emit(OP_ALLANY)
+				if meta_arg == xESC_p && ptype == xPT_ANY {
+					emit(xOP_ALLANY)
 				} else {
-					if meta_arg == ESC_p {
-						emit(OP_PROP)
+					if meta_arg == xESC_p {
+						emit(xOP_PROP)
 					} else {
-						emit(OP_NOTPROP)
+						emit(xOP_NOTPROP)
 					}
 					emit(ptype)
 					emit(pdata)
@@ -1034,32 +1034,32 @@ mainloop:
 			}
 
 			// \K is forbidden in lookarounds since 10.38.
-			if cb.assertDepth > 0 && meta_arg == ESC_K &&
+			if cb.assertDepth > 0 && meta_arg == xESC_K &&
 				xoptions&PCRE2_EXTRA_ALLOW_LOOKAROUND_BSK == 0 {
-				*errorcodeptr = ERR99
+				*errorcodeptr = xERR99
 				return 0
 			}
 
 			switch meta_arg {
-			case ESC_C:
+			case xESC_C:
 				cb.externalFlags |= PCRE2_HASBKC
 				if !utf {
-					meta_arg = OP_ALLANY
+					meta_arg = xOP_ALLANY
 				}
 
-			case ESC_B, ESC_b:
+			case xESC_B, xESC_b:
 				if options&PCRE2_UCP != 0 && xoptions&PCRE2_EXTRA_ASCII_BSW == 0 {
-					if meta_arg == ESC_B {
-						meta_arg = OP_NOT_UCP_WORD_BOUNDARY
+					if meta_arg == xESC_B {
+						meta_arg = xOP_NOT_UCP_WORD_BOUNDARY
 					} else {
-						meta_arg = OP_UCP_WORD_BOUNDARY
+						meta_arg = xOP_UCP_WORD_BOUNDARY
 					}
 				}
 				if cb.maxLookbehind == 0 {
 					cb.maxLookbehind = 1
 				}
 
-			case ESC_A:
+			case xESC_A:
 				if cb.maxLookbehind == 0 {
 					cb.maxLookbehind = 1
 				}
@@ -1070,8 +1070,8 @@ mainloop:
 
 		// Unrecognized meta value or a literal character. (8213)
 		default:
-			if meta >= META_END {
-				*errorcodeptr = ERR89
+			if meta >= xMETA_END {
+				*errorcodeptr = xERR89
 				return 0
 			}
 			goto NORMAL_CHAR
@@ -1081,7 +1081,7 @@ mainloop:
 		// Code reached by goto from the switch above (C labels).
 
 	VERB_ARG: // (6547)
-		emit(verbops[(meta-META_MARK)>>16])
+		emit(verbops[(meta-xMETA_MARK)>>16])
 		pptr++
 		verbarglen = pp[pptr] // The length is in characters.
 		verbculen = 0
@@ -1134,44 +1134,44 @@ mainloop:
 
 		cb.parensDepth--
 
-		if note_group_empty && bravalue != OP_COND && group_return > 0 {
+		if note_group_empty && bravalue != xOP_COND && group_return > 0 {
 			matched_char = true
 		}
 
-		if bravalue >= OP_ASSERT && bravalue <= OP_ASSERTBACK_NA {
+		if bravalue >= xOP_ASSERT && bravalue <= xOP_ASSERTBACK_NA {
 			cb.assertDepth--
 		}
 
 		// Conditional group branch counting, real compile phase only. (6870)
-		if bravalue == OP_COND && lengthptr == nil {
+		if bravalue == xOP_COND && lengthptr == nil {
 			tc := cc
 			condcount := 0
 
 			for {
 				condcount++
-				tc += GET(code, tc+1)
-				if code[tc] == OP_KET {
+				tc += xGET(code, tc+1)
+				if code[tc] == xOP_KET {
 					break
 				}
 			}
 
-			if code[cc+LINK_SIZE+1] == OP_DEFINE {
+			if code[cc+xLINK_SIZE+1] == xOP_DEFINE {
 				if condcount > 1 {
 					cb.erroroffset = offset
-					*errorcodeptr = ERR54
+					*errorcodeptr = xERR54
 					return 0
 				}
-				code[cc+LINK_SIZE+1] = OP_FALSE
-				bravalue = OP_DEFINE // A flag to suppress char handling below
+				code[cc+xLINK_SIZE+1] = xOP_FALSE
+				bravalue = xOP_DEFINE // A flag to suppress char handling below
 			} else {
 				if condcount > 2 {
 					cb.erroroffset = offset
-					*errorcodeptr = ERR27
+					*errorcodeptr = xERR27
 					return 0
 				}
 				if condcount == 1 {
-					subfirstcuflags = REQ_NONE
-					subreqcuflags = REQ_NONE
+					subfirstcuflags = xREQ_NONE
+					subreqcuflags = xREQ_NONE
 				} else if group_return > 0 {
 					matched_char = true
 				}
@@ -1180,21 +1180,21 @@ mainloop:
 
 		// Pre-compile phase: update the length and shrink the group. (6920)
 		if lengthptr != nil {
-			if uint64(OFLOW_MAX)-*lengthptr < length_prevgroup-2-2*LINK_SIZE {
-				*errorcodeptr = ERR20
+			if uint64(xOFLOW_MAX)-*lengthptr < length_prevgroup-2-2*xLINK_SIZE {
+				*errorcodeptr = xERR20
 				return 0
 			}
-			*lengthptr += length_prevgroup - 2 - 2*LINK_SIZE
+			*lengthptr += length_prevgroup - 2 - 2*xLINK_SIZE
 			cc++ // This already contains bravalue
-			cc = PUTINC(code, cc, 1+LINK_SIZE)
-			emit(OP_KET)
-			cc = PUTINC(code, cc, 1+LINK_SIZE)
+			cc = xPUTINC(code, cc, 1+xLINK_SIZE)
+			emit(xOP_KET)
+			cc = xPUTINC(code, cc, 1+xLINK_SIZE)
 			continue mainloop
 		}
 
 		cc = tempcode
 
-		if bravalue == OP_DEFINE {
+		if bravalue == xOP_DEFINE {
 			continue mainloop
 		}
 
@@ -1204,43 +1204,43 @@ mainloop:
 		zerofirstcuflags = firstcuflags
 		groupsetfirstcu = false
 
-		if bravalue >= OP_ONCE { // Not an assertion
-			if firstcuflags == REQ_UNSET && subfirstcuflags != REQ_UNSET {
-				if subfirstcuflags < REQ_NONE {
+		if bravalue >= xOP_ONCE { // Not an assertion
+			if firstcuflags == xREQ_UNSET && subfirstcuflags != xREQ_UNSET {
+				if subfirstcuflags < xREQ_NONE {
 					firstcu = subfirstcu
 					firstcuflags = subfirstcuflags
 					groupsetfirstcu = true
 				} else {
-					firstcuflags = REQ_NONE
+					firstcuflags = xREQ_NONE
 				}
-				zerofirstcuflags = REQ_NONE
-			} else if subfirstcuflags < REQ_NONE && subreqcuflags >= REQ_NONE {
+				zerofirstcuflags = xREQ_NONE
+			} else if subfirstcuflags < xREQ_NONE && subreqcuflags >= xREQ_NONE {
 				subreqcu = subfirstcu
 				subreqcuflags = subfirstcuflags | tempreqvary
 			}
 
-			if subreqcuflags < REQ_NONE {
+			if subreqcuflags < xREQ_NONE {
 				reqcu = subreqcu
 				reqcuflags = subreqcuflags
 			}
-		} else if (bravalue == OP_ASSERT || bravalue == OP_ASSERT_NA) &&
-			subreqcuflags < REQ_NONE && subfirstcuflags < REQ_NONE {
+		} else if (bravalue == xOP_ASSERT || bravalue == xOP_ASSERT_NA) &&
+			subreqcuflags < xREQ_NONE && subfirstcuflags < xREQ_NONE {
 			reqcu = subreqcu
 			reqcuflags = subreqcuflags
 		}
 		continue mainloop
 
 	HANDLE_SINGLE_REFERENCE: // (8046)
-		if firstcuflags == REQ_UNSET {
-			firstcuflags = REQ_NONE
-			zerofirstcuflags = REQ_NONE
+		if firstcuflags == xREQ_UNSET {
+			firstcuflags = xREQ_NONE
+			zerofirstcuflags = xREQ_NONE
 		}
 		if options&PCRE2_CASELESS != 0 {
-			emit(OP_REFI)
+			emit(xOP_REFI)
 		} else {
-			emit(OP_REF)
+			emit(xOP_REF)
 		}
-		cc = PUT2INC(code, cc, int(meta_arg))
+		cc = xPUT2INC(code, cc, int(meta_arg))
 
 		if meta_arg < 32 {
 			cb.backrefMap |= 1 << meta_arg
@@ -1253,13 +1253,13 @@ mainloop:
 		continue mainloop
 
 	HANDLE_NUMERICAL_RECURSION: // (8078)
-		code[cc] = OP_RECURSE
-		PUT(code, cc+1, int(meta_arg))
-		cc += 1 + LINK_SIZE
+		code[cc] = xOP_RECURSE
+		xPUT(code, cc+1, int(meta_arg))
+		cc += 1 + xLINK_SIZE
 		groupsetfirstcu = false
 		cb.hadRecurse = true
-		if firstcuflags == REQ_UNSET {
-			firstcuflags = REQ_NONE
+		if firstcuflags == xREQ_UNSET {
+			firstcuflags = xREQ_NONE
 		}
 		zerofirstcu = firstcu
 		zerofirstcuflags = firstcuflags
@@ -1273,7 +1273,7 @@ mainloop:
 		if repeat_min == repeat_max {
 			reqvary = 0
 		} else {
-			reqvary = REQ_VARY
+			reqvary = xREQ_VARY
 		}
 		op_type = 0
 
@@ -1285,10 +1285,10 @@ mainloop:
 		}
 
 		switch meta {
-		case META_MINMAX_PLUS, META_ASTERISK_PLUS, META_PLUS_PLUS, META_QUERY_PLUS:
+		case xMETA_MINMAX_PLUS, xMETA_ASTERISK_PLUS, xMETA_PLUS_PLUS, xMETA_QUERY_PLUS:
 			repeat_type = 0
 			possessive_quantifier = true
-		case META_MINMAX_QUERY, META_ASTERISK_QUERY, META_PLUS_QUERY, META_QUERY_QUERY:
+		case xMETA_MINMAX_QUERY, xMETA_ASTERISK_QUERY, xMETA_PLUS_QUERY, xMETA_QUERY_QUERY:
 			repeat_type = greedy_non_default
 			possessive_quantifier = false
 		default:
@@ -1300,24 +1300,24 @@ mainloop:
 		op_previous = code[previous]
 
 		switch op_previous {
-		case OP_CHAR, OP_CHARI, OP_NOT, OP_NOTI:
+		case xOP_CHAR, xOP_CHARI, xOP_NOT, xOP_NOTI:
 			if repeat_max == 1 && repeat_min == 1 {
 				goto END_REPEAT
 			}
-			op_type = chartypeoffset[op_previous-OP_CHAR]
+			op_type = chartypeoffset[op_previous-xOP_CHAR]
 
-			if utf && NOT_FIRSTCU(uint32(code[cc-1])) {
-				lastchar := BACKCHAR(code, cc-1)
+			if utf && xNOT_FIRSTCU(uint32(code[cc-1])) {
+				lastchar := xBACKCHAR(code, cc-1)
 				mclength = uint32(cc - lastchar)
 				copy(mcbuffer[:], code[lastchar:cc])
 			} else {
 				mcbuffer[0] = code[cc-1]
 				mclength = 1
-				if op_previous <= OP_CHARI && repeat_min > 1 {
+				if op_previous <= xOP_CHARI && repeat_min > 1 {
 					reqcu = uint32(mcbuffer[0])
 					reqcuflags = cb.reqVaryopt
-					if op_previous == OP_CHARI {
-						reqcuflags |= REQ_CASELESS
+					if op_previous == xOP_CHARI {
+						reqcuflags |= xREQ_CASELESS
 					}
 				}
 			}
@@ -1325,7 +1325,7 @@ mainloop:
 			prop_value = -1
 			goto SINGLE_REPEAT_BODY
 
-		case OP_XCLASS, OP_CLASS, OP_NCLASS, OP_REF, OP_REFI, OP_DNREF, OP_DNREFI:
+		case xOP_XCLASS, xOP_CLASS, xOP_NCLASS, xOP_REF, xOP_REFI, xOP_DNREF, xOP_DNREFI:
 			if repeat_max == 0 {
 				cc = previous
 				goto END_REPEAT
@@ -1334,30 +1334,30 @@ mainloop:
 				goto END_REPEAT
 			}
 
-			if repeat_min == 0 && repeat_max == REPEAT_UNLIMITED {
-				emit(OP_CRSTAR + repeat_type)
-			} else if repeat_min == 1 && repeat_max == REPEAT_UNLIMITED {
-				emit(OP_CRPLUS + repeat_type)
+			if repeat_min == 0 && repeat_max == xREPEAT_UNLIMITED {
+				emit(xOP_CRSTAR + repeat_type)
+			} else if repeat_min == 1 && repeat_max == xREPEAT_UNLIMITED {
+				emit(xOP_CRPLUS + repeat_type)
 			} else if repeat_min == 0 && repeat_max == 1 {
-				emit(OP_CRQUERY + repeat_type)
+				emit(xOP_CRQUERY + repeat_type)
 			} else {
-				emit(OP_CRRANGE + repeat_type)
-				cc = PUT2INC(code, cc, int(repeat_min))
-				if repeat_max == REPEAT_UNLIMITED {
+				emit(xOP_CRRANGE + repeat_type)
+				cc = xPUT2INC(code, cc, int(repeat_min))
+				if repeat_max == xREPEAT_UNLIMITED {
 					repeat_max = 0
 				}
-				cc = PUT2INC(code, cc, int(repeat_max))
+				cc = xPUT2INC(code, cc, int(repeat_max))
 			}
 
-		case OP_FAIL:
+		case xOP_FAIL:
 			goto END_REPEAT
 
-		case OP_RECURSE:
+		case xOP_RECURSE:
 			if repeat_max == 1 && repeat_min == 1 && !possessive_quantifier {
 				goto END_REPEAT
 			}
 
-			if repeat_min > 0 && (repeat_min != 1 || repeat_max != REPEAT_UNLIMITED) {
+			if repeat_min > 0 && (repeat_min != 1 || repeat_max != xREPEAT_UNLIMITED) {
 				replicate := int32(repeat_min)
 				if repeat_min == repeat_max {
 					replicate--
@@ -1365,43 +1365,43 @@ mainloop:
 
 				if lengthptr != nil {
 					var delta uint64
-					if ckd_smul(&delta, replicate, 1+LINK_SIZE) ||
-						uint64(OFLOW_MAX)-*lengthptr < delta {
-						*errorcodeptr = ERR20
+					if ckd_smul(&delta, replicate, 1+xLINK_SIZE) ||
+						uint64(xOFLOW_MAX)-*lengthptr < delta {
+						*errorcodeptr = xERR20
 						return 0
 					}
 					*lengthptr += delta
 				} else {
 					for i := int32(0); i < replicate; i++ {
-						copy(code[cc:cc+1+LINK_SIZE], code[previous:previous+1+LINK_SIZE])
+						copy(code[cc:cc+1+xLINK_SIZE], code[previous:previous+1+xLINK_SIZE])
 						previous = cc
-						cc += 1 + LINK_SIZE
+						cc += 1 + xLINK_SIZE
 					}
 				}
 
 				if repeat_min == repeat_max {
 					goto POSSESSIVE
 				}
-				if repeat_max != REPEAT_UNLIMITED {
+				if repeat_max != xREPEAT_UNLIMITED {
 					repeat_max -= repeat_min
 				}
 				repeat_min = 0
 			}
 
 			// Wrap the recursion call in OP_BRA brackets.
-			copy(code[previous+1+LINK_SIZE:previous+2+2*LINK_SIZE], code[previous:previous+1+LINK_SIZE])
-			code[previous] = OP_BRA
-			op_previous = OP_BRA
-			PUT(code, previous+1, 2+2*LINK_SIZE)
-			code[previous+2+2*LINK_SIZE] = OP_KET
-			PUT(code, previous+3+2*LINK_SIZE, 2+2*LINK_SIZE)
-			cc += 2 + 2*LINK_SIZE
-			length_prevgroup = 3 + 3*LINK_SIZE
+			copy(code[previous+1+xLINK_SIZE:previous+2+2*xLINK_SIZE], code[previous:previous+1+xLINK_SIZE])
+			code[previous] = xOP_BRA
+			op_previous = xOP_BRA
+			xPUT(code, previous+1, 2+2*xLINK_SIZE)
+			code[previous+2+2*xLINK_SIZE] = xOP_KET
+			xPUT(code, previous+3+2*xLINK_SIZE, 2+2*xLINK_SIZE)
+			cc += 2 + 2*xLINK_SIZE
+			length_prevgroup = 3 + 3*xLINK_SIZE
 			group_return = -1 // Set "may match empty string"
 			fallthrough
 
-		case OP_ASSERT, OP_ASSERT_NOT, OP_ASSERT_NA, OP_ASSERTBACK, OP_ASSERTBACK_NOT,
-			OP_ASSERTBACK_NA, OP_ONCE, OP_SCRIPT_RUN, OP_BRA, OP_CBRA, OP_COND:
+		case xOP_ASSERT, xOP_ASSERT_NOT, xOP_ASSERT_NA, xOP_ASSERTBACK, xOP_ASSERTBACK_NOT,
+			xOP_ASSERTBACK_NA, xOP_ONCE, xOP_SCRIPT_RUN, xOP_BRA, xOP_CBRA, xOP_COND:
 			rlen = cc - previous
 			bralink = -1
 			brazeroptr = -1
@@ -1411,35 +1411,35 @@ mainloop:
 			}
 
 			// Repeating a DEFINE group is pointless.
-			if op_previous == OP_COND && code[previous+LINK_SIZE+1] == OP_FALSE &&
-				code[previous+GET(code, previous+1)] != OP_ALT {
+			if op_previous == xOP_COND && code[previous+xLINK_SIZE+1] == xOP_FALSE &&
+				code[previous+xGET(code, previous+1)] != xOP_ALT {
 				goto END_REPEAT
 			}
 
-			if op_previous < OP_ONCE { // Assertion
-				if repeat_max == REPEAT_UNLIMITED {
+			if op_previous < xOP_ONCE { // Assertion
+				if repeat_max == xREPEAT_UNLIMITED {
 					repeat_max = repeat_min + 1
 				}
 			}
 
 			if repeat_min == 0 {
-				if repeat_max <= 1 || repeat_max == REPEAT_UNLIMITED {
+				if repeat_max <= 1 || repeat_max == xREPEAT_UNLIMITED {
 					copy(code[previous+1:previous+1+rlen], code[previous:previous+rlen])
 					cc++
 					if repeat_max == 0 {
-						code[previous] = OP_SKIPZERO
+						code[previous] = xOP_SKIPZERO
 						previous++
 						goto END_REPEAT
 					}
 					brazeroptr = previous // Save for possessive optimizing
-					code[previous] = byte(OP_BRAZERO + repeat_type)
+					code[previous] = byte(xOP_BRAZERO + repeat_type)
 					previous++
 				} else {
-					copy(code[previous+2+LINK_SIZE:previous+2+LINK_SIZE+rlen], code[previous:previous+rlen])
-					cc += 2 + LINK_SIZE
-					code[previous] = byte(OP_BRAZERO + repeat_type)
+					copy(code[previous+2+xLINK_SIZE:previous+2+xLINK_SIZE+rlen], code[previous:previous+rlen])
+					cc += 2 + xLINK_SIZE
+					code[previous] = byte(xOP_BRAZERO + repeat_type)
 					previous++
-					code[previous] = OP_BRA
+					code[previous] = xOP_BRA
 					previous++
 
 					linkoffset := 0
@@ -1447,10 +1447,10 @@ mainloop:
 						linkoffset = previous - bralink
 					}
 					bralink = previous
-					previous = PUTINC(code, previous, linkoffset)
+					previous = xPUTINC(code, previous, linkoffset)
 				}
 
-				if repeat_max != REPEAT_UNLIMITED {
+				if repeat_max != xREPEAT_UNLIMITED {
 					repeat_max--
 				}
 			} else {
@@ -1458,13 +1458,13 @@ mainloop:
 					if lengthptr != nil {
 						var delta uint64
 						if ckd_smul(&delta, int32(repeat_min-1), int32(length_prevgroup)) ||
-							uint64(OFLOW_MAX)-*lengthptr < delta {
-							*errorcodeptr = ERR20
+							uint64(xOFLOW_MAX)-*lengthptr < delta {
+							*errorcodeptr = xERR20
 							return 0
 						}
 						*lengthptr += delta
 					} else {
-						if groupsetfirstcu && reqcuflags >= REQ_NONE {
+						if groupsetfirstcu && reqcuflags >= xREQ_NONE {
 							reqcu = firstcu
 							reqcuflags = firstcuflags
 						}
@@ -1475,35 +1475,35 @@ mainloop:
 					}
 				}
 
-				if repeat_max != REPEAT_UNLIMITED {
+				if repeat_max != xREPEAT_UNLIMITED {
 					repeat_max -= repeat_min
 				}
 			}
 
-			if repeat_max != REPEAT_UNLIMITED {
+			if repeat_max != xREPEAT_UNLIMITED {
 				if lengthptr != nil && repeat_max > 0 {
 					var delta uint64
-					if ckd_smul(&delta, int32(repeat_max), int32(length_prevgroup)+1+2+2*LINK_SIZE) ||
-						uint64(OFLOW_MAX)+(2+2*LINK_SIZE)-*lengthptr < delta {
-						*errorcodeptr = ERR20
+					if ckd_smul(&delta, int32(repeat_max), int32(length_prevgroup)+1+2+2*xLINK_SIZE) ||
+						uint64(xOFLOW_MAX)+(2+2*xLINK_SIZE)-*lengthptr < delta {
+						*errorcodeptr = xERR20
 						return 0
 					}
-					delta -= 2 + 2*LINK_SIZE // Last one doesn't nest
+					delta -= 2 + 2*xLINK_SIZE // Last one doesn't nest
 					*lengthptr += delta
 				} else {
 					for i := repeat_max; i >= 1; i-- {
-						code[cc] = byte(OP_BRAZERO + repeat_type)
+						code[cc] = byte(xOP_BRAZERO + repeat_type)
 						cc++
 
 						if i != 1 {
-							code[cc] = OP_BRA
+							code[cc] = xOP_BRA
 							cc++
 							linkoffset := 0
 							if bralink >= 0 {
 								linkoffset = cc - bralink
 							}
 							bralink = cc
-							cc = PUTINC(code, cc, linkoffset)
+							cc = xPUTINC(code, cc, linkoffset)
 						}
 
 						copy(code[cc:cc+rlen], code[previous:previous+rlen])
@@ -1515,85 +1515,85 @@ mainloop:
 				for bralink >= 0 {
 					linkoffset := cc - bralink + 1
 					bra := cc - linkoffset
-					oldlinkoffset := GET(code, bra+1)
+					oldlinkoffset := xGET(code, bra+1)
 					if oldlinkoffset == 0 {
 						bralink = -1
 					} else {
 						bralink -= oldlinkoffset
 					}
-					code[cc] = OP_KET
+					code[cc] = xOP_KET
 					cc++
-					cc = PUTINC(code, cc, linkoffset)
-					PUT(code, bra+1, linkoffset)
+					cc = xPUTINC(code, cc, linkoffset)
+					xPUT(code, bra+1, linkoffset)
 				}
 			} else {
 				// Unlimited maximum: set a repeater in the final copy. (7678)
-				ketcode := cc - 1 - LINK_SIZE
-				bracode := ketcode - GET(code, ketcode+1)
+				ketcode := cc - 1 - xLINK_SIZE
+				bracode := ketcode - xGET(code, ketcode+1)
 
 				// Convert possessive ONCE brackets to non-capturing.
-				if code[bracode] == OP_ONCE && possessive_quantifier {
-					code[bracode] = OP_BRA
+				if code[bracode] == xOP_ONCE && possessive_quantifier {
+					code[bracode] = xOP_BRA
 				}
 
-				if code[bracode] == OP_ONCE || code[bracode] == OP_SCRIPT_RUN {
-					code[ketcode] = byte(OP_KETRMAX + repeat_type)
+				if code[bracode] == xOP_ONCE || code[bracode] == xOP_SCRIPT_RUN {
+					code[ketcode] = byte(xOP_KETRMAX + repeat_type)
 				} else {
 					if lengthptr == nil {
 						if group_return < 0 {
-							code[bracode] += OP_SBRA - OP_BRA
+							code[bracode] += xOP_SBRA - xOP_BRA
 						}
-						if code[bracode] == OP_COND && code[bracode+GET(code, bracode+1)] != OP_ALT {
-							code[bracode] = OP_SCOND
+						if code[bracode] == xOP_COND && code[bracode+xGET(code, bracode+1)] != xOP_ALT {
+							code[bracode] = xOP_SCOND
 						}
 					}
 
 					if possessive_quantifier {
-						if code[bracode] == OP_COND || code[bracode] == OP_SCOND {
+						if code[bracode] == xOP_COND || code[bracode] == xOP_SCOND {
 							nlen := cc - bracode
-							copy(code[bracode+1+LINK_SIZE:bracode+1+LINK_SIZE+nlen], code[bracode:bracode+nlen])
-							cc += 1 + LINK_SIZE
-							nlen += 1 + LINK_SIZE
-							if code[bracode] == OP_COND {
-								code[bracode] = OP_BRAPOS
+							copy(code[bracode+1+xLINK_SIZE:bracode+1+xLINK_SIZE+nlen], code[bracode:bracode+nlen])
+							cc += 1 + xLINK_SIZE
+							nlen += 1 + xLINK_SIZE
+							if code[bracode] == xOP_COND {
+								code[bracode] = xOP_BRAPOS
 							} else {
-								code[bracode] = OP_SBRAPOS
+								code[bracode] = xOP_SBRAPOS
 							}
-							code[cc] = OP_KETRPOS
+							code[cc] = xOP_KETRPOS
 							cc++
-							cc = PUTINC(code, cc, nlen)
-							PUT(code, bracode+1, nlen)
+							cc = xPUTINC(code, cc, nlen)
+							xPUT(code, bracode+1, nlen)
 						} else {
 							code[bracode]++ // Switch to xxxPOS opcodes
-							code[ketcode] = OP_KETRPOS
+							code[ketcode] = xOP_KETRPOS
 						}
 
 						if brazeroptr >= 0 {
-							code[brazeroptr] = OP_BRAPOSZERO
+							code[brazeroptr] = xOP_BRAPOSZERO
 						}
 						if repeat_min < 2 {
 							possessive_quantifier = false
 						}
 					} else {
-						code[ketcode] = byte(OP_KETRMAX + repeat_type)
+						code[ketcode] = byte(xOP_KETRMAX + repeat_type)
 					}
 				}
 			}
 
 		default:
 			// Character type match (\d or similar), or an internal error. (7760)
-			if op_previous >= OP_EODN {
-				*errorcodeptr = ERR10
+			if op_previous >= xOP_EODN {
+				*errorcodeptr = xERR10
 				return 0
 			}
 			if repeat_max == 1 && repeat_min == 1 {
 				goto END_REPEAT
 			}
 
-			op_type = OP_TYPESTAR - OP_STAR // Use type opcodes
-			mclength = 0                    // Not a character
+			op_type = xOP_TYPESTAR - xOP_STAR // Use type opcodes
+			mclength = 0                      // Not a character
 
-			if op_previous == OP_PROP || op_previous == OP_NOTPROP {
+			if op_previous == xOP_PROP || op_previous == xOP_NOTPROP {
 				prop_type = int(code[previous+1])
 				prop_value = int(code[previous+2])
 			} else {
@@ -1615,28 +1615,28 @@ mainloop:
 		repeat_type += op_type
 
 		if repeat_min == 0 {
-			if repeat_max == REPEAT_UNLIMITED {
-				emit(OP_STAR + repeat_type)
+			if repeat_max == xREPEAT_UNLIMITED {
+				emit(xOP_STAR + repeat_type)
 			} else if repeat_max == 1 {
-				emit(OP_QUERY + repeat_type)
+				emit(xOP_QUERY + repeat_type)
 			} else {
-				emit(OP_UPTO + repeat_type)
-				cc = PUT2INC(code, cc, int(repeat_max))
+				emit(xOP_UPTO + repeat_type)
+				cc = xPUT2INC(code, cc, int(repeat_max))
 			}
 		} else if repeat_min == 1 {
-			if repeat_max == REPEAT_UNLIMITED {
-				emit(OP_PLUS + repeat_type)
+			if repeat_max == xREPEAT_UNLIMITED {
+				emit(xOP_PLUS + repeat_type)
 			} else {
 				cc = oldcode // Leave previous item in place
 				if repeat_max == 1 {
 					goto END_REPEAT
 				}
-				emit(OP_UPTO + repeat_type)
-				cc = PUT2INC(code, cc, int(repeat_max-1))
+				emit(xOP_UPTO + repeat_type)
+				cc = xPUT2INC(code, cc, int(repeat_max-1))
 			}
 		} else {
-			emit(OP_EXACT + op_type) // NB EXACT doesn't have repeat_type
-			cc = PUT2INC(code, cc, int(repeat_min))
+			emit(xOP_EXACT + op_type) // NB EXACT doesn't have repeat_type
+			cc = xPUT2INC(code, cc, int(repeat_min))
 
 			if repeat_max != repeat_min {
 				if mclength > 0 {
@@ -1653,15 +1653,15 @@ mainloop:
 					}
 				}
 
-				if repeat_max == REPEAT_UNLIMITED {
-					emit(OP_STAR + repeat_type)
+				if repeat_max == xREPEAT_UNLIMITED {
+					emit(xOP_STAR + repeat_type)
 				} else {
 					repeat_max -= repeat_min
 					if repeat_max == 1 {
-						emit(OP_QUERY + repeat_type)
+						emit(xOP_QUERY + repeat_type)
 					} else {
-						emit(OP_UPTO + repeat_type)
-						cc = PUT2INC(code, cc, int(repeat_max))
+						emit(xOP_UPTO + repeat_type)
+						cc = xPUT2INC(code, cc, int(repeat_max))
 					}
 				}
 			}
@@ -1685,41 +1685,41 @@ mainloop:
 	POSSESSIVE: // (7909)
 		if possessive_quantifier {
 			switch code[tempcode] {
-			case OP_TYPEEXACT:
+			case xOP_TYPEEXACT:
 				add := 0
-				if code[tempcode+1+IMM2_SIZE] == OP_PROP || code[tempcode+1+IMM2_SIZE] == OP_NOTPROP {
+				if code[tempcode+1+xIMM2_SIZE] == xOP_PROP || code[tempcode+1+xIMM2_SIZE] == xOP_NOTPROP {
 					add = 2
 				}
-				tempcode += int(OP_lengths[code[tempcode]]) + add
+				tempcode += int(xOP_lengths[code[tempcode]]) + add
 
-			case OP_CHAR, OP_CHARI, OP_NOT, OP_NOTI, OP_EXACT, OP_EXACTI, OP_NOTEXACT, OP_NOTEXACTI:
-				tempcode += int(OP_lengths[code[tempcode]])
-				if utf && HAS_EXTRALEN(uint32(code[tempcode-1])) {
-					tempcode += GET_EXTRALEN(uint32(code[tempcode-1]))
+			case xOP_CHAR, xOP_CHARI, xOP_NOT, xOP_NOTI, xOP_EXACT, xOP_EXACTI, xOP_NOTEXACT, xOP_NOTEXACTI:
+				tempcode += int(xOP_lengths[code[tempcode]])
+				if utf && xHAS_EXTRALEN(uint32(code[tempcode-1])) {
+					tempcode += xGET_EXTRALEN(uint32(code[tempcode-1]))
 				}
 
-			case OP_CLASS, OP_NCLASS:
+			case xOP_CLASS, xOP_NCLASS:
 				tempcode += 1 + 32
 
-			case OP_XCLASS:
-				tempcode += GET(code, tempcode+1)
+			case xOP_XCLASS:
+				tempcode += xGET(code, tempcode+1)
 			}
 
 			rlen = cc - tempcode
 			if rlen > 0 {
 				repcode := uint32(code[tempcode])
 
-				if repcode < OP_CALLOUT && opcode_possessify[repcode] > 0 {
+				if repcode < xOP_CALLOUT && opcode_possessify[repcode] > 0 {
 					code[tempcode] = opcode_possessify[repcode]
 				} else {
-					copy(code[tempcode+1+LINK_SIZE:tempcode+1+LINK_SIZE+rlen], code[tempcode:tempcode+rlen])
-					cc += 1 + LINK_SIZE
-					rlen += 1 + LINK_SIZE
-					code[tempcode] = OP_ONCE
-					code[cc] = OP_KET
+					copy(code[tempcode+1+xLINK_SIZE:tempcode+1+xLINK_SIZE+rlen], code[tempcode:tempcode+rlen])
+					cc += 1 + xLINK_SIZE
+					rlen += 1 + xLINK_SIZE
+					code[tempcode] = xOP_ONCE
+					code[cc] = xOP_KET
 					cc++
-					cc = PUTINC(code, cc, rlen)
-					PUT(code, tempcode+1, rlen)
+					cc = xPUTINC(code, cc, rlen)
+					xPUT(code, tempcode+1, rlen)
 				}
 			}
 		}
@@ -1735,15 +1735,15 @@ mainloop:
 		matched_char = true
 
 		if (utf || ucp) && options&PCRE2_CASELESS != 0 {
-			caseset := uint32(UCD_CASESET(meta))
+			caseset := uint32(xUCD_CASESET(meta))
 			if caseset != 0 &&
 				(xoptions&PCRE2_EXTRA_CASELESS_RESTRICT == 0 || ucd_caseless_sets[caseset] > 127) {
-				emit(OP_PROP)
-				emit(PT_CLIST)
+				emit(xOP_PROP)
+				emit(xPT_CLIST)
 				emit(caseset)
-				if firstcuflags == REQ_UNSET {
-					firstcuflags = REQ_NONE
-					zerofirstcuflags = REQ_NONE
+				if firstcuflags == xREQ_UNSET {
+					firstcuflags = xREQ_NONE
+					zerofirstcuflags = xREQ_NONE
 				}
 				continue mainloop
 			}
@@ -1758,19 +1758,19 @@ mainloop:
 		}
 
 		if options&PCRE2_CASELESS != 0 {
-			emit(OP_CHARI)
+			emit(xOP_CHARI)
 		} else {
-			emit(OP_CHAR)
+			emit(xOP_CHAR)
 		}
 		copy(code[cc:], mcbuffer[:mclength])
 		cc += int(mclength)
 
-		if mcbuffer[0] == CHAR_CR || mcbuffer[0] == CHAR_NL {
+		if mcbuffer[0] == xCHAR_CR || mcbuffer[0] == xCHAR_NL {
 			cb.externalFlags |= PCRE2_HASCRORLF
 		}
 
-		if firstcuflags == REQ_UNSET {
-			zerofirstcuflags = REQ_NONE
+		if firstcuflags == xREQ_UNSET {
+			zerofirstcuflags = xREQ_NONE
 			zeroreqcu = reqcu
 			zeroreqcuflags = reqcuflags
 
@@ -1782,8 +1782,8 @@ mainloop:
 					reqcuflags = cb.reqVaryopt
 				}
 			} else {
-				firstcuflags = REQ_NONE
-				reqcuflags = REQ_NONE
+				firstcuflags = xREQ_NONE
+				reqcuflags = xREQ_NONE
 			}
 		} else {
 			zerofirstcu = firstcu

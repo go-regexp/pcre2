@@ -23,42 +23,42 @@ const intMax = 0x7fffffff
 func parsed_skip(pp []uint32, pptr int, skiptype uint32) int {
 	var nestlevel uint32
 	for ; ; pptr++ {
-		meta := META_CODE(pp[pptr])
+		meta := xMETA_CODE(pp[pptr])
 		switch meta {
 		default:
-			if meta < META_END {
+			if meta < xMETA_END {
 				continue
 			}
-		case META_END:
+		case xMETA_END:
 			return -1
-		case META_BACKREF:
-			if META_DATA(pp[pptr]) >= 10 {
-				pptr += SIZEOFFSET
+		case xMETA_BACKREF:
+			if xMETA_DATA(pp[pptr]) >= 10 {
+				pptr += xSIZEOFFSET
 			}
-		case META_ESCAPE:
-			switch META_DATA(pp[pptr]) {
-			case ESC_P, ESC_p:
+		case xMETA_ESCAPE:
+			switch xMETA_DATA(pp[pptr]) {
+			case xESC_P, xESC_p:
 				pptr += 1
-			case ESC_g, ESC_k:
-				pptr += 1 + SIZEOFFSET
+			case xESC_g, xESC_k:
+				pptr += 1 + xSIZEOFFSET
 			}
-		case META_MARK, META_COMMIT_ARG, META_PRUNE_ARG, META_SKIP_ARG, META_THEN_ARG:
+		case xMETA_MARK, xMETA_COMMIT_ARG, xMETA_PRUNE_ARG, xMETA_SKIP_ARG, xMETA_THEN_ARG:
 			pptr += int(pp[pptr+1])
-		case META_CLASS_END:
-			if skiptype == PSKIP_CLASS {
+		case xMETA_CLASS_END:
+			if skiptype == xPSKIP_CLASS {
 				return pptr
 			}
-		case META_ATOMIC, META_CAPTURE, META_COND_ASSERT, META_COND_DEFINE,
-			META_COND_NAME, META_COND_NUMBER, META_COND_RNAME, META_COND_RNUMBER,
-			META_COND_VERSION, META_LOOKAHEAD, META_LOOKAHEADNOT, META_LOOKAHEAD_NA,
-			META_LOOKBEHIND, META_LOOKBEHINDNOT, META_LOOKBEHIND_NA, META_NOCAPTURE,
-			META_SCRIPT_RUN:
+		case xMETA_ATOMIC, xMETA_CAPTURE, xMETA_COND_ASSERT, xMETA_COND_DEFINE,
+			xMETA_COND_NAME, xMETA_COND_NUMBER, xMETA_COND_RNAME, xMETA_COND_RNUMBER,
+			xMETA_COND_VERSION, xMETA_LOOKAHEAD, xMETA_LOOKAHEADNOT, xMETA_LOOKAHEAD_NA,
+			xMETA_LOOKBEHIND, xMETA_LOOKBEHINDNOT, xMETA_LOOKBEHIND_NA, xMETA_NOCAPTURE,
+			xMETA_SCRIPT_RUN:
 			nestlevel++
-		case META_ALT:
-			if nestlevel == 0 && skiptype == PSKIP_ALT {
+		case xMETA_ALT:
+			if nestlevel == 0 && skiptype == xPSKIP_ALT {
 				return pptr
 			}
-		case META_KET:
+		case xMETA_KET:
 			if nestlevel == 0 {
 				return pptr
 			}
@@ -81,15 +81,15 @@ func get_grouplength(pptrptr *int, minptr *int, isinline bool, errcodeptr *int,
 
 	if group > 0 && (cb.externalFlags&PCRE2_DUPCAPUSED) == 0 {
 		groupinfo := gi[0]
-		if groupinfo&GI_NOT_FIXED_LENGTH != 0 {
+		if groupinfo&xGI_NOT_FIXED_LENGTH != 0 {
 			return -1
 		}
-		if groupinfo&GI_SET_FIXED_LENGTH != 0 {
+		if groupinfo&xGI_SET_FIXED_LENGTH != 0 {
 			if isinline {
-				*pptrptr = parsed_skip(cb.parsedPattern, *pptrptr, PSKIP_KET)
+				*pptrptr = parsed_skip(cb.parsedPattern, *pptrptr, xPSKIP_KET)
 			}
 			*minptr = int(gi[1])
-			return int(groupinfo & GI_FIXED_LENGTH_MASK)
+			return int(groupinfo & xGI_FIXED_LENGTH_MASK)
 		}
 	}
 
@@ -98,7 +98,7 @@ func get_grouplength(pptrptr *int, minptr *int, isinline bool, errcodeptr *int,
 		branchlength := get_branchlength(pptrptr, &branchminlength, errcodeptr, lcptr, recurses, cb)
 		if branchlength < 0 {
 			if group > 0 {
-				gi[0] |= GI_NOT_FIXED_LENGTH
+				gi[0] |= xGI_NOT_FIXED_LENGTH
 			}
 			return -1
 		}
@@ -108,14 +108,14 @@ func get_grouplength(pptrptr *int, minptr *int, isinline bool, errcodeptr *int,
 		if branchminlength < groupminlength {
 			groupminlength = branchminlength
 		}
-		if cb.parsedPattern[*pptrptr] == META_KET {
+		if cb.parsedPattern[*pptrptr] == xMETA_KET {
 			break
 		}
 		*pptrptr += 1
 	}
 
 	if group > 0 {
-		gi[0] |= GI_SET_FIXED_LENGTH | uint32(grouplength)
+		gi[0] |= xGI_SET_FIXED_LENGTH | uint32(grouplength)
 		gi[1] = uint32(groupminlength)
 	}
 	*minptr = groupminlength
@@ -143,7 +143,7 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 
 	*lcptr++
 	if *lcptr-1 > 2000 {
-		*errcodeptr = ERR35
+		*errcodeptr = xERR35
 		return -1
 	}
 
@@ -153,100 +153,100 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 		var min, max uint32
 		label := glNone
 
-		if pp[pptr] < META_END {
+		if pp[pptr] < xMETA_END {
 			itemlength, itemminlength = 1, 1
 		} else {
-			code := META_CODE(pp[pptr])
+			code := xMETA_CODE(pp[pptr])
 			switch code {
-			case META_KET, META_ALT:
+			case xMETA_KET, xMETA_ALT:
 				goto exit
 
-			case META_ACCEPT, META_FAIL:
-				pptr = parsed_skip(pp, pptr, PSKIP_ALT)
+			case xMETA_ACCEPT, xMETA_FAIL:
+				pptr = parsed_skip(pp, pptr, xPSKIP_ALT)
 				if pptr < 0 {
-					*errcodeptr = ERR90
+					*errcodeptr = xERR90
 					return -1
 				}
 				goto exit
 
-			case META_MARK, META_COMMIT_ARG, META_PRUNE_ARG, META_SKIP_ARG, META_THEN_ARG:
+			case xMETA_MARK, xMETA_COMMIT_ARG, xMETA_PRUNE_ARG, xMETA_SKIP_ARG, xMETA_THEN_ARG:
 				pptr += int(pp[pptr+1]) + 1
 
-			case META_CIRCUMFLEX, META_COMMIT, META_DOLLAR, META_PRUNE, META_SKIP, META_THEN:
+			case xMETA_CIRCUMFLEX, xMETA_COMMIT, xMETA_DOLLAR, xMETA_PRUNE, xMETA_SKIP, xMETA_THEN:
 
-			case META_OPTIONS:
+			case xMETA_OPTIONS:
 				pptr += 2
 
-			case META_BIGVALUE:
+			case xMETA_BIGVALUE:
 				itemlength, itemminlength = 1, 1
 				pptr += 1
 
-			case META_CLASS, META_CLASS_NOT:
+			case xMETA_CLASS, xMETA_CLASS_NOT:
 				itemlength, itemminlength = 1, 1
-				pptr = parsed_skip(pp, pptr, PSKIP_CLASS)
+				pptr = parsed_skip(pp, pptr, xPSKIP_CLASS)
 				if pptr < 0 {
-					*errcodeptr = ERR90
+					*errcodeptr = xERR90
 					return -1
 				}
 
-			case META_CLASS_EMPTY_NOT, META_DOT:
+			case xMETA_CLASS_EMPTY_NOT, xMETA_DOT:
 				itemlength, itemminlength = 1, 1
 
-			case META_CALLOUT_NUMBER:
+			case xMETA_CALLOUT_NUMBER:
 				pptr += 3
 
-			case META_CALLOUT_STRING:
-				pptr += 3 + SIZEOFFSET
+			case xMETA_CALLOUT_STRING:
+				pptr += 3 + xSIZEOFFSET
 
-			case META_ESCAPE:
-				escape := META_DATA(pp[pptr])
-				if escape == ESC_X {
+			case xMETA_ESCAPE:
+				escape := xMETA_DATA(pp[pptr])
+				if escape == xESC_X {
 					return -1
 				}
-				if escape == ESC_R {
+				if escape == xESC_R {
 					itemminlength = 1
 					itemlength = 2
-				} else if escape > ESC_b && escape < ESC_Z {
-					if (cb.externalOptions&PCRE2_UTF) != 0 && escape == ESC_C {
-						*errcodeptr = ERR36
+				} else if escape > xESC_b && escape < xESC_Z {
+					if (cb.externalOptions&PCRE2_UTF) != 0 && escape == xESC_C {
+						*errcodeptr = xERR36
 						return -1
 					}
 					itemlength, itemminlength = 1, 1
-					if escape == ESC_p || escape == ESC_P {
+					if escape == xESC_p || escape == xESC_P {
 						pptr++
 					}
 				}
 
-			case META_LOOKAHEAD, META_LOOKAHEADNOT, META_LOOKAHEAD_NA:
+			case xMETA_LOOKAHEAD, xMETA_LOOKAHEADNOT, xMETA_LOOKAHEAD_NA:
 				*errcodeptr = check_lookbehinds(pptr+1, &pptr, recurses, cb, lcptr)
 				if *errcodeptr != 0 {
 					return -1
 				}
 				switch pp[pptr+1] {
-				case META_ASTERISK, META_ASTERISK_PLUS, META_ASTERISK_QUERY,
-					META_PLUS, META_PLUS_PLUS, META_PLUS_QUERY,
-					META_QUERY, META_QUERY_PLUS, META_QUERY_QUERY:
+				case xMETA_ASTERISK, xMETA_ASTERISK_PLUS, xMETA_ASTERISK_QUERY,
+					xMETA_PLUS, xMETA_PLUS_PLUS, xMETA_PLUS_QUERY,
+					xMETA_QUERY, xMETA_QUERY_PLUS, xMETA_QUERY_QUERY:
 					pptr++
-				case META_MINMAX, META_MINMAX_PLUS, META_MINMAX_QUERY:
+				case xMETA_MINMAX, xMETA_MINMAX_PLUS, xMETA_MINMAX_QUERY:
 					pptr += 3
 				}
 
-			case META_LOOKBEHIND, META_LOOKBEHINDNOT, META_LOOKBEHIND_NA:
+			case xMETA_LOOKBEHIND, xMETA_LOOKBEHINDNOT, xMETA_LOOKBEHIND_NA:
 				if !set_lookbehind_lengths(&pptr, errcodeptr, lcptr, recurses, cb) {
 					return -1
 				}
 
-			case META_BACKREF_BYNAME, META_RECURSE_BYNAME:
-				if code == META_BACKREF_BYNAME && (cb.externalOptions&PCRE2_MATCH_UNSET_BACKREF) != 0 {
+			case xMETA_BACKREF_BYNAME, xMETA_RECURSE_BYNAME:
+				if code == xMETA_BACKREF_BYNAME && (cb.externalOptions&PCRE2_MATCH_UNSET_BACKREF) != 0 {
 					label = glNotFixed
 					break
 				}
 				{
 					isDupname := false
-					metaCode := META_CODE(pp[pptr])
+					metaCode := xMETA_CODE(pp[pptr])
 					pptr++
 					length := pp[pptr]
-					offset, pptr = GETPLUSOFFSET(pp, pptr)
+					offset, pptr = xGETPLUSOFFSET(pp, pptr)
 					name := cb.startPattern[offset:]
 					for i := 0; i < int(cb.namesFound); i++ {
 						ng := &cb.namedGroups[i]
@@ -257,11 +257,11 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 						}
 					}
 					if group == 0 {
-						*errcodeptr = ERR15
+						*errcodeptr = xERR15
 						cb.erroroffset = offset
 						return -1
 					}
-					if metaCode == META_RECURSE_BYNAME ||
+					if metaCode == xMETA_RECURSE_BYNAME ||
 						(!isDupname && (cb.externalFlags&PCRE2_DUPCAPUSED) == 0) {
 						label = glRecurseOrBackref
 					} else {
@@ -269,13 +269,13 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 					}
 				}
 
-			case META_BACKREF:
+			case xMETA_BACKREF:
 				if (cb.externalOptions&PCRE2_MATCH_UNSET_BACKREF) != 0 ||
 					(cb.externalFlags&PCRE2_DUPCAPUSED) != 0 {
 					label = glNotFixed
 					break
 				}
-				group = META_DATA(pp[pptr])
+				group = xMETA_DATA(pp[pptr])
 				if group < 10 {
 					offset = cb.smallRefOffset[group]
 					label = glRecurseOrBackref
@@ -283,45 +283,45 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 				}
 				fallthrough
 
-			case META_RECURSE:
-				group = META_DATA(pp[pptr])
-				offset, pptr = GETPLUSOFFSET(pp, pptr)
+			case xMETA_RECURSE:
+				group = xMETA_DATA(pp[pptr])
+				offset, pptr = xGETPLUSOFFSET(pp, pptr)
 				label = glRecurseOrBackref
 
-			case META_COND_DEFINE:
-				pptr = parsed_skip(pp, pptr+1, PSKIP_KET)
+			case xMETA_COND_DEFINE:
+				pptr = parsed_skip(pp, pptr+1, xPSKIP_KET)
 				if pptr < 0 {
 					// C would dereference NULL later; report as skip failure.
-					*errcodeptr = ERR90
+					*errcodeptr = xERR90
 					return -1
 				}
 
-			case META_COND_NAME, META_COND_NUMBER, META_COND_RNAME, META_COND_RNUMBER:
-				pptr += 2 + SIZEOFFSET
+			case xMETA_COND_NAME, xMETA_COND_NUMBER, xMETA_COND_RNAME, xMETA_COND_RNUMBER:
+				pptr += 2 + xSIZEOFFSET
 				label = glCheckGroup
 
-			case META_COND_ASSERT:
+			case xMETA_COND_ASSERT:
 				pptr += 1
 				label = glCheckGroup
 
-			case META_COND_VERSION:
+			case xMETA_COND_VERSION:
 				pptr += 4
 				label = glCheckGroup
 
-			case META_CAPTURE:
-				group = META_DATA(pp[pptr])
+			case xMETA_CAPTURE:
+				group = xMETA_DATA(pp[pptr])
 				pptr++
 				label = glCheckGroup
 
-			case META_ATOMIC, META_NOCAPTURE, META_SCRIPT_RUN:
+			case xMETA_ATOMIC, xMETA_NOCAPTURE, xMETA_SCRIPT_RUN:
 				pptr++
 				label = glCheckGroup
 
-			case META_QUERY, META_QUERY_PLUS, META_QUERY_QUERY:
+			case xMETA_QUERY, xMETA_QUERY_PLUS, xMETA_QUERY_QUERY:
 				min, max = 0, 1
 				label = glRepetition
 
-			case META_MINMAX, META_MINMAX_PLUS, META_MINMAX_QUERY:
+			case xMETA_MINMAX, xMETA_MINMAX_PLUS, xMETA_MINMAX_QUERY:
 				min = pp[pptr+1]
 				max = pp[pptr+2]
 				pptr += 2
@@ -335,28 +335,28 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 			case glRecurseOrBackref:
 				if group > cb.bracount {
 					cb.erroroffset = offset
-					*errcodeptr = ERR15
+					*errcodeptr = xERR15
 					return -1
 				}
 				if group == 0 {
-					*errcodeptr = ERR25
+					*errcodeptr = xERR25
 					return -1
 				}
 				gptr := 0
-				for ; pp[gptr] != META_END; gptr++ {
-					if META_CODE(pp[gptr]) == META_BIGVALUE {
+				for ; pp[gptr] != xMETA_END; gptr++ {
+					if xMETA_CODE(pp[gptr]) == xMETA_BIGVALUE {
 						gptr++
-					} else if pp[gptr] == (META_CAPTURE | group) {
+					} else if pp[gptr] == (xMETA_CAPTURE | group) {
 						break
 					}
 				}
-				gptrend := parsed_skip(pp, gptr+1, PSKIP_KET)
+				gptrend := parsed_skip(pp, gptr+1, xPSKIP_KET)
 				if gptrend < 0 {
-					*errcodeptr = ERR90
+					*errcodeptr = xERR90
 					return -1
 				}
 				if pptr > gptr && pptr < gptrend {
-					*errcodeptr = ERR25
+					*errcodeptr = xERR25
 					return -1
 				}
 				var r *parsed_recurse_check
@@ -366,7 +366,7 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 					}
 				}
 				if r != nil {
-					*errcodeptr = ERR25
+					*errcodeptr = xERR25
 					return -1
 				}
 				thisRecurse := parsed_recurse_check{prev: recurses, groupptr: gptr}
@@ -376,7 +376,7 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 					lcptr, int(group), &thisRecurse, cb)
 				if grouplength < 0 {
 					if *errcodeptr == 0 {
-						*errcodeptr = ERR25
+						*errcodeptr = xERR25
 					}
 					return -1
 				}
@@ -394,10 +394,10 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 				itemminlength = uint32(groupminlength)
 
 			case glRepetition:
-				if max != REPEAT_UNLIMITED {
+				if max != xREPEAT_UNLIMITED {
 					if lastitemlength != 0 && max != 0 &&
 						uint32((intMax-branchlength))/lastitemlength < max-1 {
-						*errcodeptr = ERR87
+						*errcodeptr = xERR87
 						return -1
 					}
 					if min == 0 {
@@ -412,22 +412,22 @@ func get_branchlength(pptrptr *int, minptr *int, errcodeptr *int, lcptr *int,
 					}
 					break
 				}
-				*errcodeptr = ERR25
+				*errcodeptr = xERR25
 				return -1
 
 			case glNotFixed:
-				*errcodeptr = ERR25
+				*errcodeptr = xERR25
 				return -1
 			}
 		}
 
 		if intMax-branchlength < int(int32(itemlength)) {
-			*errcodeptr = ERR87
+			*errcodeptr = xERR87
 			return -1
 		}
 		branchlength += int(int32(itemlength))
-		if branchlength > LOOKBEHIND_MAX {
-			*errcodeptr = ERR87
+		if branchlength > xLOOKBEHIND_MAX {
+			*errcodeptr = xERR87
 			return -1
 		}
 		branchminlength += int(int32(itemminlength))
@@ -452,8 +452,8 @@ func set_lookbehind_lengths(pptrptr *int, errcodeptr *int, lcptr *int,
 	minlength := intMax
 	variable := false
 
-	offset := READPLUSOFFSET(pp, bptr)
-	*pptrptr += SIZEOFFSET
+	offset := xREADPLUSOFFSET(pp, bptr)
+	*pptrptr += xSIZEOFFSET
 
 	for {
 		*pptrptr += 1
@@ -461,7 +461,7 @@ func set_lookbehind_lengths(pptrptr *int, errcodeptr *int, lcptr *int,
 		branchlength := get_branchlength(pptrptr, &branchminlength, errcodeptr, lcptr, recurses, cb)
 		if branchlength < 0 {
 			if *errcodeptr == 0 {
-				*errcodeptr = ERR25
+				*errcodeptr = xERR25
 			}
 			if cb.erroroffset == PCRE2_UNSET {
 				cb.erroroffset = offset
@@ -482,7 +482,7 @@ func set_lookbehind_lengths(pptrptr *int, errcodeptr *int, lcptr *int,
 		}
 		pp[bptr] |= uint32(branchlength)
 		bptr = *pptrptr
-		if META_CODE(pp[bptr]) != META_ALT {
+		if xMETA_CODE(pp[bptr]) != xMETA_ALT {
 			break
 		}
 	}
@@ -490,18 +490,18 @@ func set_lookbehind_lengths(pptrptr *int, errcodeptr *int, lcptr *int,
 	if variable {
 		pp[gbptr+1] = uint32(minlength)
 		if uint32(maxlength) > cb.maxVarlookbehind {
-			*errcodeptr = ERR100
+			*errcodeptr = xERR100
 			cb.erroroffset = offset
 			return false
 		}
 	} else {
-		pp[gbptr+1] = LOOKBEHIND_MAX
+		pp[gbptr+1] = xLOOKBEHIND_MAX
 	}
 	// pcre2_compile.c:9935 repeats the assignment.
 	if variable {
 		pp[gbptr+1] = uint32(minlength)
 	} else {
-		pp[gbptr+1] = LOOKBEHIND_MAX
+		pp[gbptr+1] = xLOOKBEHIND_MAX
 	}
 	return true
 }
@@ -515,20 +515,20 @@ func check_lookbehinds(pptr int, retptr *int, recurses *parsed_recurse_check,
 
 	cb.erroroffset = PCRE2_UNSET
 
-	for ; pp[pptr] != META_END; pptr++ {
-		if pp[pptr] < META_END {
+	for ; pp[pptr] != xMETA_END; pptr++ {
+		if pp[pptr] < xMETA_END {
 			continue
 		}
-		switch META_CODE(pp[pptr]) {
+		switch xMETA_CODE(pp[pptr]) {
 		default:
-			return ERR70
+			return xERR70
 
-		case META_ESCAPE:
-			if pp[pptr]-META_ESCAPE == ESC_P || pp[pptr]-META_ESCAPE == ESC_p {
+		case xMETA_ESCAPE:
+			if pp[pptr]-xMETA_ESCAPE == xESC_P || pp[pptr]-xMETA_ESCAPE == xESC_p {
 				pptr += 1
 			}
 
-		case META_KET:
+		case xMETA_KET:
 			nestlevel--
 			if nestlevel < 0 {
 				if retptr != nil {
@@ -537,51 +537,51 @@ func check_lookbehinds(pptr int, retptr *int, recurses *parsed_recurse_check,
 				return 0
 			}
 
-		case META_ATOMIC, META_CAPTURE, META_COND_ASSERT, META_LOOKAHEAD,
-			META_LOOKAHEADNOT, META_LOOKAHEAD_NA, META_NOCAPTURE, META_SCRIPT_RUN:
+		case xMETA_ATOMIC, xMETA_CAPTURE, xMETA_COND_ASSERT, xMETA_LOOKAHEAD,
+			xMETA_LOOKAHEADNOT, xMETA_LOOKAHEAD_NA, xMETA_NOCAPTURE, xMETA_SCRIPT_RUN:
 			nestlevel++
 
-		case META_ACCEPT, META_ALT, META_ASTERISK, META_ASTERISK_PLUS,
-			META_ASTERISK_QUERY, META_BACKREF, META_CIRCUMFLEX, META_CLASS,
-			META_CLASS_EMPTY, META_CLASS_EMPTY_NOT, META_CLASS_END, META_CLASS_NOT,
-			META_COMMIT, META_DOLLAR, META_DOT, META_FAIL, META_PLUS, META_PLUS_PLUS,
-			META_PLUS_QUERY, META_PRUNE, META_QUERY, META_QUERY_PLUS, META_QUERY_QUERY,
-			META_RANGE_ESCAPED, META_RANGE_LITERAL, META_SKIP, META_THEN:
+		case xMETA_ACCEPT, xMETA_ALT, xMETA_ASTERISK, xMETA_ASTERISK_PLUS,
+			xMETA_ASTERISK_QUERY, xMETA_BACKREF, xMETA_CIRCUMFLEX, xMETA_CLASS,
+			xMETA_CLASS_EMPTY, xMETA_CLASS_EMPTY_NOT, xMETA_CLASS_END, xMETA_CLASS_NOT,
+			xMETA_COMMIT, xMETA_DOLLAR, xMETA_DOT, xMETA_FAIL, xMETA_PLUS, xMETA_PLUS_PLUS,
+			xMETA_PLUS_QUERY, xMETA_PRUNE, xMETA_QUERY, xMETA_QUERY_PLUS, xMETA_QUERY_QUERY,
+			xMETA_RANGE_ESCAPED, xMETA_RANGE_LITERAL, xMETA_SKIP, xMETA_THEN:
 
-		case META_RECURSE:
-			pptr += SIZEOFFSET
+		case xMETA_RECURSE:
+			pptr += xSIZEOFFSET
 
-		case META_BACKREF_BYNAME, META_RECURSE_BYNAME:
-			pptr += 1 + SIZEOFFSET
+		case xMETA_BACKREF_BYNAME, xMETA_RECURSE_BYNAME:
+			pptr += 1 + xSIZEOFFSET
 
-		case META_COND_DEFINE:
-			pptr += SIZEOFFSET
+		case xMETA_COND_DEFINE:
+			pptr += xSIZEOFFSET
 			nestlevel++
 
-		case META_COND_NAME, META_COND_NUMBER, META_COND_RNAME, META_COND_RNUMBER:
-			pptr += 1 + SIZEOFFSET
+		case xMETA_COND_NAME, xMETA_COND_NUMBER, xMETA_COND_RNAME, xMETA_COND_RNUMBER:
+			pptr += 1 + xSIZEOFFSET
 			nestlevel++
 
-		case META_COND_VERSION:
+		case xMETA_COND_VERSION:
 			pptr += 3
 			nestlevel++
 
-		case META_CALLOUT_STRING:
-			pptr += 3 + SIZEOFFSET
+		case xMETA_CALLOUT_STRING:
+			pptr += 3 + xSIZEOFFSET
 
-		case META_BIGVALUE, META_POSIX, META_POSIX_NEG:
+		case xMETA_BIGVALUE, xMETA_POSIX, xMETA_POSIX_NEG:
 			pptr += 1
 
-		case META_MINMAX, META_MINMAX_QUERY, META_MINMAX_PLUS, META_OPTIONS:
+		case xMETA_MINMAX, xMETA_MINMAX_QUERY, xMETA_MINMAX_PLUS, xMETA_OPTIONS:
 			pptr += 2
 
-		case META_CALLOUT_NUMBER:
+		case xMETA_CALLOUT_NUMBER:
 			pptr += 3
 
-		case META_MARK, META_COMMIT_ARG, META_PRUNE_ARG, META_SKIP_ARG, META_THEN_ARG:
+		case xMETA_MARK, xMETA_COMMIT_ARG, xMETA_PRUNE_ARG, xMETA_SKIP_ARG, xMETA_THEN_ARG:
 			pptr += 1 + int(pp[pptr+1])
 
-		case META_LOOKBEHIND, META_LOOKBEHINDNOT, META_LOOKBEHIND_NA:
+		case xMETA_LOOKBEHIND, xMETA_LOOKBEHINDNOT, xMETA_LOOKBEHIND_NA:
 			if !set_lookbehind_lengths(&pptr, &errorcode, lcptr, recurses, cb) {
 				return errorcode
 			}

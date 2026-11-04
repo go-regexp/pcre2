@@ -35,7 +35,7 @@ func (re *Code) check() int {
 		return PCRE2_ERROR_NULL
 	}
 	// Check that the first field in the block is the magic number.
-	if re.magicNumber != MAGIC_NUMBER {
+	if re.magicNumber != xMAGIC_NUMBER {
 		return PCRE2_ERROR_BADMAGIC
 	}
 	// Check that this pattern was compiled in the correct bit mode (8).
@@ -179,68 +179,68 @@ func (re *Code) CalloutEnumerate(callback func(*CalloutEnumerateBlock, any) int,
 	cc := 0
 	for {
 		switch code[cc] {
-		case OP_END:
+		case xOP_END:
 			return 0
 
-		case OP_CHAR, OP_CHARI, OP_NOT, OP_NOTI, OP_STAR, OP_MINSTAR, OP_PLUS,
-			OP_MINPLUS, OP_QUERY, OP_MINQUERY, OP_UPTO, OP_MINUPTO, OP_EXACT,
-			OP_POSSTAR, OP_POSPLUS, OP_POSQUERY, OP_POSUPTO,
-			OP_STARI, OP_MINSTARI, OP_PLUSI, OP_MINPLUSI, OP_QUERYI, OP_MINQUERYI,
-			OP_UPTOI, OP_MINUPTOI, OP_EXACTI, OP_POSSTARI, OP_POSPLUSI,
-			OP_POSQUERYI, OP_POSUPTOI,
-			OP_NOTSTAR, OP_NOTMINSTAR, OP_NOTPLUS, OP_NOTMINPLUS, OP_NOTQUERY,
-			OP_NOTMINQUERY, OP_NOTUPTO, OP_NOTMINUPTO, OP_NOTEXACT, OP_NOTPOSSTAR,
-			OP_NOTPOSPLUS, OP_NOTPOSQUERY, OP_NOTPOSUPTO,
-			OP_NOTSTARI, OP_NOTMINSTARI, OP_NOTPLUSI, OP_NOTMINPLUSI, OP_NOTQUERYI,
-			OP_NOTMINQUERYI, OP_NOTUPTOI, OP_NOTMINUPTOI, OP_NOTEXACTI,
-			OP_NOTPOSSTARI, OP_NOTPOSPLUSI, OP_NOTPOSQUERYI, OP_NOTPOSUPTOI:
-			cc += int(OP_lengths[code[cc]])
-			if utf && HAS_EXTRALEN(uint32(code[cc-1])) {
-				cc += GET_EXTRALEN(uint32(code[cc-1]))
+		case xOP_CHAR, xOP_CHARI, xOP_NOT, xOP_NOTI, xOP_STAR, xOP_MINSTAR, xOP_PLUS,
+			xOP_MINPLUS, xOP_QUERY, xOP_MINQUERY, xOP_UPTO, xOP_MINUPTO, xOP_EXACT,
+			xOP_POSSTAR, xOP_POSPLUS, xOP_POSQUERY, xOP_POSUPTO,
+			xOP_STARI, xOP_MINSTARI, xOP_PLUSI, xOP_MINPLUSI, xOP_QUERYI, xOP_MINQUERYI,
+			xOP_UPTOI, xOP_MINUPTOI, xOP_EXACTI, xOP_POSSTARI, xOP_POSPLUSI,
+			xOP_POSQUERYI, xOP_POSUPTOI,
+			xOP_NOTSTAR, xOP_NOTMINSTAR, xOP_NOTPLUS, xOP_NOTMINPLUS, xOP_NOTQUERY,
+			xOP_NOTMINQUERY, xOP_NOTUPTO, xOP_NOTMINUPTO, xOP_NOTEXACT, xOP_NOTPOSSTAR,
+			xOP_NOTPOSPLUS, xOP_NOTPOSQUERY, xOP_NOTPOSUPTO,
+			xOP_NOTSTARI, xOP_NOTMINSTARI, xOP_NOTPLUSI, xOP_NOTMINPLUSI, xOP_NOTQUERYI,
+			xOP_NOTMINQUERYI, xOP_NOTUPTOI, xOP_NOTMINUPTOI, xOP_NOTEXACTI,
+			xOP_NOTPOSSTARI, xOP_NOTPOSPLUSI, xOP_NOTPOSQUERYI, xOP_NOTPOSUPTOI:
+			cc += int(xOP_lengths[code[cc]])
+			if utf && xHAS_EXTRALEN(uint32(code[cc-1])) {
+				cc += xGET_EXTRALEN(uint32(code[cc-1]))
 			}
 
-		case OP_TYPESTAR, OP_TYPEMINSTAR, OP_TYPEPLUS, OP_TYPEMINPLUS,
-			OP_TYPEQUERY, OP_TYPEMINQUERY, OP_TYPEUPTO, OP_TYPEMINUPTO,
-			OP_TYPEEXACT, OP_TYPEPOSSTAR, OP_TYPEPOSPLUS, OP_TYPEPOSQUERY,
-			OP_TYPEPOSUPTO:
-			cc += int(OP_lengths[code[cc]])
-			if code[cc-1] == OP_PROP || code[cc-1] == OP_NOTPROP {
+		case xOP_TYPESTAR, xOP_TYPEMINSTAR, xOP_TYPEPLUS, xOP_TYPEMINPLUS,
+			xOP_TYPEQUERY, xOP_TYPEMINQUERY, xOP_TYPEUPTO, xOP_TYPEMINUPTO,
+			xOP_TYPEEXACT, xOP_TYPEPOSSTAR, xOP_TYPEPOSPLUS, xOP_TYPEPOSQUERY,
+			xOP_TYPEPOSUPTO:
+			cc += int(xOP_lengths[code[cc]])
+			if code[cc-1] == xOP_PROP || code[cc-1] == xOP_NOTPROP {
 				cc += 2
 			}
 
-		case OP_XCLASS:
-			cc += GET(code, cc+1)
+		case xOP_XCLASS:
+			cc += xGET(code, cc+1)
 
-		case OP_MARK, OP_COMMIT_ARG, OP_PRUNE_ARG, OP_SKIP_ARG, OP_THEN_ARG:
-			cc += int(OP_lengths[code[cc]]) + int(code[cc+1])
+		case xOP_MARK, xOP_COMMIT_ARG, xOP_PRUNE_ARG, xOP_SKIP_ARG, xOP_THEN_ARG:
+			cc += int(xOP_lengths[code[cc]]) + int(code[cc+1])
 
-		case OP_CALLOUT:
-			cb.PatternPosition = uint64(GET(code, cc+1))
-			cb.NextItemLength = uint64(GET(code, cc+1+LINK_SIZE))
-			cb.CalloutNumber = uint32(code[cc+1+2*LINK_SIZE])
+		case xOP_CALLOUT:
+			cb.PatternPosition = uint64(xGET(code, cc+1))
+			cb.NextItemLength = uint64(xGET(code, cc+1+xLINK_SIZE))
+			cb.CalloutNumber = uint32(code[cc+1+2*xLINK_SIZE])
 			cb.CalloutStringOffset = 0
 			cb.CalloutStringLength = 0
 			cb.CalloutString = nil
 			if rc := callback(&cb, calloutData); rc != 0 {
 				return rc
 			}
-			cc += int(OP_lengths[code[cc]])
+			cc += int(xOP_lengths[code[cc]])
 
-		case OP_CALLOUT_STR:
-			cb.PatternPosition = uint64(GET(code, cc+1))
-			cb.NextItemLength = uint64(GET(code, cc+1+LINK_SIZE))
+		case xOP_CALLOUT_STR:
+			cb.PatternPosition = uint64(xGET(code, cc+1))
+			cb.NextItemLength = uint64(xGET(code, cc+1+xLINK_SIZE))
 			cb.CalloutNumber = 0
-			cb.CalloutStringOffset = uint64(GET(code, cc+1+3*LINK_SIZE))
-			cb.CalloutStringLength = uint64(GET(code, cc+1+2*LINK_SIZE) - (1 + 4*LINK_SIZE) - 2)
-			cb.CalloutString = code[cc+(1+4*LINK_SIZE)+1:]
+			cb.CalloutStringOffset = uint64(xGET(code, cc+1+3*xLINK_SIZE))
+			cb.CalloutStringLength = uint64(xGET(code, cc+1+2*xLINK_SIZE) - (1 + 4*xLINK_SIZE) - 2)
+			cb.CalloutString = code[cc+(1+4*xLINK_SIZE)+1:]
 			cb.CalloutString = cb.CalloutString[:cb.CalloutStringLength]
 			if rc := callback(&cb, calloutData); rc != 0 {
 				return rc
 			}
-			cc += GET(code, cc+1+2*LINK_SIZE)
+			cc += xGET(code, cc+1+2*xLINK_SIZE)
 
 		default:
-			cc += int(OP_lengths[code[cc]])
+			cc += int(xOP_lengths[code[cc]])
 		}
 	}
 }

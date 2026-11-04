@@ -50,7 +50,7 @@ func (mb *matchBlock) wideChar(F *heapframe) bool {
 // offset mapAddr (pcre2_match.c:2041).
 func (mb *matchBlock) classHas(mapAddr int, op uint8, fc uint32) bool {
 	if fc > 255 {
-		return op != OP_CLASS
+		return op != xOP_CLASS
 	}
 	return mb.startCode[mapAddr+int(fc/8)]&(1<<(fc&7)) != 0
 }
@@ -59,25 +59,25 @@ func (mb *matchBlock) classHas(mapAddr int, op uint8, fc uint32) bool {
 // OP_NOT_VSPACE (pcre2_match.c:2305); limit is 256 (CHMAX_255).
 func (mb *matchBlock) simpleType(op int, fc uint32, limit uint32) bool {
 	switch op {
-	case OP_NOT_DIGIT:
+	case xOP_NOT_DIGIT:
 		return !(fc < limit && mb.ctypes[fc]&ctype_digit != 0)
-	case OP_DIGIT:
+	case xOP_DIGIT:
 		return fc < limit && mb.ctypes[fc]&ctype_digit != 0
-	case OP_NOT_WHITESPACE:
+	case xOP_NOT_WHITESPACE:
 		return !(fc < limit && mb.ctypes[fc]&ctype_space != 0)
-	case OP_WHITESPACE:
+	case xOP_WHITESPACE:
 		return fc < limit && mb.ctypes[fc]&ctype_space != 0
-	case OP_NOT_WORDCHAR:
+	case xOP_NOT_WORDCHAR:
 		return !(fc < limit && mb.ctypes[fc]&ctype_word != 0)
-	case OP_WORDCHAR:
+	case xOP_WORDCHAR:
 		return fc < limit && mb.ctypes[fc]&ctype_word != 0
-	case OP_NOT_HSPACE:
+	case xOP_NOT_HSPACE:
 		return !isHspace(fc)
-	case OP_HSPACE:
+	case xOP_HSPACE:
 		return isHspace(fc)
-	case OP_NOT_VSPACE:
+	case xOP_NOT_VSPACE:
 		return !isVspace(fc)
-	case OP_VSPACE:
+	case xOP_VSPACE:
 		return isVspace(fc)
 	}
 	return false
@@ -107,56 +107,56 @@ func (mb *matchBlock) typeStep(F *heapframe, utf bool, limit uint32) int {
 	ctype := int(F.temp32[2])
 	if F.tempSize >= 0 { // property test
 		var fc uint32
-		fc, F.eptr = GETCHARINCTEST(utf, subj, F.eptr)
+		fc, F.eptr = xGETCHARINCTEST(utf, subj, F.eptr)
 		res, ok := propTest(F.tempSize, fc, F.temp32[3])
 		if !ok {
 			return stepInternal
 		}
-		if res == (ctype == OP_NOTPROP) {
+		if res == (ctype == xOP_NOTPROP) {
 			return stepNoMatch
 		}
 		return stepOK
 	}
-	if ctype == OP_EXTUNI {
+	if ctype == xOP_EXTUNI {
 		var fc uint32
-		fc, F.eptr = GETCHARINCTEST(utf, subj, F.eptr)
+		fc, F.eptr = xGETCHARINCTEST(utf, subj, F.eptr)
 		F.eptr = extuni(fc, subj, F.eptr, 0, mb.endSubject, utf, nil)
 		if mb.checkPartial(F.eptr) {
 			return stepPartial
 		}
 		return stepOK
 	}
-	if ctype == OP_ANY && mb.isNewline(F.eptr) {
+	if ctype == xOP_ANY && mb.isNewline(F.eptr) {
 		return stepNoMatch
 	}
 	var fc uint32
-	fc, F.eptr = GETCHARINCTEST(utf, subj, F.eptr)
+	fc, F.eptr = xGETCHARINCTEST(utf, subj, F.eptr)
 	switch ctype {
-	case OP_ANY: // This is the non-NL case; take care with CRLF partial
-		if mb.partial != 0 && F.eptr >= mb.endSubject && mb.nltype == NLTYPE_FIXED &&
+	case xOP_ANY: // This is the non-NL case; take care with CRLF partial
+		if mb.partial != 0 && F.eptr >= mb.endSubject && mb.nltype == xNLTYPE_FIXED &&
 			mb.nllen == 2 && fc == uint32(mb.nl[0]) {
 			mb.hitend = true
 			if mb.partial > 1 {
 				return stepPartial
 			}
 		}
-	case OP_ALLANY, OP_ANYBYTE:
-	case OP_ANYNL:
+	case xOP_ALLANY, xOP_ANYBYTE:
+	case xOP_ANYNL:
 		switch fc {
-		case CHAR_CR:
-			if F.eptr < mb.endSubject && subj[F.eptr] == CHAR_LF {
+		case xCHAR_CR:
+			if F.eptr < mb.endSubject && subj[F.eptr] == xCHAR_LF {
 				F.eptr++
 			}
-		case CHAR_LF:
-		case CHAR_VT, CHAR_FF, CHAR_NEL, 0x2028, 0x2029:
+		case xCHAR_LF:
+		case xCHAR_VT, xCHAR_FF, xCHAR_NEL, 0x2028, 0x2029:
 			if mb.bsrConvention == PCRE2_BSR_ANYCRLF {
 				return stepNoMatch
 			}
 		default:
 			return stepNoMatch
 		}
-	case OP_NOT_HSPACE, OP_HSPACE, OP_NOT_VSPACE, OP_VSPACE, OP_NOT_DIGIT, OP_DIGIT,
-		OP_NOT_WHITESPACE, OP_WHITESPACE, OP_NOT_WORDCHAR, OP_WORDCHAR:
+	case xOP_NOT_HSPACE, xOP_HSPACE, xOP_NOT_VSPACE, xOP_VSPACE, xOP_NOT_DIGIT, xOP_DIGIT,
+		xOP_NOT_WHITESPACE, xOP_WHITESPACE, xOP_NOT_WORDCHAR, xOP_WORDCHAR:
 		if !mb.simpleType(ctype, fc, limit) {
 			return stepNoMatch
 		}
@@ -180,20 +180,20 @@ func (mb *matchBlock) typeMaxStep(F *heapframe, utf bool) (adv, partial, bad boo
 	}
 	ctype := int(F.temp32[2])
 	if F.tempSize >= 0 {
-		fc, ex := GETCHARLENTEST(utf, subj, F.eptr)
+		fc, ex := xGETCHARLENTEST(utf, subj, F.eptr)
 		res, ok := propTest(F.tempSize, fc, F.temp32[3])
 		if !ok {
 			return false, false, true
 		}
-		if res == (ctype == OP_NOTPROP) {
+		if res == (ctype == xOP_NOTPROP) {
 			return false, false, false
 		}
 		F.eptr += 1 + ex
 		return true, false, false
 	}
-	if ctype == OP_EXTUNI {
+	if ctype == xOP_EXTUNI {
 		var fc uint32
-		fc, F.eptr = GETCHARINCTEST(utf, subj, F.eptr)
+		fc, F.eptr = xGETCHARINCTEST(utf, subj, F.eptr)
 		F.eptr = extuni(fc, subj, F.eptr, 0, mb.endSubject, utf, nil)
 		if mb.checkPartial(F.eptr) {
 			return false, true, false
@@ -201,11 +201,11 @@ func (mb *matchBlock) typeMaxStep(F *heapframe, utf bool) (adv, partial, bad boo
 		return true, false, false
 	}
 	switch ctype {
-	case OP_ANY:
+	case xOP_ANY:
 		if mb.isNewline(F.eptr) {
 			return false, false, false
 		}
-		if mb.partial != 0 && F.eptr+1 >= mb.endSubject && mb.nltype == NLTYPE_FIXED &&
+		if mb.partial != 0 && F.eptr+1 >= mb.endSubject && mb.nltype == xNLTYPE_FIXED &&
 			mb.nllen == 2 && subj[F.eptr] == mb.nl[0] {
 			mb.hitend = true
 			if mb.partial > 1 {
@@ -217,31 +217,31 @@ func (mb *matchBlock) typeMaxStep(F *heapframe, utf bool) (adv, partial, bad boo
 			F.eptr = acrossChar(subj, F.eptr, mb.endSubject)
 		}
 		return true, false, false
-	case OP_ALLANY: // limited UTF repeat (the unlimited and non-UTF cases are bulk)
+	case xOP_ALLANY: // limited UTF repeat (the unlimited and non-UTF cases are bulk)
 		F.eptr++
 		F.eptr = acrossChar(subj, F.eptr, mb.endSubject)
 		return true, false, false
-	case OP_ANYNL:
-		fc, ex := GETCHARLENTEST(utf, subj, F.eptr)
-		if fc == CHAR_CR {
+	case xOP_ANYNL:
+		fc, ex := xGETCHARLENTEST(utf, subj, F.eptr)
+		if fc == xCHAR_CR {
 			F.eptr++
 			if F.eptr >= mb.endSubject {
 				return false, false, false
 			}
-			if subj[F.eptr] == CHAR_LF {
+			if subj[F.eptr] == xCHAR_LF {
 				F.eptr++
 			}
 			return true, false, false
 		}
-		if fc != CHAR_LF && (mb.bsrConvention == PCRE2_BSR_ANYCRLF ||
-			(fc != CHAR_VT && fc != CHAR_FF && fc != CHAR_NEL && fc != 0x2028 && fc != 0x2029)) {
+		if fc != xCHAR_LF && (mb.bsrConvention == PCRE2_BSR_ANYCRLF ||
+			(fc != xCHAR_VT && fc != xCHAR_FF && fc != xCHAR_NEL && fc != 0x2028 && fc != 0x2029)) {
 			return false, false, false
 		}
 		F.eptr += 1 + ex
 		return true, false, false
-	case OP_NOT_HSPACE, OP_HSPACE, OP_NOT_VSPACE, OP_VSPACE, OP_NOT_DIGIT, OP_DIGIT,
-		OP_NOT_WHITESPACE, OP_WHITESPACE, OP_NOT_WORDCHAR, OP_WORDCHAR:
-		fc, ex := GETCHARLENTEST(utf, subj, F.eptr)
+	case xOP_NOT_HSPACE, xOP_HSPACE, xOP_NOT_VSPACE, xOP_VSPACE, xOP_NOT_DIGIT, xOP_DIGIT,
+		xOP_NOT_WHITESPACE, xOP_WHITESPACE, xOP_NOT_WORDCHAR, xOP_WORDCHAR:
+		fc, ex := xGETCHARLENTEST(utf, subj, F.eptr)
 		if !mb.simpleType(ctype, fc, 256) {
 			return false, false, false
 		}
@@ -260,7 +260,7 @@ func matchBool32(b bool) uint32 {
 
 // ucpIsWord is the PCRE2_UCP word test of the \b code (pcre2_match.c:6285).
 func ucpIsWord(fc uint32) bool {
-	ct := UCD_CHARTYPE(fc)
+	ct := xUCD_CHARTYPE(fc)
 	cat := ucp_gentype[ct]
 	return cat == ucp_L || cat == ucp_N || uint32(ct) == ucp_Mn || uint32(ct) == ucp_Pc
 }

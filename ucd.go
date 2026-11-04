@@ -16,68 +16,68 @@ var dummy_ucd_record = ucdRecord{
 	gbprop:           ucp_gbOther,
 	caseset:          0,
 	otherCase:        0,
-	scriptxBidiclass: 0 | ucp_bidiL<<UCD_BIDICLASS_SHIFT,
+	scriptxBidiclass: 0 | ucp_bidiL<<xUCD_BIDICLASS_SHIFT,
 	bprops:           0,
 }
 
 // REAL_GET_UCD returns the record of ch (pcre2_internal.h:1865). ch must not
 // exceed MAX_UTF_CODE_POINT.
-func REAL_GET_UCD(ch uint32) *ucdRecord {
-	return &ucd_records[ucd_stage2[uint32(ucd_stage1[ch/UCD_BLOCK_SIZE])*UCD_BLOCK_SIZE+ch%UCD_BLOCK_SIZE]]
+func xREAL_GET_UCD(ch uint32) *ucdRecord {
+	return &ucd_records[ucd_stage2[uint32(ucd_stage1[ch/xUCD_BLOCK_SIZE])*xUCD_BLOCK_SIZE+ch%xUCD_BLOCK_SIZE]]
 }
 
 // GET_UCD returns the record of ch (pcre2_internal.h:1869-1874). In 8-bit mode
 // the C macro is REAL_GET_UCD; values above MAX_UTF_CODE_POINT, which C does
 // not define, get dummy_ucd_record (see there).
-func GET_UCD(ch uint32) *ucdRecord {
-	if ch > MAX_UTF_CODE_POINT {
+func xGET_UCD(ch uint32) *ucdRecord {
+	if ch > xMAX_UTF_CODE_POINT {
 		return &dummy_ucd_record
 	}
-	return REAL_GET_UCD(ch)
+	return xREAL_GET_UCD(ch)
 }
 
 // UCD_SCRIPTX_PROP is the script extension offset of a record.
-func UCD_SCRIPTX_PROP(prop *ucdRecord) uint32 {
-	return uint32(prop.scriptxBidiclass) & UCD_SCRIPTX_MASK
+func xUCD_SCRIPTX_PROP(prop *ucdRecord) uint32 {
+	return uint32(prop.scriptxBidiclass) & xUCD_SCRIPTX_MASK
 }
 
 // UCD_BIDICLASS_PROP is the bidi class of a record.
-func UCD_BIDICLASS_PROP(prop *ucdRecord) uint32 {
-	return uint32(prop.scriptxBidiclass) >> UCD_BIDICLASS_SHIFT
+func xUCD_BIDICLASS_PROP(prop *ucdRecord) uint32 {
+	return uint32(prop.scriptxBidiclass) >> xUCD_BIDICLASS_SHIFT
 }
 
 // UCD_BPROPS_PROP is the binary properties offset of a record.
-func UCD_BPROPS_PROP(prop *ucdRecord) uint32 {
-	return uint32(prop.bprops) & UCD_BPROPS_MASK
+func xUCD_BPROPS_PROP(prop *ucdRecord) uint32 {
+	return uint32(prop.bprops) & xUCD_BPROPS_MASK
 }
 
 // UCD_CHARTYPE is the general category (ucp_Lu ...) of ch.
-func UCD_CHARTYPE(ch uint32) uint8 { return GET_UCD(ch).chartype }
+func xUCD_CHARTYPE(ch uint32) uint8 { return xGET_UCD(ch).chartype }
 
 // UCD_SCRIPT is the script (ucp_Latin ...) of ch.
-func UCD_SCRIPT(ch uint32) uint8 { return GET_UCD(ch).script }
+func xUCD_SCRIPT(ch uint32) uint8 { return xGET_UCD(ch).script }
 
 // UCD_CATEGORY is the general category group (ucp_L ...) of ch.
-func UCD_CATEGORY(ch uint32) uint32 { return ucp_gentype[UCD_CHARTYPE(ch)] }
+func xUCD_CATEGORY(ch uint32) uint32 { return ucp_gentype[xUCD_CHARTYPE(ch)] }
 
 // UCD_GRAPHBREAK is the grapheme break property of ch.
-func UCD_GRAPHBREAK(ch uint32) uint8 { return GET_UCD(ch).gbprop }
+func xUCD_GRAPHBREAK(ch uint32) uint8 { return xGET_UCD(ch).gbprop }
 
 // UCD_CASESET is the offset into ucd_caseless_sets of ch's multi-character
 // case set, or zero.
-func UCD_CASESET(ch uint32) uint8 { return GET_UCD(ch).caseset }
+func xUCD_CASESET(ch uint32) uint8 { return xGET_UCD(ch).caseset }
 
 // UCD_OTHERCASE is the other case of ch (ch itself when there is none).
 // C: (uint32_t)((int)ch + (int)(GET_UCD(ch)->other_case)).
-func UCD_OTHERCASE(ch uint32) uint32 {
-	return uint32(int32(ch) + GET_UCD(ch).otherCase)
+func xUCD_OTHERCASE(ch uint32) uint32 {
+	return uint32(int32(ch) + xGET_UCD(ch).otherCase)
 }
 
 // UCD_SCRIPTX is the script extension offset of ch.
-func UCD_SCRIPTX(ch uint32) uint32 { return UCD_SCRIPTX_PROP(GET_UCD(ch)) }
+func xUCD_SCRIPTX(ch uint32) uint32 { return xUCD_SCRIPTX_PROP(xGET_UCD(ch)) }
 
 // UCD_BPROPS is the binary properties offset of ch.
-func UCD_BPROPS(ch uint32) uint32 { return UCD_BPROPS_PROP(GET_UCD(ch)) }
+func xUCD_BPROPS(ch uint32) uint32 { return xUCD_BPROPS_PROP(xGET_UCD(ch)) }
 
 // UCD_BIDICLASS is the bidi class of ch.
-func UCD_BIDICLASS(ch uint32) uint32 { return UCD_BIDICLASS_PROP(GET_UCD(ch)) }
+func xUCD_BIDICLASS(ch uint32) uint32 { return xUCD_BIDICLASS_PROP(xGET_UCD(ch)) }

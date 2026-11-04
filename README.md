@@ -14,27 +14,39 @@ its notice is kept verbatim in
 
 ## Status
 
-The foundation is in place: public constants (`consts_gen.go`), internal
-constants, opcodes and tables (`internal*.go`, `tables.go`), the Unicode
-database (`ucd_tables.go`, `ucptables.go`, `ucd.go`), `xclass`, `extuni`,
-`script_run`, error messages, contexts, match data, `PatternInfo`,
-`Config`, the `Substring*` family, UTF-8 validation. `Compile` is the port of
-`pcre2_compile.c` (`compile*.go`, with `auto_possess.go`, `study.go` and
-`printint.go` for `pcre2_printint.c`): it produces the same bytecode and the
-same error codes and offsets as libpcre2 10.44. `Match` delegates to
-`matchImpl`, supplied by the port of `pcre2_match.c` (until then
-`stub_match.go` returns `PCRE2_ERROR_INTERNAL`).
+v0.1.0. `Compile` is the port of `pcre2_compile.c` (with `auto_possess.go`,
+`study.go`, `printint.go`) and produces the same bytecode, error codes and
+offsets as libpcre2 10.44; `Match` is the port of `pcre2_match.c` (heap-frame
+matcher, start optimisations, partial matching, limits). The public surface is
+the `pcre2_*` C API: `Compile`, `Match`, the contexts, `MatchData`,
+`PatternInfo`/`NameTable`, the `Substring*` family, `GetErrorMessage`, `Config`,
+`Maketables`, `ValidUTF`, and the `PCRE2_*` constants. The macros and tables are
+unexported.
+
+- **No JIT.** Like a libpcre2 built without JIT, `JITCompile` returns
+  `PCRE2_ERROR_JIT_BADOPTION`; the JIT stack functions are no-ops.
+- **Unicode 15.0.0** (the version of PCRE2 10.44).
+- **Not ported yet:** the DFA matcher (`pcre2_dfa_match.c`), `pcre2_substitute.c`,
+  `pcre2_convert.c`, serialization and the POSIX wrapper.
+- **Conformance:** 5429 of the 7155 cases of PCRE2's own testinput files that
+  apply to this build pass (75.9%); 2 fail; 1724 need a feature listed above
+  (the DFA files testinput6, 7, 14, substitute, convert). Every non-DFA case that
+  needs only compile and match passes except those two.
+- **Speed** against `pcre2test -t` (non-JIT, one core) is not measured yet
+  (the machine load was too high); `tools/bench` is ready for it.
 
 ## Layout and conventions
 
-- C names are kept (`PCRE2_CASELESS`, `OP_CBRA`, `GET`, `PUT`, `UCD_SCRIPT`);
+- C names are kept (`PCRE2_CASELESS`, `Compile`; internal macros and opcodes
+  are unexported with an `x` prefix by `tools/apisurface`, so `GET` is `xGET`);
   C functions are Go-cased; sizes and offsets are `uint64`; an offset into a
   subject or pattern is an `int` index into a `[]byte`.
 - The compiled pattern (`Code`) keeps PCRE2's byte layout: name table then
   opcodes, 2-byte big-endian links.
 - Constants are generated from the C headers (`go generate ./...` with
   `PCRE2_SRC` and `PCRE2_BUILD` set, see `gen.go`): `tools/cdefs` for the
-  `#define`/`enum` text and `tools/ucdgen` for the Unicode tables.
+  `#define`/`enum` text and `tools/ucdgen` for the Unicode tables. After
+regenerating, run `go run ./tools/apisurface -w .` to unexport the internals again.
 
 ## Tests
 

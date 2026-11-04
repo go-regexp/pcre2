@@ -40,18 +40,18 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 		options |= PCRE2_UTF
 	}
 
-	if options&^uint32(PUBLIC_COMPILE_OPTIONS) != 0 ||
-		ccontext.extraOptions&^uint32(PUBLIC_COMPILE_EXTRA_OPTIONS) != 0 {
-		return nil, ERR17, 0
+	if options&^uint32(xPUBLIC_COMPILE_OPTIONS) != 0 ||
+		ccontext.extraOptions&^uint32(xPUBLIC_COMPILE_EXTRA_OPTIONS) != 0 {
+		return nil, xERR17, 0
 	}
 	if options&PCRE2_LITERAL != 0 &&
-		(options&^uint32(PUBLIC_LITERAL_COMPILE_OPTIONS) != 0 ||
-			ccontext.extraOptions&^uint32(PUBLIC_LITERAL_COMPILE_EXTRA_OPTIONS) != 0) {
-		return nil, ERR92, 0
+		(options&^uint32(xPUBLIC_LITERAL_COMPILE_OPTIONS) != 0 ||
+			ccontext.extraOptions&^uint32(xPUBLIC_LITERAL_COMPILE_EXTRA_OPTIONS) != 0) {
+		return nil, xERR92, 0
 	}
 
 	if patlen > ccontext.maxPatternLength {
-		return nil, ERR88, 0
+		return nil, xERR88, 0
 	}
 
 	// ------------ Initialize the "static" compile data --------------
@@ -64,7 +64,7 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 	cb.cbits = tables[cbits_offset:]
 	cb.ctypes = tables[ctypes_offset:]
 
-	cworkspace := make([]byte, COMPILE_WORK_SIZE*4)
+	cworkspace := make([]byte, xCOMPILE_WORK_SIZE*4)
 
 	cb.assertDepth = 0
 	cb.bracount = 0
@@ -74,22 +74,22 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 	cb.erroroffset = 0
 	cb.externalFlags = 0
 	cb.externalOptions = options
-	cb.groupinfo = make([]uint32, GROUPINFO_DEFAULT_SIZE)
+	cb.groupinfo = make([]uint32, xGROUPINFO_DEFAULT_SIZE)
 	cb.hadRecurse = false
 	cb.lastcapture = 0
 	cb.maxLookbehind = 0
 	cb.maxVarlookbehind = ccontext.maxVarlookbehind
 	cb.nameEntrySize = 0
 	cb.nameTable = nil
-	cb.namedGroups = make([]named_group, NAMED_GROUP_LIST_SIZE)
-	cb.namedGroupListSize = NAMED_GROUP_LIST_SIZE
+	cb.namedGroups = make([]named_group, xNAMED_GROUP_LIST_SIZE)
+	cb.namedGroupListSize = xNAMED_GROUP_LIST_SIZE
 	cb.namesFound = 0
 	cb.parensDepth = 0
 	cb.reqVaryopt = 0
 	cb.startCode = cworkspace
 	cb.startPattern = pattern
 	cb.startWorkspace = cworkspace
-	cb.workspaceSize = COMPILE_WORK_SIZE
+	cb.workspaceSize = xCOMPILE_WORK_SIZE
 
 	cb.topBackref = 0
 	cb.backrefMap = 0
@@ -103,8 +103,8 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 
 	if options&PCRE2_LITERAL == 0 {
 		for int(patlen)-skipatstart >= 2 &&
-			pattern[skipatstart] == CHAR_LEFT_PARENTHESIS &&
-			pattern[skipatstart+1] == CHAR_ASTERISK {
+			pattern[skipatstart] == xCHAR_LEFT_PARENTHESIS &&
+			pattern[skipatstart+1] == xCHAR_ASTERISK {
 			found := false
 			for i := range pso_list {
 				p := &pso_list[i]
@@ -112,36 +112,36 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 					strncmp_c8(pattern[skipatstart+2:], p.name, uint64(p.length)) == 0 {
 					skipatstart += int(p.length) + 2
 					switch p.typ {
-					case PSO_OPT:
+					case xPSO_OPT:
 						cb.externalOptions |= p.value
-					case PSO_FLG:
+					case xPSO_FLG:
 						setflags |= p.value
-					case PSO_NL:
+					case xPSO_NL:
 						newline = int(p.value)
 						setflags |= PCRE2_NL_SET
-					case PSO_BSR:
+					case xPSO_BSR:
 						bsr = int(p.value)
 						setflags |= PCRE2_BSR_SET
-					case PSO_LIMM, PSO_LIMD, PSO_LIMH:
+					case xPSO_LIMM, xPSO_LIMD, xPSO_LIMH:
 						var c uint32
 						pp := skipatstart
-						if !IS_DIGIT(uint32(cuAt(pattern, pp))) {
-							return failEarly(ERR60, pp)
+						if !xIS_DIGIT(uint32(cuAt(pattern, pp))) {
+							return failEarly(xERR60, pp)
 						}
-						for IS_DIGIT(uint32(cuAt(pattern, pp))) {
+						for xIS_DIGIT(uint32(cuAt(pattern, pp))) {
 							if c > 0xffffffff/10-1 {
 								break
 							}
-							c = c*10 + (uint32(pattern[pp]) - CHAR_0)
+							c = c*10 + (uint32(pattern[pp]) - xCHAR_0)
 							pp++
 						}
 						pp++
-						if cuAt(pattern, pp-1) != CHAR_RIGHT_PARENTHESIS {
-							return failEarly(ERR60, pp)
+						if cuAt(pattern, pp-1) != xCHAR_RIGHT_PARENTHESIS {
+							return failEarly(xERR60, pp)
 						}
-						if p.typ == PSO_LIMH {
+						if p.typ == xPSO_LIMH {
 							limit_heap = c
-						} else if p.typ == PSO_LIMM {
+						} else if p.typ == xPSO_LIMM {
 							limit_match = c
 						} else {
 							limit_depth = c
@@ -163,7 +163,7 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 	utf := cb.externalOptions&PCRE2_UTF != 0
 	if utf {
 		if options&PCRE2_NEVER_UTF != 0 {
-			return failEarly(ERR74, ptr)
+			return failEarly(xERR74, ptr)
 		}
 		if options&PCRE2_NO_UTF_CHECK == 0 {
 			rc, off := valid_utf(pattern, patlen)
@@ -175,7 +175,7 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 
 	ucp := cb.externalOptions&PCRE2_UCP != 0
 	if ucp && cb.externalOptions&PCRE2_NEVER_UCP != 0 {
-		return failEarly(ERR75, ptr)
+		return failEarly(xERR75, ptr)
 	}
 
 	if bsr == 0 {
@@ -184,27 +184,27 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 	if newline == 0 {
 		newline = int(ccontext.newlineConvention)
 	}
-	cb.nltype = NLTYPE_FIXED
+	cb.nltype = xNLTYPE_FIXED
 	switch newline {
 	case PCRE2_NEWLINE_CR:
 		cb.nllen = 1
-		cb.nl[0] = CHAR_CR
+		cb.nl[0] = xCHAR_CR
 	case PCRE2_NEWLINE_LF:
 		cb.nllen = 1
-		cb.nl[0] = CHAR_NL
+		cb.nl[0] = xCHAR_NL
 	case PCRE2_NEWLINE_NUL:
 		cb.nllen = 1
-		cb.nl[0] = CHAR_NUL
+		cb.nl[0] = xCHAR_NUL
 	case PCRE2_NEWLINE_CRLF:
 		cb.nllen = 2
-		cb.nl[0] = CHAR_CR
-		cb.nl[1] = CHAR_NL
+		cb.nl[0] = xCHAR_CR
+		cb.nl[1] = xCHAR_NL
 	case PCRE2_NEWLINE_ANY:
-		cb.nltype = NLTYPE_ANY
+		cb.nltype = xNLTYPE_ANY
 	case PCRE2_NEWLINE_ANYCRLF:
-		cb.nltype = NLTYPE_ANYCRLF
+		cb.nltype = xNLTYPE_ANYCRLF
 	default:
-		return failEarly(ERR56, ptr)
+		return failEarly(xERR56, ptr)
 	}
 
 	parsed_size_needed := patlen - uint64(skipatstart)
@@ -214,8 +214,8 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 	if options&PCRE2_AUTO_CALLOUT != 0 {
 		parsed_size_needed = (parsed_size_needed + 1) * 5
 	}
-	psize := uint64(PARSED_PATTERN_DEFAULT_SIZE)
-	if parsed_size_needed >= PARSED_PATTERN_DEFAULT_SIZE {
+	psize := uint64(xPARSED_PATTERN_DEFAULT_SIZE)
+	if parsed_size_needed >= xPARSED_PATTERN_DEFAULT_SIZE {
 		psize = parsed_size_needed + 1
 	}
 	cb.parsedPattern = make([]uint32, psize)
@@ -232,7 +232,7 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 
 	if has_lookbehind {
 		loopcount := 0
-		if cb.bracount >= GROUPINFO_DEFAULT_SIZE/2 {
+		if cb.bracount >= xGROUPINFO_DEFAULT_SIZE/2 {
 			cb.groupinfo = make([]uint32, 2*(cb.bracount+1))
 		}
 		for i := range cb.groupinfo {
@@ -248,29 +248,29 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 	cb.erroroffset = patlen
 	pptr := 0
 	cc := 0
-	cworkspace[0] = OP_BRA
+	cworkspace[0] = xOP_BRA
 	_ = compile_regex(cb.externalOptions, ccontext.extraOptions, cworkspace, &cc, &pptr,
 		&errorcode, 0, &firstcu, &firstcuflags, &reqcu, &reqcuflags, nil, nil, &cb, &length)
 	if errorcode != 0 {
 		return hadCBError()
 	}
 
-	if length > MAX_PATTERN_SIZE {
-		errorcode = ERR20
+	if length > xMAX_PATTERN_SIZE {
+		errorcode = xERR20
 		return hadCBError()
 	}
 
 	nametab := uint64(cb.namesFound) * uint64(cb.nameEntrySize)
 	re_blocksize := uint64(pcre2RealCodeSize) + length + nametab
 	if re_blocksize > ccontext.maxPatternCompiledLength {
-		errorcode = ERR101
+		errorcode = xERR101
 		return hadCBError()
 	}
 
 	re = &Code{}
 	re.tables = ccontext.tables
 	re.blocksize = re_blocksize
-	re.magicNumber = MAGIC_NUMBER
+	re.magicNumber = xMAGIC_NUMBER
 	re.compileOptions = options
 	re.overallOptions = cb.externalOptions
 	re.extraOptions = ccontext.extraOptions
@@ -304,7 +304,7 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 
 	pptr = 0
 	cc = 0
-	codestart[0] = OP_BRA
+	codestart[0] = xOP_BRA
 	regexrc := compile_regex(re.overallOptions, ccontext.extraOptions, codestart, &cc,
 		&pptr, &errorcode, 0, &firstcu, &firstcuflags, &reqcu, &reqcuflags, nil,
 		nil, &cb, nil)
@@ -317,15 +317,15 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 
 	if cb.hadAccept {
 		reqcu = 0
-		reqcuflags = REQ_NONE
+		reqcuflags = xREQ_NONE
 		re.flags |= PCRE2_HASACCEPT
 	}
 
-	codestart[cc] = OP_END
+	codestart[cc] = xOP_END
 	cc++
 	usedlength := uint64(cc)
 	if usedlength > length {
-		errorcode = ERR23
+		errorcode = xERR23
 	} else {
 		re.blocksize -= length - usedlength
 	}
@@ -337,9 +337,9 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 		ccount := 0
 		start := RSCAN_CACHE_SIZE
 
-		for rc0 := find_recurse(codestart, 0, utf); rc0 >= 0; rc0 = find_recurse(codestart, rc0+1+LINK_SIZE, utf) {
+		for rc0 := find_recurse(codestart, 0, utf); rc0 >= 0; rc0 = find_recurse(codestart, rc0+1+xLINK_SIZE, utf) {
 			rgroup := -1
-			groupnumber := GET(codestart, rc0+1)
+			groupnumber := xGET(codestart, rc0+1)
 			if groupnumber == 0 {
 				rgroup = 0
 			} else {
@@ -357,7 +357,7 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 				if rgroup < 0 {
 					rgroup = find_bracket(codestart, search_from, utf, groupnumber)
 					if rgroup < 0 {
-						errorcode = ERR53
+						errorcode = xERR53
 						break
 					}
 					start--
@@ -371,13 +371,13 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 					}
 				}
 			}
-			PUT(codestart, rc0+1, rgroup)
+			xPUT(codestart, rc0+1, rgroup)
 		}
 	}
 
 	if errorcode == 0 && re.overallOptions&PCRE2_NO_AUTO_POSSESS == 0 {
 		if auto_possessify(codestart, &cb) != 0 {
-			errorcode = ERR80
+			errorcode = xERR80
 		}
 	}
 
@@ -392,21 +392,21 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 	if re.overallOptions&PCRE2_NO_START_OPTIMIZE == 0 {
 		minminlength := 0
 
-		if firstcuflags >= REQ_NONE {
+		if firstcuflags >= xREQ_NONE {
 			firstcu = find_firstassertedcu(codestart, 0, &firstcuflags, 0)
 		}
 
-		if firstcuflags < REQ_NONE {
+		if firstcuflags < xREQ_NONE {
 			re.firstCodeunit = firstcu
 			re.flags |= PCRE2_FIRSTSET
 			minminlength++
 
-			if firstcuflags&REQ_CASELESS != 0 {
+			if firstcuflags&xREQ_CASELESS != 0 {
 				if firstcu < 128 || (!utf && !ucp && firstcu < 255) {
 					if uint32(cb.fcc[firstcu]) != firstcu {
 						re.flags |= PCRE2_FIRSTCASELESS
 					}
-				} else if ucp && !utf && UCD_OTHERCASE(firstcu) != firstcu {
+				} else if ucp && !utf && xUCD_OTHERCASE(firstcu) != firstcu {
 					re.flags |= PCRE2_FIRSTCASELESS
 				}
 			}
@@ -415,24 +415,24 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 			re.flags |= PCRE2_STARTLINE
 		}
 
-		if reqcuflags < REQ_NONE {
+		if reqcuflags < xREQ_NONE {
 			if re.overallOptions&PCRE2_UTF == 0 ||
-				firstcuflags >= REQ_NONE ||
+				firstcuflags >= xREQ_NONE ||
 				firstcu&0x80 == 0 ||
 				reqcu&0x80 == 0 {
 				minminlength++
 			}
 
-			if re.overallOptions&PCRE2_ANCHORED == 0 || reqcuflags&REQ_VARY != 0 {
+			if re.overallOptions&PCRE2_ANCHORED == 0 || reqcuflags&xREQ_VARY != 0 {
 				re.lastCodeunit = reqcu
 				re.flags |= PCRE2_LASTSET
 
-				if reqcuflags&REQ_CASELESS != 0 {
+				if reqcuflags&xREQ_CASELESS != 0 {
 					if reqcu < 128 || (!utf && !ucp && reqcu < 255) {
 						if uint32(cb.fcc[reqcu]) != reqcu {
 							re.flags |= PCRE2_LASTCASELESS
 						}
-					} else if ucp && !utf && UCD_OTHERCASE(reqcu) != reqcu {
+					} else if ucp && !utf && xUCD_OTHERCASE(reqcu) != reqcu {
 						re.flags |= PCRE2_LASTCASELESS
 					}
 				}
@@ -440,7 +440,7 @@ func compileImpl(pattern []byte, options uint32, ccontext *CompileContext) (rcod
 		}
 
 		if study(re) != 0 {
-			errorcode = ERR31
+			errorcode = xERR31
 			return hadCBError()
 		}
 

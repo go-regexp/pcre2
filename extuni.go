@@ -11,7 +11,7 @@ package pcre2
 // It returns the offset after the end of the sequence.
 func extuni(c uint32, subject []byte, eptr, start_subject, end_subject int, utf bool, xcount *int) int {
 	was_ep_ZWJ := false
-	lgb := uint32(UCD_GRAPHBREAK(c))
+	lgb := uint32(xUCD_GRAPHBREAK(c))
 
 	for eptr < end_subject {
 		var rgb uint32
@@ -20,10 +20,10 @@ func extuni(c uint32, subject []byte, eptr, start_subject, end_subject int, utf 
 			c = uint32(subject[eptr])
 		} else {
 			var extra int
-			c, extra = GETCHARLEN(subject, eptr)
+			c, extra = xGETCHARLEN(subject, eptr)
 			length += extra
 		}
-		rgb = uint32(UCD_GRAPHBREAK(c))
+		rgb = uint32(xUCD_GRAPHBREAK(c))
 		if (ucp_gbtable[lgb] & (1 << rgb)) == 0 {
 			break
 		}
@@ -40,19 +40,19 @@ func extuni(c uint32, subject []byte, eptr, start_subject, end_subject int, utf 
 			ricount := 0
 			bptr := eptr - 1
 			if utf {
-				bptr = BACKCHAR(subject, bptr)
+				bptr = xBACKCHAR(subject, bptr)
 			}
 
 			// bptr is pointing to the left-hand character
 			for bptr > start_subject {
 				bptr--
 				if utf {
-					bptr = BACKCHAR(subject, bptr)
-					c = GETCHAR(subject, bptr)
+					bptr = xBACKCHAR(subject, bptr)
+					c = xGETCHAR(subject, bptr)
 				} else {
 					c = uint32(subject[bptr])
 				}
-				if UCD_GRAPHBREAK(c) != ucp_gbRegional_Indicator {
+				if xUCD_GRAPHBREAK(c) != ucp_gbRegional_Indicator {
 					break
 				}
 				ricount++

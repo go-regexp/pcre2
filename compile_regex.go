@@ -40,7 +40,7 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 	// If set, call the external function that checks for stack availability.
 	if cb.cx.stackGuard != nil &&
 		cb.cx.stackGuard(uint32(cb.parensDepth), cb.cx.stackGuardData) != 0 {
-		*errorcodeptr = ERR33
+		*errorcodeptr = xERR33
 		return 0
 	}
 
@@ -49,29 +49,29 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 	bc.currentBranch = cc
 
 	firstcu, reqcu = 0, 0
-	firstcuflags, reqcuflags = REQ_UNSET, REQ_UNSET
+	firstcuflags, reqcuflags = xREQ_UNSET, xREQ_UNSET
 
 	// Accumulate the length for use in the pre-compile phase.
-	length = 2 + 2*LINK_SIZE + uint64(skipunits)
+	length = 2 + 2*xLINK_SIZE + uint64(skipunits)
 
 	// Remember if this is a lookbehind assertion, and if it is, save its length
 	// and skip over the pattern offset.
-	lookbehind = code[cc] == OP_ASSERTBACK ||
-		code[cc] == OP_ASSERTBACK_NOT ||
-		code[cc] == OP_ASSERTBACK_NA
+	lookbehind = code[cc] == xOP_ASSERTBACK ||
+		code[cc] == xOP_ASSERTBACK_NOT ||
+		code[cc] == xOP_ASSERTBACK_NA
 
 	if lookbehind {
-		lookbehindlength = META_DATA(pp[pptr-1])
+		lookbehindlength = xMETA_DATA(pp[pptr-1])
 		lookbehindminlength = pp[pptr]
-		pptr += SIZEOFFSET
+		pptr += xSIZEOFFSET
 	} else {
 		lookbehindlength, lookbehindminlength = 0, 0
 	}
 
 	// If this is a capturing subpattern, add to the chain of open capturing
 	// items so that we can detect them if (*ACCEPT) is encountered.
-	if code[cc] == OP_CBRA {
-		capnumber = GET2(code, cc+1+LINK_SIZE)
+	if code[cc] == xOP_CBRA {
+		capnumber = xGET2(code, cc+1+xLINK_SIZE)
 		capitem.number = uint16(capnumber)
 		capitem.next = open_caps
 		capitem.assertDepth = cb.assertDepth
@@ -79,8 +79,8 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 	}
 
 	// Offset is set zero to mark that this bracket is still open
-	PUT(code, cc+1, 0)
-	cc += 1 + LINK_SIZE + int(skipunits)
+	xPUT(code, cc+1, 0)
+	cc += 1 + xLINK_SIZE + int(skipunits)
 
 	// Loop for each alternative branch
 	for {
@@ -88,18 +88,18 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 
 		// Insert OP_REVERSE or OP_VREVERSE if this is a lookbehind assertion.
 		if lookbehind && lookbehindlength > 0 {
-			if lookbehindminlength == LOOKBEHIND_MAX ||
+			if lookbehindminlength == xLOOKBEHIND_MAX ||
 				lookbehindminlength == lookbehindlength {
-				code[cc] = OP_REVERSE
+				code[cc] = xOP_REVERSE
 				cc++
-				cc = PUT2INC(code, cc, int(lookbehindlength))
-				length += 1 + IMM2_SIZE
+				cc = xPUT2INC(code, cc, int(lookbehindlength))
+				length += 1 + xIMM2_SIZE
 			} else {
-				code[cc] = OP_VREVERSE
+				code[cc] = xOP_VREVERSE
 				cc++
-				cc = PUT2INC(code, cc, int(lookbehindminlength))
-				cc = PUT2INC(code, cc, int(lookbehindlength))
-				length += 1 + 2*IMM2_SIZE
+				cc = xPUT2INC(code, cc, int(lookbehindminlength))
+				cc = xPUT2INC(code, cc, int(lookbehindlength))
+				length += 1 + 2*xIMM2_SIZE
 			}
 		}
 
@@ -125,7 +125,7 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 		if lengthptr == nil {
 			// If this is the first branch, the firstcu and reqcu values for
 			// the branch become the values for the regex.
-			if code[lastBranch] != OP_ALT {
+			if code[lastBranch] != xOP_ALT {
 				firstcu = branchfirstcu
 				firstcuflags = branchfirstcuflags
 				reqcu = branchreqcu
@@ -134,27 +134,27 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 				// If this is not the first branch, the first char and reqcu
 				// have to match the values from all the previous branches.
 				if firstcuflags != branchfirstcuflags || firstcu != branchfirstcu {
-					if firstcuflags < REQ_NONE {
-						if reqcuflags >= REQ_NONE {
+					if firstcuflags < xREQ_NONE {
+						if reqcuflags >= xREQ_NONE {
 							reqcu = firstcu
 							reqcuflags = firstcuflags
 						}
 					}
-					firstcuflags = REQ_NONE
+					firstcuflags = xREQ_NONE
 				}
 
 				// If we (now or from before) have no firstcu, a firstcu from
 				// the branch becomes a reqcu if there isn't a branch reqcu.
-				if firstcuflags >= REQ_NONE && branchfirstcuflags < REQ_NONE &&
-					branchreqcuflags >= REQ_NONE {
+				if firstcuflags >= xREQ_NONE && branchfirstcuflags < xREQ_NONE &&
+					branchreqcuflags >= xREQ_NONE {
 					branchreqcu = branchfirstcu
 					branchreqcuflags = branchfirstcuflags
 				}
 
 				// Now ensure that the reqcus match
-				if (reqcuflags&^REQ_VARY) != (branchreqcuflags&^REQ_VARY) ||
+				if (reqcuflags&^xREQ_VARY) != (branchreqcuflags&^xREQ_VARY) ||
 					reqcu != branchreqcu {
-					reqcuflags = REQ_NONE
+					reqcuflags = xREQ_NONE
 				} else {
 					reqcu = branchreqcu
 					reqcuflags |= branchreqcuflags // To "or" REQ_VARY if present
@@ -164,12 +164,12 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 
 		// Handle reaching the end of the expression, either ')' or end of
 		// pattern.
-		if META_CODE(pp[pptr]) != META_ALT {
+		if xMETA_CODE(pp[pptr]) != xMETA_ALT {
 			if lengthptr == nil {
 				branchLength := uint64(cc - lastBranch)
 				for {
-					prevLength := uint64(GET(code, lastBranch+1))
-					PUT(code, lastBranch+1, int(branchLength))
+					prevLength := uint64(xGET(code, lastBranch+1))
+					xPUT(code, lastBranch+1, int(branchLength))
 					branchLength = prevLength
 					lastBranch -= int(branchLength)
 					if branchLength == 0 {
@@ -179,9 +179,9 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 			}
 
 			// Fill in the ket
-			code[cc] = OP_KET
-			PUT(code, cc+1, cc-startBracket)
-			cc += 1 + LINK_SIZE
+			code[cc] = xOP_KET
+			xPUT(code, cc+1, cc-startBracket)
+			cc += 1 + xLINK_SIZE
 
 			// Set values to pass back
 			*codeptr = cc
@@ -191,8 +191,8 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 			*reqcuptr = reqcu
 			*reqcuflagsptr = reqcuflags
 			if lengthptr != nil {
-				if uint64(OFLOW_MAX)-*lengthptr < length {
-					*errorcodeptr = ERR20
+				if uint64(xOFLOW_MAX)-*lengthptr < length {
+					*errorcodeptr = xERR20
 					return 0
 				}
 				*lengthptr += length
@@ -204,19 +204,19 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 		// code pointer back to where it was for the start of the first branch.
 		// In the real compile phase, insert an ALT node.
 		if lengthptr != nil {
-			cc = *codeptr + 1 + LINK_SIZE + int(skipunits)
-			length += 1 + LINK_SIZE
+			cc = *codeptr + 1 + xLINK_SIZE + int(skipunits)
+			length += 1 + xLINK_SIZE
 		} else {
-			code[cc] = OP_ALT
-			PUT(code, cc+1, cc-lastBranch)
+			code[cc] = xOP_ALT
+			xPUT(code, cc+1, cc-lastBranch)
 			lastBranch = cc
 			bc.currentBranch = cc
-			cc += 1 + LINK_SIZE
+			cc += 1 + xLINK_SIZE
 		}
 
 		// Set the maximum lookbehind length for the next branch (if not in a
 		// lookbehind the value will be zero) and then advance past the bar.
-		lookbehindlength = META_DATA(pp[pptr])
+		lookbehindlength = xMETA_DATA(pp[pptr])
 		pptr++
 	}
 }
@@ -226,19 +226,19 @@ func compile_regex(options uint32, xoptions uint32, code []byte, codeptr *int,
 func is_anchored(code []byte, cc int, bracketMap uint32, cb *compile_block,
 	atomcount int, inassert bool) bool {
 	for {
-		scode := first_significant_code(code, cc+int(OP_lengths[code[cc]]), false)
+		scode := first_significant_code(code, cc+int(xOP_lengths[code[cc]]), false)
 		op := int(code[scode])
 
 		switch {
 		// Non-capturing brackets
-		case op == OP_BRA || op == OP_BRAPOS || op == OP_SBRA || op == OP_SBRAPOS:
+		case op == xOP_BRA || op == xOP_BRAPOS || op == xOP_SBRA || op == xOP_SBRAPOS:
 			if !is_anchored(code, scode, bracketMap, cb, atomcount, inassert) {
 				return false
 			}
 
 		// Capturing brackets
-		case op == OP_CBRA || op == OP_CBRAPOS || op == OP_SCBRA || op == OP_SCBRAPOS:
-			n := GET2(code, scode+1+LINK_SIZE)
+		case op == xOP_CBRA || op == xOP_CBRAPOS || op == xOP_SCBRA || op == xOP_SCBRAPOS:
+			n := xGET2(code, scode+1+xLINK_SIZE)
 			newMap := bracketMap
 			if n < 32 {
 				newMap |= 1 << uint(n)
@@ -250,14 +250,14 @@ func is_anchored(code []byte, cc int, bracketMap uint32, cb *compile_block,
 			}
 
 		// Positive forward assertion
-		case op == OP_ASSERT || op == OP_ASSERT_NA:
+		case op == xOP_ASSERT || op == xOP_ASSERT_NA:
 			if !is_anchored(code, scode, bracketMap, cb, atomcount, true) {
 				return false
 			}
 
 		// Condition. If there is no second branch, it can't be anchored.
-		case op == OP_COND || op == OP_SCOND:
-			if code[scode+GET(code, scode+1)] != OP_ALT {
+		case op == xOP_COND || op == xOP_SCOND:
+			if code[scode+xGET(code, scode+1)] != xOP_ALT {
 				return false
 			}
 			if !is_anchored(code, scode, bracketMap, cb, atomcount, inassert) {
@@ -265,26 +265,26 @@ func is_anchored(code []byte, cc int, bracketMap uint32, cb *compile_block,
 			}
 
 		// Atomic groups
-		case op == OP_ONCE:
+		case op == xOP_ONCE:
 			if !is_anchored(code, scode, bracketMap, cb, atomcount+1, inassert) {
 				return false
 			}
 
 		// .* is not anchored unless DOTALL is set (OP_ALLANY) and ...
-		case op == OP_TYPESTAR || op == OP_TYPEMINSTAR || op == OP_TYPEPOSSTAR:
-			if code[scode+1] != OP_ALLANY || (bracketMap&cb.backrefMap) != 0 ||
+		case op == xOP_TYPESTAR || op == xOP_TYPEMINSTAR || op == xOP_TYPEPOSSTAR:
+			if code[scode+1] != xOP_ALLANY || (bracketMap&cb.backrefMap) != 0 ||
 				atomcount > 0 || cb.hadPruneorskip || inassert ||
 				(cb.externalOptions&PCRE2_NO_DOTSTAR_ANCHOR) != 0 {
 				return false
 			}
 
 		// Check for explicit anchoring
-		case op != OP_SOD && op != OP_SOM && op != OP_CIRC:
+		case op != xOP_SOD && op != xOP_SOM && op != xOP_CIRC:
 			return false
 		}
 
-		cc += GET(code, cc+1)
-		if code[cc] != OP_ALT { // Loop for each alternative
+		cc += xGET(code, cc+1)
+		if code[cc] != xOP_ALT { // Loop for each alternative
 			break
 		}
 	}
@@ -296,23 +296,23 @@ func is_anchored(code []byte, cc int, bracketMap uint32, cb *compile_block,
 func is_startline(code []byte, cc int, bracketMap uint32, cb *compile_block,
 	atomcount int, inassert bool) bool {
 	for {
-		scode := first_significant_code(code, cc+int(OP_lengths[code[cc]]), false)
+		scode := first_significant_code(code, cc+int(xOP_lengths[code[cc]]), false)
 		op := int(code[scode])
 
 		// If we are at the start of a conditional assertion group, *both* the
 		// conditional assertion *and* what follows the condition must satisfy
 		// the test for start of line. Other kinds of condition fail.
-		if op == OP_COND {
-			scode += 1 + LINK_SIZE
+		if op == xOP_COND {
+			scode += 1 + xLINK_SIZE
 
-			if code[scode] == OP_CALLOUT {
-				scode += int(OP_lengths[OP_CALLOUT])
-			} else if code[scode] == OP_CALLOUT_STR {
-				scode += GET(code, scode+1+2*LINK_SIZE)
+			if code[scode] == xOP_CALLOUT {
+				scode += int(xOP_lengths[xOP_CALLOUT])
+			} else if code[scode] == xOP_CALLOUT_STR {
+				scode += xGET(code, scode+1+2*xLINK_SIZE)
 			}
 
 			switch code[scode] {
-			case OP_CREF, OP_DNCREF, OP_RREF, OP_DNRREF, OP_FAIL, OP_FALSE, OP_TRUE:
+			case xOP_CREF, xOP_DNCREF, xOP_RREF, xOP_DNRREF, xOP_FAIL, xOP_FALSE, xOP_TRUE:
 				return false
 
 			default: // Assertion
@@ -320,12 +320,12 @@ func is_startline(code []byte, cc int, bracketMap uint32, cb *compile_block,
 					return false
 				}
 				for {
-					scode += GET(code, scode+1)
-					if code[scode] != OP_ALT {
+					scode += xGET(code, scode+1)
+					if code[scode] != xOP_ALT {
 						break
 					}
 				}
-				scode += 1 + LINK_SIZE
+				scode += 1 + xLINK_SIZE
 			}
 			scode = first_significant_code(code, scode, false)
 			op = int(code[scode])
@@ -333,14 +333,14 @@ func is_startline(code []byte, cc int, bracketMap uint32, cb *compile_block,
 
 		switch {
 		// Non-capturing brackets
-		case op == OP_BRA || op == OP_BRAPOS || op == OP_SBRA || op == OP_SBRAPOS:
+		case op == xOP_BRA || op == xOP_BRAPOS || op == xOP_SBRA || op == xOP_SBRAPOS:
 			if !is_startline(code, scode, bracketMap, cb, atomcount, inassert) {
 				return false
 			}
 
 		// Capturing brackets
-		case op == OP_CBRA || op == OP_CBRAPOS || op == OP_SCBRA || op == OP_SCBRAPOS:
-			n := GET2(code, scode+1+LINK_SIZE)
+		case op == xOP_CBRA || op == xOP_CBRAPOS || op == xOP_SCBRA || op == xOP_SCBRAPOS:
+			n := xGET2(code, scode+1+xLINK_SIZE)
 			newMap := bracketMap
 			if n < 32 {
 				newMap |= 1 << uint(n)
@@ -352,33 +352,33 @@ func is_startline(code []byte, cc int, bracketMap uint32, cb *compile_block,
 			}
 
 		// Positive forward assertions
-		case op == OP_ASSERT || op == OP_ASSERT_NA:
+		case op == xOP_ASSERT || op == xOP_ASSERT_NA:
 			if !is_startline(code, scode, bracketMap, cb, atomcount, true) {
 				return false
 			}
 
 		// Atomic brackets
-		case op == OP_ONCE:
+		case op == xOP_ONCE:
 			if !is_startline(code, scode, bracketMap, cb, atomcount+1, inassert) {
 				return false
 			}
 
 		// .* means "start at start or after \n" if ...
-		case op == OP_TYPESTAR || op == OP_TYPEMINSTAR || op == OP_TYPEPOSSTAR:
-			if code[scode+1] != OP_ANY || (bracketMap&cb.backrefMap) != 0 ||
+		case op == xOP_TYPESTAR || op == xOP_TYPEMINSTAR || op == xOP_TYPEPOSSTAR:
+			if code[scode+1] != xOP_ANY || (bracketMap&cb.backrefMap) != 0 ||
 				atomcount > 0 || cb.hadPruneorskip || inassert ||
 				(cb.externalOptions&PCRE2_NO_DOTSTAR_ANCHOR) != 0 {
 				return false
 			}
 
 		// Check for explicit circumflex; anything else gives a FALSE result.
-		case op != OP_CIRC && op != OP_CIRCM:
+		case op != xOP_CIRC && op != xOP_CIRCM:
 			return false
 		}
 
 		// Move on to the next alternative
-		cc += GET(code, cc+1)
-		if code[cc] != OP_ALT {
+		cc += xGET(code, cc+1)
+		if code[cc] != xOP_ALT {
 			break
 		}
 	}
@@ -390,63 +390,63 @@ func is_startline(code []byte, cc int, bracketMap uint32, cb *compile_block,
 func find_recurse(code []byte, cc int, utf bool) int {
 	for {
 		c := code[cc]
-		if c == OP_END {
+		if c == xOP_END {
 			return -1
 		}
-		if c == OP_RECURSE {
+		if c == xOP_RECURSE {
 			return cc
 		}
 
 		// XCLASS and CALLOUT_STR have a zero table length; the actual length
 		// is stored in the compiled code.
-		if c == OP_XCLASS {
-			cc += GET(code, cc+1)
-		} else if c == OP_CALLOUT_STR {
-			cc += GET(code, cc+1+2*LINK_SIZE)
+		if c == xOP_XCLASS {
+			cc += xGET(code, cc+1)
+		} else if c == xOP_CALLOUT_STR {
+			cc += xGET(code, cc+1+2*xLINK_SIZE)
 		} else {
 			// Otherwise, take the item's length from the table, except that for
 			// repeated character types, we have to test for \p and \P, and for
 			// MARK/PRUNE/SKIP/THEN with an argument we add in its length.
 			switch c {
-			case OP_TYPESTAR, OP_TYPEMINSTAR, OP_TYPEPLUS, OP_TYPEMINPLUS,
-				OP_TYPEQUERY, OP_TYPEMINQUERY, OP_TYPEPOSSTAR, OP_TYPEPOSPLUS,
-				OP_TYPEPOSQUERY:
-				if code[cc+1] == OP_PROP || code[cc+1] == OP_NOTPROP {
+			case xOP_TYPESTAR, xOP_TYPEMINSTAR, xOP_TYPEPLUS, xOP_TYPEMINPLUS,
+				xOP_TYPEQUERY, xOP_TYPEMINQUERY, xOP_TYPEPOSSTAR, xOP_TYPEPOSPLUS,
+				xOP_TYPEPOSQUERY:
+				if code[cc+1] == xOP_PROP || code[cc+1] == xOP_NOTPROP {
 					cc += 2
 				}
 
-			case OP_TYPEPOSUPTO, OP_TYPEUPTO, OP_TYPEMINUPTO, OP_TYPEEXACT:
-				if code[cc+1+IMM2_SIZE] == OP_PROP || code[cc+1+IMM2_SIZE] == OP_NOTPROP {
+			case xOP_TYPEPOSUPTO, xOP_TYPEUPTO, xOP_TYPEMINUPTO, xOP_TYPEEXACT:
+				if code[cc+1+xIMM2_SIZE] == xOP_PROP || code[cc+1+xIMM2_SIZE] == xOP_NOTPROP {
 					cc += 2
 				}
 
-			case OP_MARK, OP_COMMIT_ARG, OP_PRUNE_ARG, OP_SKIP_ARG, OP_THEN_ARG:
+			case xOP_MARK, xOP_COMMIT_ARG, xOP_PRUNE_ARG, xOP_SKIP_ARG, xOP_THEN_ARG:
 				cc += int(code[cc+1])
 			}
 
 			// Add in the fixed length from the table
-			cc += int(OP_lengths[c])
+			cc += int(xOP_lengths[c])
 
 			// In UTF-8 mode, opcodes that are followed by a character may be
 			// followed by a multi-unit character. The table length is a
 			// minimum, so we have to skip the extra units.
 			if utf {
 				switch c {
-				case OP_CHAR, OP_CHARI, OP_NOT, OP_NOTI, OP_EXACT, OP_EXACTI,
-					OP_NOTEXACT, OP_NOTEXACTI, OP_UPTO, OP_UPTOI, OP_NOTUPTO,
-					OP_NOTUPTOI, OP_MINUPTO, OP_MINUPTOI, OP_NOTMINUPTO,
-					OP_NOTMINUPTOI, OP_POSUPTO, OP_POSUPTOI, OP_NOTPOSUPTO,
-					OP_NOTPOSUPTOI, OP_STAR, OP_STARI, OP_NOTSTAR, OP_NOTSTARI,
-					OP_MINSTAR, OP_MINSTARI, OP_NOTMINSTAR, OP_NOTMINSTARI,
-					OP_POSSTAR, OP_POSSTARI, OP_NOTPOSSTAR, OP_NOTPOSSTARI,
-					OP_PLUS, OP_PLUSI, OP_NOTPLUS, OP_NOTPLUSI, OP_MINPLUS,
-					OP_MINPLUSI, OP_NOTMINPLUS, OP_NOTMINPLUSI, OP_POSPLUS,
-					OP_POSPLUSI, OP_NOTPOSPLUS, OP_NOTPOSPLUSI, OP_QUERY,
-					OP_QUERYI, OP_NOTQUERY, OP_NOTQUERYI, OP_MINQUERY,
-					OP_MINQUERYI, OP_NOTMINQUERY, OP_NOTMINQUERYI, OP_POSQUERY,
-					OP_POSQUERYI, OP_NOTPOSQUERY, OP_NOTPOSQUERYI:
-					if HAS_EXTRALEN(uint32(code[cc-1])) {
-						cc += GET_EXTRALEN(uint32(code[cc-1]))
+				case xOP_CHAR, xOP_CHARI, xOP_NOT, xOP_NOTI, xOP_EXACT, xOP_EXACTI,
+					xOP_NOTEXACT, xOP_NOTEXACTI, xOP_UPTO, xOP_UPTOI, xOP_NOTUPTO,
+					xOP_NOTUPTOI, xOP_MINUPTO, xOP_MINUPTOI, xOP_NOTMINUPTO,
+					xOP_NOTMINUPTOI, xOP_POSUPTO, xOP_POSUPTOI, xOP_NOTPOSUPTO,
+					xOP_NOTPOSUPTOI, xOP_STAR, xOP_STARI, xOP_NOTSTAR, xOP_NOTSTARI,
+					xOP_MINSTAR, xOP_MINSTARI, xOP_NOTMINSTAR, xOP_NOTMINSTARI,
+					xOP_POSSTAR, xOP_POSSTARI, xOP_NOTPOSSTAR, xOP_NOTPOSSTARI,
+					xOP_PLUS, xOP_PLUSI, xOP_NOTPLUS, xOP_NOTPLUSI, xOP_MINPLUS,
+					xOP_MINPLUSI, xOP_NOTMINPLUS, xOP_NOTMINPLUSI, xOP_POSPLUS,
+					xOP_POSPLUSI, xOP_NOTPOSPLUS, xOP_NOTPOSPLUSI, xOP_QUERY,
+					xOP_QUERYI, xOP_NOTQUERY, xOP_NOTQUERYI, xOP_MINQUERY,
+					xOP_MINQUERYI, xOP_NOTMINQUERY, xOP_NOTMINQUERYI, xOP_POSQUERY,
+					xOP_POSQUERYI, xOP_NOTPOSQUERY, xOP_NOTPOSQUERYI:
+					if xHAS_EXTRALEN(uint32(code[cc-1])) {
+						cc += xGET_EXTRALEN(uint32(code[cc-1]))
 					}
 				}
 			}
@@ -459,57 +459,57 @@ func find_recurse(code []byte, cc int, utf bool) int {
 // to 0 or REQ_CASELESS; otherwise 0 with REQ_NONE in *flags.
 func find_firstassertedcu(code []byte, cc int, flags *uint32, inassert uint32) uint32 {
 	var c uint32
-	cflags := uint32(REQ_NONE)
+	cflags := uint32(xREQ_NONE)
 
-	*flags = REQ_NONE
+	*flags = xREQ_NONE
 	for {
 		var d, dflags uint32
 		xl := 0
-		if code[cc] == OP_CBRA || code[cc] == OP_SCBRA ||
-			code[cc] == OP_CBRAPOS || code[cc] == OP_SCBRAPOS {
-			xl = IMM2_SIZE
+		if code[cc] == xOP_CBRA || code[cc] == xOP_SCBRA ||
+			code[cc] == xOP_CBRAPOS || code[cc] == xOP_SCBRAPOS {
+			xl = xIMM2_SIZE
 		}
-		scode := first_significant_code(code, cc+1+LINK_SIZE+xl, true)
+		scode := first_significant_code(code, cc+1+xLINK_SIZE+xl, true)
 		op := code[scode]
 
 		switch op {
 		default:
 			return 0
 
-		case OP_BRA, OP_BRAPOS, OP_CBRA, OP_SCBRA, OP_CBRAPOS, OP_SCBRAPOS,
-			OP_ASSERT, OP_ASSERT_NA, OP_ONCE, OP_SCRIPT_RUN:
+		case xOP_BRA, xOP_BRAPOS, xOP_CBRA, xOP_SCBRA, xOP_CBRAPOS, xOP_SCBRAPOS,
+			xOP_ASSERT, xOP_ASSERT_NA, xOP_ONCE, xOP_SCRIPT_RUN:
 			add := uint32(0)
-			if op == OP_ASSERT || op == OP_ASSERT_NA {
+			if op == xOP_ASSERT || op == xOP_ASSERT_NA {
 				add = 1
 			}
 			d = find_firstassertedcu(code, scode, &dflags, inassert+add)
-			if dflags >= REQ_NONE {
+			if dflags >= xREQ_NONE {
 				return 0
 			}
-			if cflags >= REQ_NONE {
+			if cflags >= xREQ_NONE {
 				c = d
 				cflags = dflags
 			} else if c != d || cflags != dflags {
 				return 0
 			}
 
-		case OP_EXACT, OP_CHAR, OP_PLUS, OP_MINPLUS, OP_POSPLUS:
-			if op == OP_EXACT {
-				scode += IMM2_SIZE
+		case xOP_EXACT, xOP_CHAR, xOP_PLUS, xOP_MINPLUS, xOP_POSPLUS:
+			if op == xOP_EXACT {
+				scode += xIMM2_SIZE
 			}
 			if inassert == 0 {
 				return 0
 			}
-			if cflags >= REQ_NONE {
+			if cflags >= xREQ_NONE {
 				c = uint32(code[scode+1])
 				cflags = 0
 			} else if c != uint32(code[scode+1]) {
 				return 0
 			}
 
-		case OP_EXACTI, OP_CHARI, OP_PLUSI, OP_MINPLUSI, OP_POSPLUSI:
-			if op == OP_EXACTI {
-				scode += IMM2_SIZE
+		case xOP_EXACTI, xOP_CHARI, xOP_PLUSI, xOP_MINPLUSI, xOP_POSPLUSI:
+			if op == xOP_EXACTI {
+				scode += xIMM2_SIZE
 			}
 			if inassert == 0 {
 				return 0
@@ -521,16 +521,16 @@ func find_firstassertedcu(code []byte, cc int, flags *uint32, inassert uint32) u
 				return 0
 			}
 
-			if cflags >= REQ_NONE {
+			if cflags >= xREQ_NONE {
 				c = uint32(code[scode+1])
-				cflags = REQ_CASELESS
+				cflags = xREQ_CASELESS
 			} else if c != uint32(code[scode+1]) {
 				return 0
 			}
 		}
 
-		cc += GET(code, cc+1)
-		if code[cc] != OP_ALT {
+		cc += xGET(code, cc+1)
+		if code[cc] != xOP_ALT {
 			break
 		}
 	}
@@ -553,7 +553,7 @@ func add_name_to_table(cb *compile_block, pat []byte, name int, length int,
 		// memcmp(name, slot+IMM2_SIZE, length)
 		crc := 0
 		for k := 0; k < length; k++ {
-			a, b := pat[name+k], nt[slot+IMM2_SIZE+k]
+			a, b := pat[name+k], nt[slot+xIMM2_SIZE+k]
 			if a != b {
 				if a < b {
 					crc = -1
@@ -563,7 +563,7 @@ func add_name_to_table(cb *compile_block, pat []byte, name int, length int,
 				break
 			}
 		}
-		if crc == 0 && nt[slot+IMM2_SIZE+length] != 0 {
+		if crc == 0 && nt[slot+xIMM2_SIZE+length] != 0 {
 			crc = -1 // Current name is a substring
 		}
 
@@ -578,11 +578,11 @@ func add_name_to_table(cb *compile_block, pat []byte, name int, length int,
 		slot += entry
 	}
 
-	PUT2(nt, slot, int(groupno))
-	copy(nt[slot+IMM2_SIZE:], pat[name:name+length])
+	xPUT2(nt, slot, int(groupno))
+	copy(nt[slot+xIMM2_SIZE:], pat[name:name+length])
 
 	// Add a terminating zero and fill the rest of the slot with zeroes.
-	for k := slot + IMM2_SIZE + length; k < slot+entry; k++ {
+	for k := slot + xIMM2_SIZE + length; k < slot+entry; k++ {
 		nt[k] = 0
 	}
 }

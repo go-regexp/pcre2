@@ -6,14 +6,14 @@ package pcre2
 
 // APTROWS and APTCOLS (pcre2_auto_possess.c:70-71).
 const (
-	APTROWS = LAST_AUTOTAB_LEFT_OP - FIRST_AUTOTAB_OP + 1
-	APTCOLS = LAST_AUTOTAB_RIGHT_OP - FIRST_AUTOTAB_OP + 1
+	xAPTROWS = xLAST_AUTOTAB_LEFT_OP - xFIRST_AUTOTAB_OP + 1
+	xAPTCOLS = xLAST_AUTOTAB_RIGHT_OP - xFIRST_AUTOTAB_OP + 1
 )
 
 // autoposstab: whether auto-possessification is possible between adjacent
 // character-type opcodes; row = left (repeated) opcode, column = right opcode.
 // (pcre2_auto_possess.c:73-92)
-var autoposstab = [APTROWS][APTCOLS]uint8{
+var autoposstab = [xAPTROWS][xAPTCOLS]uint8{
 	/* \D \d \S \s \W \w  . .+ \C \P \p \R \H \h \V \v \X \Z \z  $ $M */
 	{0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0}, /* \D */
 	{1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1}, /* \d */
@@ -36,7 +36,7 @@ var autoposstab = [APTROWS][APTCOLS]uint8{
 
 // propposstab: adjacent Unicode property opcodes (see the value legend at
 // pcre2_auto_possess.c:98-123). (pcre2_auto_possess.c:125-141)
-var propposstab = [PT_TABSIZE][PT_TABSIZE]uint8{
+var propposstab = [xPT_TABSIZE][xPT_TABSIZE]uint8{
 	/* ANY LAMP GC  PC  SC  SCX ALNUM SPACE PXSPACE WORD CLIST UCNC BIDICL BOOL */
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},     /* PT_ANY */
 	{0, 3, 0, 0, 0, 0, 3, 1, 1, 0, 0, 0, 0, 0},     /* PT_LAMP */
@@ -79,7 +79,7 @@ var posspropstab = [3][4]uint8{
 // apIsHspace is HSPACE_CASES (pcre2_internal.h, Unicode variant).
 func apIsHspace(c uint32) bool {
 	switch c {
-	case CHAR_HT, CHAR_SPACE, CHAR_NBSP, 0x1680, 0x180e,
+	case xCHAR_HT, xCHAR_SPACE, xCHAR_NBSP, 0x1680, 0x180e,
 		0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007,
 		0x2008, 0x2009, 0x200A, 0x202f, 0x205f, 0x3000:
 		return true
@@ -90,7 +90,7 @@ func apIsHspace(c uint32) bool {
 // apIsVspace is VSPACE_CASES (pcre2_internal.h, Unicode variant).
 func apIsVspace(c uint32) bool {
 	switch c {
-	case CHAR_LF, CHAR_VT, CHAR_FF, CHAR_CR, CHAR_NEL, 0x2028, 0x2029:
+	case xCHAR_LF, xCHAR_VT, xCHAR_FF, xCHAR_CR, xCHAR_NEL, 0x2028, 0x2029:
 		return true
 	}
 	return false
@@ -100,47 +100,47 @@ func apIsVspace(c uint32) bool {
 // compare_opcodes() when a property item is adjacent to a fixed character. It
 // returns true if auto-possessifying is OK. (pcre2_auto_possess.c:198-274)
 func check_char_prop(c uint32, ptype, pdata uint32, negated bool) bool {
-	prop := GET_UCD(c)
+	prop := xGET_UCD(c)
 
 	switch ptype {
-	case PT_LAMP:
+	case xPT_LAMP:
 		return (prop.chartype == ucp_Lu || prop.chartype == ucp_Ll ||
 			prop.chartype == ucp_Lt) == negated
 
-	case PT_GC:
+	case xPT_GC:
 		return (pdata == ucp_gentype[prop.chartype]) == negated
 
-	case PT_PC:
+	case xPT_PC:
 		return (pdata == uint32(prop.chartype)) == negated
 
-	case PT_SC:
+	case xPT_SC:
 		return (pdata == uint32(prop.script)) == negated
 
-	case PT_SCX:
+	case xPT_SCX:
 		ok := pdata == uint32(prop.script) ||
-			MAPBIT(ucd_script_sets[UCD_SCRIPTX_PROP(prop):], pdata)
+			xMAPBIT(ucd_script_sets[xUCD_SCRIPTX_PROP(prop):], pdata)
 		return ok == negated
 
 	// These are specials
 
-	case PT_ALNUM:
+	case xPT_ALNUM:
 		return (ucp_gentype[prop.chartype] == ucp_L ||
 			ucp_gentype[prop.chartype] == ucp_N) == negated
 
 	// Perl space used to exclude VT, but from Perl 5.18 it is included, which
 	// means that Perl space and POSIX space are now identical.
-	case PT_SPACE, PT_PXSPACE:
+	case xPT_SPACE, xPT_PXSPACE:
 		if apIsHspace(c) || apIsVspace(c) {
 			return negated
 		}
 		return (ucp_gentype[prop.chartype] == ucp_Z) == negated
 
-	case PT_WORD:
+	case xPT_WORD:
 		return (ucp_gentype[prop.chartype] == ucp_L ||
 			ucp_gentype[prop.chartype] == ucp_N ||
-			c == CHAR_UNDERSCORE) == negated
+			c == xCHAR_UNDERSCORE) == negated
 
-	case PT_CLIST:
+	case xPT_CLIST:
 		p := int(prop.caseset)
 		for {
 			if c < ucd_caseless_sets[p] {
@@ -154,10 +154,10 @@ func check_char_prop(c uint32, ptype, pdata uint32, negated bool) bool {
 		}
 
 	// Haven't yet thought these through.
-	case PT_BIDICL:
+	case xPT_BIDICL:
 		return false
 
-	case PT_BOOL:
+	case xPT_BOOL:
 		return false
 	}
 
@@ -168,18 +168,18 @@ func check_char_prop(c uint32, ptype, pdata uint32, negated bool) bool {
 // opcodes; other opcodes are returned unchanged. (pcre2_auto_possess.c:290-299)
 func get_repeat_base(c byte) byte {
 	switch {
-	case c > OP_TYPEPOSUPTO:
+	case c > xOP_TYPEPOSUPTO:
 		return c
-	case c >= OP_TYPESTAR:
-		return OP_TYPESTAR
-	case c >= OP_NOTSTARI:
-		return OP_NOTSTARI
-	case c >= OP_NOTSTAR:
-		return OP_NOTSTAR
-	case c >= OP_STARI:
-		return OP_STARI
+	case c >= xOP_TYPESTAR:
+		return xOP_TYPESTAR
+	case c >= xOP_NOTSTARI:
+		return xOP_NOTSTARI
+	case c >= xOP_NOTSTAR:
+		return xOP_NOTSTAR
+	case c >= xOP_STARI:
+		return xOP_STARI
 	}
-	return OP_STAR
+	return xOP_STAR
 }
 
 func boolU32(b bool) uint32 {
@@ -199,34 +199,34 @@ func get_chr_property_list(code []byte, pos int, utf, ucp bool, fcc []byte, list
 	var base byte
 
 	list[0] = uint32(c)
-	list[1] = FALSE
+	list[1] = xFALSE
 	pos++
 
-	if c >= OP_STAR && c <= OP_TYPEPOSUPTO {
+	if c >= xOP_STAR && c <= xOP_TYPEPOSUPTO {
 		base = get_repeat_base(c)
-		c -= base - OP_STAR
+		c -= base - xOP_STAR
 
-		if c == OP_UPTO || c == OP_MINUPTO || c == OP_EXACT || c == OP_POSUPTO {
-			pos += IMM2_SIZE
+		if c == xOP_UPTO || c == xOP_MINUPTO || c == xOP_EXACT || c == xOP_POSUPTO {
+			pos += xIMM2_SIZE
 		}
 
-		list[1] = boolU32(c != OP_PLUS && c != OP_MINPLUS && c != OP_EXACT &&
-			c != OP_POSPLUS)
+		list[1] = boolU32(c != xOP_PLUS && c != xOP_MINPLUS && c != xOP_EXACT &&
+			c != xOP_POSPLUS)
 
 		switch base {
-		case OP_STAR:
-			list[0] = OP_CHAR
+		case xOP_STAR:
+			list[0] = xOP_CHAR
 
-		case OP_STARI:
-			list[0] = OP_CHARI
+		case xOP_STARI:
+			list[0] = xOP_CHARI
 
-		case OP_NOTSTAR:
-			list[0] = OP_NOT
+		case xOP_NOTSTAR:
+			list[0] = xOP_NOT
 
-		case OP_NOTSTARI:
-			list[0] = OP_NOTI
+		case xOP_NOTSTARI:
+			list[0] = xOP_NOTI
 
-		case OP_TYPESTAR:
+		case xOP_TYPESTAR:
 			list[0] = uint32(code[pos])
 			pos++
 		}
@@ -234,46 +234,46 @@ func get_chr_property_list(code []byte, pos int, utf, ucp bool, fcc []byte, list
 	}
 
 	switch c {
-	case OP_NOT_DIGIT, OP_DIGIT, OP_NOT_WHITESPACE, OP_WHITESPACE,
-		OP_NOT_WORDCHAR, OP_WORDCHAR, OP_ANY, OP_ALLANY, OP_ANYNL,
-		OP_NOT_HSPACE, OP_HSPACE, OP_NOT_VSPACE, OP_VSPACE, OP_EXTUNI,
-		OP_EODN, OP_EOD, OP_DOLL, OP_DOLLM:
+	case xOP_NOT_DIGIT, xOP_DIGIT, xOP_NOT_WHITESPACE, xOP_WHITESPACE,
+		xOP_NOT_WORDCHAR, xOP_WORDCHAR, xOP_ANY, xOP_ALLANY, xOP_ANYNL,
+		xOP_NOT_HSPACE, xOP_HSPACE, xOP_NOT_VSPACE, xOP_VSPACE, xOP_EXTUNI,
+		xOP_EODN, xOP_EOD, xOP_DOLL, xOP_DOLLM:
 		return pos
 
-	case OP_CHAR, OP_NOT:
+	case xOP_CHAR, xOP_NOT:
 		var chr uint32
-		chr, pos = GETCHARINCTEST(utf, code, pos)
+		chr, pos = xGETCHARINCTEST(utf, code, pos)
 		list[2] = chr
-		list[3] = NOTACHAR
+		list[3] = xNOTACHAR
 		return pos
 
-	case OP_CHARI, OP_NOTI:
-		if c == OP_CHARI {
-			list[0] = OP_CHAR
+	case xOP_CHARI, xOP_NOTI:
+		if c == xOP_CHARI {
+			list[0] = xOP_CHAR
 		} else {
-			list[0] = OP_NOT
+			list[0] = xOP_NOT
 		}
 		var chr uint32
-		chr, pos = GETCHARINCTEST(utf, code, pos)
+		chr, pos = xGETCHARINCTEST(utf, code, pos)
 		list[2] = chr
 
 		// SUPPORT_UNICODE
 		if chr < 128 || (chr < 256 && !utf && !ucp) {
 			list[3] = uint32(fcc[chr])
 		} else {
-			list[3] = UCD_OTHERCASE(chr)
+			list[3] = xUCD_OTHERCASE(chr)
 		}
 
 		// The othercase might be the same value.
 		if chr == list[3] {
-			list[3] = NOTACHAR
+			list[3] = xNOTACHAR
 		} else {
-			list[4] = NOTACHAR
+			list[4] = xNOTACHAR
 		}
 		return pos
 
-	case OP_PROP, OP_NOTPROP:
-		if code[pos] != PT_CLIST {
+	case xOP_PROP, xOP_NOTPROP:
+		if code[pos] != xPT_CLIST {
 			list[2] = uint32(code[pos])
 			list[3] = uint32(code[pos+1])
 			return pos + 2
@@ -296,40 +296,40 @@ func get_chr_property_list(code []byte, pos int, utf, ucp bool, fcc []byte, list
 			dest++
 			v := ucd_caseless_sets[src]
 			src++
-			if v == NOTACHAR {
+			if v == xNOTACHAR {
 				break
 			}
 		}
 
 		// All characters are stored. The terminating NOTACHAR is copied from the
 		// clist itself.
-		if c == OP_PROP {
-			list[0] = OP_CHAR
+		if c == xOP_PROP {
+			list[0] = xOP_CHAR
 		} else {
-			list[0] = OP_NOT
+			list[0] = xOP_NOT
 		}
 		return pos
 
-	case OP_NCLASS, OP_CLASS, OP_XCLASS:
+	case xOP_NCLASS, xOP_CLASS, xOP_XCLASS:
 		var end int
-		if c == OP_XCLASS {
-			end = pos + GET(code, pos) - 1
+		if c == xOP_XCLASS {
+			end = pos + xGET(code, pos) - 1
 		} else {
 			end = pos + 32
 		}
 
 		switch code[end] {
-		case OP_CRSTAR, OP_CRMINSTAR, OP_CRQUERY, OP_CRMINQUERY,
-			OP_CRPOSSTAR, OP_CRPOSQUERY:
-			list[1] = TRUE
+		case xOP_CRSTAR, xOP_CRMINSTAR, xOP_CRQUERY, xOP_CRMINQUERY,
+			xOP_CRPOSSTAR, xOP_CRPOSQUERY:
+			list[1] = xTRUE
 			end++
 
-		case OP_CRPLUS, OP_CRMINPLUS, OP_CRPOSPLUS:
+		case xOP_CRPLUS, xOP_CRMINPLUS, xOP_CRPOSPLUS:
 			end++
 
-		case OP_CRRANGE, OP_CRMINRANGE, OP_CRPOSRANGE:
-			list[1] = boolU32(GET2(code, end+1) == 0)
-			end += 1 + 2*IMM2_SIZE
+		case xOP_CRRANGE, xOP_CRMINRANGE, xOP_CRPOSRANGE:
+			list[1] = boolU32(xGET2(code, end+1) == 0)
+			end += 1 + 2*xIMM2_SIZE
 		}
 		list[2] = uint32(end - pos)
 		return end
@@ -367,22 +367,22 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 
 		// Skip over callouts
 
-		if c == OP_CALLOUT {
-			pos += int(OP_lengths[c])
+		if c == xOP_CALLOUT {
+			pos += int(xOP_lengths[c])
 			continue
 		}
 
-		if c == OP_CALLOUT_STR {
-			pos += GET(code, pos+1+2*LINK_SIZE)
+		if c == xOP_CALLOUT_STR {
+			pos += xGET(code, pos+1+2*xLINK_SIZE)
 			continue
 		}
 
 		// At the end of a branch, skip to the end of the group.
 
-		if c == OP_ALT {
+		if c == xOP_ALT {
 			for {
-				pos += GET(code, pos+1)
-				if code[pos] != OP_ALT {
+				pos += xGET(code, pos+1)
+				if code[pos] != xOP_ALT {
 					break
 				}
 			}
@@ -396,7 +396,7 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 		// which is reached after skipping over the final OP_KET. A non-greedy
 		// iterator must never be possessified.
 
-		case OP_END:
+		case xOP_END:
 			return baseList[1] != 0
 
 		// When an iterator is at the end of certain kinds of group we can inspect
@@ -406,7 +406,7 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 		// next switch, they will end up as the next code to inspect, and return
 		// FALSE by virtue of being unsupported.
 
-		case OP_KET, OP_KETRPOS:
+		case xOP_KET, xOP_KETRPOS:
 			// The non-greedy case cannot be converted to a possessive form.
 
 			if baseList[1] == 0 {
@@ -417,9 +417,9 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 			// OP_RECURSE so its last iterator can never be possessified if the
 			// pattern contains recursions.
 
-			bracode := pos - GET(code, pos+1)
+			bracode := pos - xGET(code, pos+1)
 			switch code[bracode] {
-			case OP_CBRA, OP_SCBRA, OP_CBRAPOS, OP_SCBRAPOS:
+			case xOP_CBRA, xOP_SCBRA, xOP_CBRAPOS, xOP_SCBRAPOS:
 				if cb.hadRecurse {
 					return false
 				}
@@ -428,8 +428,8 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 			// match characters from more than one script. So give up unless
 			// repeating an explicit character.
 
-			case OP_SCRIPT_RUN:
-				if baseList[0] != OP_CHAR && baseList[0] != OP_CHARI {
+			case xOP_SCRIPT_RUN:
+				if baseList[0] != xOP_CHAR && baseList[0] != xOP_CHARI {
 					return false
 				}
 
@@ -438,68 +438,68 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 			// the group was entered as a result of checking a previous iterator,
 			// this is not possible.
 
-			case OP_ASSERT, OP_ASSERT_NOT, OP_ONCE:
+			case xOP_ASSERT, xOP_ASSERT_NOT, xOP_ONCE:
 				return !enteredAGroup
 
-			case OP_ASSERTBACK, OP_ASSERTBACK_NOT:
-				if code[bracode+1+LINK_SIZE] == OP_VREVERSE {
+			case xOP_ASSERTBACK, xOP_ASSERTBACK_NOT:
+				if code[bracode+1+xLINK_SIZE] == xOP_VREVERSE {
 					return false
 				}
 				return !enteredAGroup
 
 			// Non-atomic assertions - don't possessify last iterator.
 
-			case OP_ASSERT_NA, OP_ASSERTBACK_NA:
+			case xOP_ASSERT_NA, xOP_ASSERTBACK_NA:
 				return false
 			}
 
 			// Skip over the bracket and inspect what comes next.
 
-			pos += int(OP_lengths[c])
+			pos += int(xOP_lengths[c])
 			continue
 
 		// Handle cases where the next item is a group.
 
-		case OP_ONCE, OP_BRA, OP_CBRA:
-			nextCode := pos + GET(code, pos+1)
-			pos += int(OP_lengths[c])
+		case xOP_ONCE, xOP_BRA, xOP_CBRA:
+			nextCode := pos + xGET(code, pos+1)
+			pos += int(xOP_lengths[c])
 
 			// Check each branch. We have to recurse a level for all but the last
 			// branch.
 
-			for code[nextCode] == OP_ALT {
+			for code[nextCode] == xOP_ALT {
 				if !compare_opcodes(code, pos, utf, ucp, cb, baseList, baseEnd, recLimit) {
 					return false
 				}
-				pos = nextCode + 1 + LINK_SIZE
-				nextCode += GET(code, nextCode+1)
+				pos = nextCode + 1 + xLINK_SIZE
+				nextCode += xGET(code, nextCode+1)
 			}
 
 			enteredAGroup = true
 			continue
 
-		case OP_BRAZERO, OP_BRAMINZERO:
+		case xOP_BRAZERO, xOP_BRAMINZERO:
 			nextCode := pos + 1
-			if code[nextCode] != OP_BRA && code[nextCode] != OP_CBRA &&
-				code[nextCode] != OP_ONCE {
+			if code[nextCode] != xOP_BRA && code[nextCode] != xOP_CBRA &&
+				code[nextCode] != xOP_ONCE {
 				return false
 			}
 
 			for {
-				nextCode += GET(code, nextCode+1)
-				if code[nextCode] != OP_ALT {
+				nextCode += xGET(code, nextCode+1)
+				if code[nextCode] != xOP_ALT {
 					break
 				}
 			}
 
 			// The bracket content will be checked by the OP_BRA/OP_CBRA case above.
 
-			nextCode += 1 + LINK_SIZE
+			nextCode += 1 + xLINK_SIZE
 			if !compare_opcodes(code, nextCode, utf, ucp, cb, baseList, baseEnd, recLimit) {
 				return false
 			}
 
-			pos += int(OP_lengths[c])
+			pos += int(xOP_lengths[c])
 			continue
 
 		// The next opcode does not need special handling; fall through and use
@@ -521,19 +521,19 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 
 		var chrPtr, listPtr []uint32
 		listPtrIsList := false
-		if baseList[0] == OP_CHAR {
+		if baseList[0] == xOP_CHAR {
 			chrPtr = baseList[2:]
 			listPtr = list
 			listPtrIsList = true
-		} else if list[0] == OP_CHAR {
+		} else if list[0] == xOP_CHAR {
 			chrPtr = list[2:]
 			listPtr = baseList
-		} else if baseList[0] == OP_CLASS || list[0] == OP_CLASS ||
+		} else if baseList[0] == xOP_CLASS || list[0] == xOP_CLASS ||
 			// In 8 bit, non-UTF mode, OP_CLASS and OP_NCLASS are the same.
-			(!utf && (baseList[0] == OP_NCLASS || list[0] == OP_NCLASS)) {
+			(!utf && (baseList[0] == xOP_NCLASS || list[0] == xOP_NCLASS)) {
 			// Character bitsets can also be compared to certain opcodes.
 			var set1, set2 []byte
-			if baseList[0] == OP_CLASS || (!utf && baseList[0] == OP_NCLASS) {
+			if baseList[0] == xOP_CLASS || (!utf && baseList[0] == xOP_NCLASS) {
 				s := baseEnd - int(baseList[2])
 				set1 = code[s : s+32]
 				listPtr = list
@@ -550,41 +550,41 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 				ref = pos
 			}
 			switch listPtr[0] {
-			case OP_CLASS, OP_NCLASS:
+			case xOP_CLASS, xOP_NCLASS:
 				s := ref - int(listPtr[2])
 				set2 = code[s : s+32]
 
-			case OP_XCLASS:
-				xclassFlags := ref - int(listPtr[2]) + LINK_SIZE
-				if code[xclassFlags]&XCL_HASPROP != 0 {
+			case xOP_XCLASS:
+				xclassFlags := ref - int(listPtr[2]) + xLINK_SIZE
+				if code[xclassFlags]&xXCL_HASPROP != 0 {
 					return false
 				}
-				if code[xclassFlags]&XCL_MAP == 0 {
+				if code[xclassFlags]&xXCL_MAP == 0 {
 					// No bits are set for characters < 256.
 					if list[1] == 0 {
-						return code[xclassFlags]&XCL_NOT == 0
+						return code[xclassFlags]&xXCL_NOT == 0
 					}
 					// Might be an empty repeat.
 					continue
 				}
 				set2 = code[xclassFlags+1 : xclassFlags+33]
 
-			case OP_NOT_DIGIT:
+			case xOP_NOT_DIGIT:
 				invertBits = true
 				set2 = cb.cbits[cbit_digit:]
-			case OP_DIGIT:
+			case xOP_DIGIT:
 				set2 = cb.cbits[cbit_digit:]
 
-			case OP_NOT_WHITESPACE:
+			case xOP_NOT_WHITESPACE:
 				invertBits = true
 				set2 = cb.cbits[cbit_space:]
-			case OP_WHITESPACE:
+			case xOP_WHITESPACE:
 				set2 = cb.cbits[cbit_space:]
 
-			case OP_NOT_WORDCHAR:
+			case xOP_NOT_WORDCHAR:
 				invertBits = true
 				set2 = cb.cbits[cbit_word:]
-			case OP_WORDCHAR:
+			case xOP_WORDCHAR:
 				set2 = cb.cbits[cbit_word:]
 
 			default:
@@ -622,13 +622,13 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 			rightop := list[0]
 
 			accepted := false
-			if leftop == OP_PROP || leftop == OP_NOTPROP {
-				if rightop == OP_EOD {
+			if leftop == xOP_PROP || leftop == xOP_NOTPROP {
+				if rightop == xOP_EOD {
 					accepted = true
-				} else if rightop == OP_PROP || rightop == OP_NOTPROP {
+				} else if rightop == xOP_PROP || rightop == xOP_NOTPROP {
 					same := leftop == rightop
-					lisprop := leftop == OP_PROP
-					risprop := rightop == OP_PROP
+					lisprop := leftop == xOP_PROP
+					risprop := rightop == xOP_PROP
 					bothprop := lisprop && risprop
 
 					// There's a table that specifies how each combination is to be
@@ -683,9 +683,9 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 					}
 				}
 			} else {
-				accepted = leftop >= FIRST_AUTOTAB_OP && leftop <= LAST_AUTOTAB_LEFT_OP &&
-					rightop >= FIRST_AUTOTAB_OP && rightop <= LAST_AUTOTAB_RIGHT_OP &&
-					autoposstab[leftop-FIRST_AUTOTAB_OP][rightop-FIRST_AUTOTAB_OP] != 0
+				accepted = leftop >= xFIRST_AUTOTAB_OP && leftop <= xLAST_AUTOTAB_LEFT_OP &&
+					rightop >= xFIRST_AUTOTAB_OP && rightop <= xLAST_AUTOTAB_RIGHT_OP &&
+					autoposstab[leftop-xFIRST_AUTOTAB_OP][rightop-xFIRST_AUTOTAB_OP] != 0
 			}
 
 			if !accepted {
@@ -711,101 +711,101 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 			chr := chrPtr[ci]
 
 			switch listPtr[0] {
-			case OP_CHAR:
+			case xOP_CHAR:
 				oi := 2
 				for {
 					if chr == listPtr[oi] {
 						return false
 					}
 					oi++
-					if listPtr[oi] == NOTACHAR {
+					if listPtr[oi] == xNOTACHAR {
 						break
 					}
 				}
 
-			case OP_NOT:
+			case xOP_NOT:
 				oi := 2
 				for {
 					if chr == listPtr[oi] {
 						break
 					}
 					oi++
-					if listPtr[oi] == NOTACHAR {
+					if listPtr[oi] == xNOTACHAR {
 						break
 					}
 				}
-				if listPtr[oi] == NOTACHAR {
+				if listPtr[oi] == xNOTACHAR {
 					return false // Not found
 				}
 
 			// Note that OP_DIGIT etc. are generated only when PCRE2_UCP is *not*
 			// set. When it is set, \d etc. are converted into OP_(NOT_)PROP codes.
 
-			case OP_DIGIT:
+			case xOP_DIGIT:
 				if chr < 256 && cb.ctypes[chr]&ctype_digit != 0 {
 					return false
 				}
 
-			case OP_NOT_DIGIT:
+			case xOP_NOT_DIGIT:
 				if chr > 255 || cb.ctypes[chr]&ctype_digit == 0 {
 					return false
 				}
 
-			case OP_WHITESPACE:
+			case xOP_WHITESPACE:
 				if chr < 256 && cb.ctypes[chr]&ctype_space != 0 {
 					return false
 				}
 
-			case OP_NOT_WHITESPACE:
+			case xOP_NOT_WHITESPACE:
 				if chr > 255 || cb.ctypes[chr]&ctype_space == 0 {
 					return false
 				}
 
-			case OP_WORDCHAR:
+			case xOP_WORDCHAR:
 				if chr < 255 && cb.ctypes[chr]&ctype_word != 0 {
 					return false
 				}
 
-			case OP_NOT_WORDCHAR:
+			case xOP_NOT_WORDCHAR:
 				if chr > 255 || cb.ctypes[chr]&ctype_word == 0 {
 					return false
 				}
 
-			case OP_HSPACE:
+			case xOP_HSPACE:
 				if apIsHspace(chr) {
 					return false
 				}
 
-			case OP_NOT_HSPACE:
+			case xOP_NOT_HSPACE:
 				if !apIsHspace(chr) {
 					return false
 				}
 
-			case OP_ANYNL, OP_VSPACE:
+			case xOP_ANYNL, xOP_VSPACE:
 				if apIsVspace(chr) {
 					return false
 				}
 
-			case OP_NOT_VSPACE:
+			case xOP_NOT_VSPACE:
 				if !apIsVspace(chr) {
 					return false
 				}
 
-			case OP_DOLL, OP_EODN:
+			case xOP_DOLL, xOP_EODN:
 				switch chr {
-				case CHAR_CR, CHAR_LF, CHAR_VT, CHAR_FF, CHAR_NEL, 0x2028, 0x2029:
+				case xCHAR_CR, xCHAR_LF, xCHAR_VT, xCHAR_FF, xCHAR_NEL, 0x2028, 0x2029:
 					return false
 				}
 
-			case OP_EOD: // Can always possessify before \z
+			case xOP_EOD: // Can always possessify before \z
 
-			case OP_PROP, OP_NOTPROP:
-				if !check_char_prop(chr, listPtr[2], listPtr[3], listPtr[0] == OP_NOTPROP) {
+			case xOP_PROP, xOP_NOTPROP:
+				if !check_char_prop(chr, listPtr[2], listPtr[3], listPtr[0] == xOP_NOTPROP) {
 					return false
 				}
 
-			case OP_NCLASS, OP_CLASS:
-				if listPtr[0] == OP_NCLASS && chr > 255 {
+			case xOP_NCLASS, xOP_CLASS:
+				if listPtr[0] == xOP_NCLASS && chr > 255 {
 					return false
 				}
 				// Fall through
@@ -817,8 +817,8 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 					return false
 				}
 
-			case OP_XCLASS:
-				if xclass(chr, code[ref-int(listPtr[2])+LINK_SIZE:], utf) {
+			case xOP_XCLASS:
+				if xclass(chr, code[ref-int(listPtr[2])+xLINK_SIZE:], utf) {
 					return false
 				}
 
@@ -827,7 +827,7 @@ func compare_opcodes(code []byte, pos int, utf, ucp bool, cb *compile_block,
 			}
 
 			ci++
-			if chrPtr[ci] == NOTACHAR {
+			if chrPtr[ci] == xNOTACHAR {
 				break
 			}
 		}
@@ -857,72 +857,72 @@ func auto_possessify(code []byte, cb *compile_block) int {
 	for {
 		c := code[pos]
 
-		if c >= OP_TABLE_LENGTH {
+		if c >= xOP_TABLE_LENGTH {
 			return -1 // Something gone wrong
 		}
 
-		if c >= OP_STAR && c <= OP_TYPEPOSUPTO {
-			c -= get_repeat_base(c) - OP_STAR
+		if c >= xOP_STAR && c <= xOP_TYPEPOSUPTO {
+			c -= get_repeat_base(c) - xOP_STAR
 			end := -1
-			if c <= OP_MINUPTO {
+			if c <= xOP_MINUPTO {
 				end = get_chr_property_list(code, pos, utf, ucp, cb.fcc, list)
 			}
-			list[1] = boolU32(c == OP_STAR || c == OP_PLUS || c == OP_QUERY || c == OP_UPTO)
+			list[1] = boolU32(c == xOP_STAR || c == xOP_PLUS || c == xOP_QUERY || c == xOP_UPTO)
 
 			if end >= 0 && compare_opcodes(code, end, utf, ucp, cb, list, end, &recLimit) {
 				switch c {
-				case OP_STAR:
-					code[pos] += OP_POSSTAR - OP_STAR
+				case xOP_STAR:
+					code[pos] += xOP_POSSTAR - xOP_STAR
 
-				case OP_MINSTAR:
-					code[pos] += OP_POSSTAR - OP_MINSTAR
+				case xOP_MINSTAR:
+					code[pos] += xOP_POSSTAR - xOP_MINSTAR
 
-				case OP_PLUS:
-					code[pos] += OP_POSPLUS - OP_PLUS
+				case xOP_PLUS:
+					code[pos] += xOP_POSPLUS - xOP_PLUS
 
-				case OP_MINPLUS:
-					code[pos] += OP_POSPLUS - OP_MINPLUS
+				case xOP_MINPLUS:
+					code[pos] += xOP_POSPLUS - xOP_MINPLUS
 
-				case OP_QUERY:
-					code[pos] += OP_POSQUERY - OP_QUERY
+				case xOP_QUERY:
+					code[pos] += xOP_POSQUERY - xOP_QUERY
 
-				case OP_MINQUERY:
-					code[pos] += OP_POSQUERY - OP_MINQUERY
+				case xOP_MINQUERY:
+					code[pos] += xOP_POSQUERY - xOP_MINQUERY
 
-				case OP_UPTO:
-					code[pos] += OP_POSUPTO - OP_UPTO
+				case xOP_UPTO:
+					code[pos] += xOP_POSUPTO - xOP_UPTO
 
-				case OP_MINUPTO:
-					code[pos] += OP_POSUPTO - OP_MINUPTO
+				case xOP_MINUPTO:
+					code[pos] += xOP_POSUPTO - xOP_MINUPTO
 				}
 			}
 			c = code[pos]
-		} else if c == OP_CLASS || c == OP_NCLASS || c == OP_XCLASS {
+		} else if c == xOP_CLASS || c == xOP_NCLASS || c == xOP_XCLASS {
 			var repeatOpcode int
-			if c == OP_XCLASS {
-				repeatOpcode = pos + GET(code, pos+1)
+			if c == xOP_XCLASS {
+				repeatOpcode = pos + xGET(code, pos+1)
 			} else {
 				repeatOpcode = pos + 1 + 32
 			}
 
 			c = code[repeatOpcode]
-			if c >= OP_CRSTAR && c <= OP_CRMINRANGE {
+			if c >= xOP_CRSTAR && c <= xOP_CRMINRANGE {
 				end := get_chr_property_list(code, pos, utf, ucp, cb.fcc, list)
 				list[1] = boolU32(c&1 == 0)
 
 				if end >= 0 && compare_opcodes(code, end, utf, ucp, cb, list, end, &recLimit) {
 					switch c {
-					case OP_CRSTAR, OP_CRMINSTAR:
-						code[repeatOpcode] = OP_CRPOSSTAR
+					case xOP_CRSTAR, xOP_CRMINSTAR:
+						code[repeatOpcode] = xOP_CRPOSSTAR
 
-					case OP_CRPLUS, OP_CRMINPLUS:
-						code[repeatOpcode] = OP_CRPOSPLUS
+					case xOP_CRPLUS, xOP_CRMINPLUS:
+						code[repeatOpcode] = xOP_CRPOSPLUS
 
-					case OP_CRQUERY, OP_CRMINQUERY:
-						code[repeatOpcode] = OP_CRPOSQUERY
+					case xOP_CRQUERY, xOP_CRMINQUERY:
+						code[repeatOpcode] = xOP_CRPOSQUERY
 
-					case OP_CRRANGE, OP_CRMINRANGE:
-						code[repeatOpcode] = OP_CRPOSRANGE
+					case xOP_CRRANGE, xOP_CRMINRANGE:
+						code[repeatOpcode] = xOP_CRPOSRANGE
 					}
 				}
 			}
@@ -930,34 +930,34 @@ func auto_possessify(code []byte, cb *compile_block) int {
 		}
 
 		switch c {
-		case OP_END:
+		case xOP_END:
 			return 0
 
-		case OP_TYPESTAR, OP_TYPEMINSTAR, OP_TYPEPLUS, OP_TYPEMINPLUS,
-			OP_TYPEQUERY, OP_TYPEMINQUERY, OP_TYPEPOSSTAR, OP_TYPEPOSPLUS,
-			OP_TYPEPOSQUERY:
-			if code[pos+1] == OP_PROP || code[pos+1] == OP_NOTPROP {
+		case xOP_TYPESTAR, xOP_TYPEMINSTAR, xOP_TYPEPLUS, xOP_TYPEMINPLUS,
+			xOP_TYPEQUERY, xOP_TYPEMINQUERY, xOP_TYPEPOSSTAR, xOP_TYPEPOSPLUS,
+			xOP_TYPEPOSQUERY:
+			if code[pos+1] == xOP_PROP || code[pos+1] == xOP_NOTPROP {
 				pos += 2
 			}
 
-		case OP_TYPEUPTO, OP_TYPEMINUPTO, OP_TYPEEXACT, OP_TYPEPOSUPTO:
-			if code[pos+1+IMM2_SIZE] == OP_PROP || code[pos+1+IMM2_SIZE] == OP_NOTPROP {
+		case xOP_TYPEUPTO, xOP_TYPEMINUPTO, xOP_TYPEEXACT, xOP_TYPEPOSUPTO:
+			if code[pos+1+xIMM2_SIZE] == xOP_PROP || code[pos+1+xIMM2_SIZE] == xOP_NOTPROP {
 				pos += 2
 			}
 
-		case OP_CALLOUT_STR:
-			pos += GET(code, pos+1+2*LINK_SIZE)
+		case xOP_CALLOUT_STR:
+			pos += xGET(code, pos+1+2*xLINK_SIZE)
 
-		case OP_XCLASS:
-			pos += GET(code, pos+1)
+		case xOP_XCLASS:
+			pos += xGET(code, pos+1)
 
-		case OP_MARK, OP_COMMIT_ARG, OP_PRUNE_ARG, OP_SKIP_ARG, OP_THEN_ARG:
+		case xOP_MARK, xOP_COMMIT_ARG, xOP_PRUNE_ARG, xOP_SKIP_ARG, xOP_THEN_ARG:
 			pos += int(code[pos+1])
 		}
 
 		// Add in the fixed length from the table
 
-		pos += int(OP_lengths[c])
+		pos += int(xOP_lengths[c])
 
 		// In UTF-8 mode, opcodes that are followed by a character may be
 		// followed by a multi-byte character. The length in the table is a
@@ -965,23 +965,23 @@ func auto_possessify(code []byte, cb *compile_block) int {
 
 		if utf {
 			switch c {
-			case OP_CHAR, OP_CHARI, OP_NOT, OP_NOTI,
-				OP_STAR, OP_MINSTAR, OP_PLUS, OP_MINPLUS, OP_QUERY, OP_MINQUERY,
-				OP_UPTO, OP_MINUPTO, OP_EXACT, OP_POSSTAR, OP_POSPLUS,
-				OP_POSQUERY, OP_POSUPTO,
-				OP_STARI, OP_MINSTARI, OP_PLUSI, OP_MINPLUSI, OP_QUERYI,
-				OP_MINQUERYI, OP_UPTOI, OP_MINUPTOI, OP_EXACTI, OP_POSSTARI,
-				OP_POSPLUSI, OP_POSQUERYI, OP_POSUPTOI,
-				OP_NOTSTAR, OP_NOTMINSTAR, OP_NOTPLUS, OP_NOTMINPLUS,
-				OP_NOTQUERY, OP_NOTMINQUERY, OP_NOTUPTO, OP_NOTMINUPTO,
-				OP_NOTEXACT, OP_NOTPOSSTAR, OP_NOTPOSPLUS, OP_NOTPOSQUERY,
-				OP_NOTPOSUPTO,
-				OP_NOTSTARI, OP_NOTMINSTARI, OP_NOTPLUSI, OP_NOTMINPLUSI,
-				OP_NOTQUERYI, OP_NOTMINQUERYI, OP_NOTUPTOI, OP_NOTMINUPTOI,
-				OP_NOTEXACTI, OP_NOTPOSSTARI, OP_NOTPOSPLUSI, OP_NOTPOSQUERYI,
-				OP_NOTPOSUPTOI:
-				if HAS_EXTRALEN(uint32(code[pos-1])) {
-					pos += GET_EXTRALEN(uint32(code[pos-1]))
+			case xOP_CHAR, xOP_CHARI, xOP_NOT, xOP_NOTI,
+				xOP_STAR, xOP_MINSTAR, xOP_PLUS, xOP_MINPLUS, xOP_QUERY, xOP_MINQUERY,
+				xOP_UPTO, xOP_MINUPTO, xOP_EXACT, xOP_POSSTAR, xOP_POSPLUS,
+				xOP_POSQUERY, xOP_POSUPTO,
+				xOP_STARI, xOP_MINSTARI, xOP_PLUSI, xOP_MINPLUSI, xOP_QUERYI,
+				xOP_MINQUERYI, xOP_UPTOI, xOP_MINUPTOI, xOP_EXACTI, xOP_POSSTARI,
+				xOP_POSPLUSI, xOP_POSQUERYI, xOP_POSUPTOI,
+				xOP_NOTSTAR, xOP_NOTMINSTAR, xOP_NOTPLUS, xOP_NOTMINPLUS,
+				xOP_NOTQUERY, xOP_NOTMINQUERY, xOP_NOTUPTO, xOP_NOTMINUPTO,
+				xOP_NOTEXACT, xOP_NOTPOSSTAR, xOP_NOTPOSPLUS, xOP_NOTPOSQUERY,
+				xOP_NOTPOSUPTO,
+				xOP_NOTSTARI, xOP_NOTMINSTARI, xOP_NOTPLUSI, xOP_NOTMINPLUSI,
+				xOP_NOTQUERYI, xOP_NOTMINQUERYI, xOP_NOTUPTOI, xOP_NOTMINUPTOI,
+				xOP_NOTEXACTI, xOP_NOTPOSSTARI, xOP_NOTPOSPLUSI, xOP_NOTPOSQUERYI,
+				xOP_NOTPOSUPTOI:
+				if xHAS_EXTRALEN(uint32(code[pos-1])) {
+					pos += xGET_EXTRALEN(uint32(code[pos-1]))
 				}
 			}
 		}

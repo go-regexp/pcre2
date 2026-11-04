@@ -76,49 +76,49 @@ func (fs *frameStore) grow(n int) {
 
 // Group frame type values (pcre2_match.c:111).
 const (
-	GF_CAPTURE    uint32 = 0x00010000
-	GF_NOCAPTURE  uint32 = 0x00020000
-	GF_CONDASSERT uint32 = 0x00030000
-	GF_RECURSE    uint32 = 0x00040000
+	xGF_CAPTURE    uint32 = 0x00010000
+	xGF_NOCAPTURE  uint32 = 0x00020000
+	xGF_CONDASSERT uint32 = 0x00030000
+	xGF_RECURSE    uint32 = 0x00040000
 )
 
-func GF_IDMASK(a uint32) uint32   { return a & 0xffff0000 }
-func GF_DATAMASK(a uint32) uint32 { return a & 0x0000ffff }
+func xGF_IDMASK(a uint32) uint32   { return a & 0xffff0000 }
+func xGF_DATAMASK(a uint32) uint32 { return a & 0x0000ffff }
 
 const recurseUnset = 0xffffffff // RECURSE_UNSET
 
 // Non-error returns from and within match() (pcre2_match.c:87).
 const (
-	MATCH_MATCH   = 1
-	MATCH_NOMATCH = 0
+	xMATCH_MATCH   = 1
+	xMATCH_NOMATCH = 0
 
-	MATCH_ACCEPT        = -999
-	MATCH_KETRPOS       = -998
-	MATCH_COMMIT        = -997
-	MATCH_PRUNE         = -996
-	MATCH_SKIP          = -995
-	MATCH_SKIP_ARG      = -994
-	MATCH_THEN          = -993
-	MATCH_BACKTRACK_MAX = MATCH_THEN
-	MATCH_BACKTRACK_MIN = MATCH_COMMIT
+	xMATCH_ACCEPT        = -999
+	xMATCH_KETRPOS       = -998
+	xMATCH_COMMIT        = -997
+	xMATCH_PRUNE         = -996
+	xMATCH_SKIP          = -995
+	xMATCH_SKIP_ARG      = -994
+	xMATCH_THEN          = -993
+	xMATCH_BACKTRACK_MAX = xMATCH_THEN
+	xMATCH_BACKTRACK_MIN = xMATCH_COMMIT
 )
 
 // Repetition types (pcre2_match.c:123).
 const (
-	REPTYPE_MIN = iota
-	REPTYPE_MAX
-	REPTYPE_POS
+	xREPTYPE_MIN = iota
+	xREPTYPE_MAX
+	xREPTYPE_POS
 )
 
 const uint32Max = 0xffffffff
 
 var rep_min = [...]uint32{0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0}
 var rep_max = [...]uint32{uint32Max, uint32Max, uint32Max, uint32Max, 1, 1, 0, 0, uint32Max, uint32Max, 1}
-var rep_typ = [...]uint32{REPTYPE_MAX, REPTYPE_MIN, REPTYPE_MAX, REPTYPE_MIN, REPTYPE_MAX, REPTYPE_MIN,
-	REPTYPE_MAX, REPTYPE_MIN, REPTYPE_POS, REPTYPE_POS, REPTYPE_POS, REPTYPE_POS}
+var rep_typ = [...]uint32{xREPTYPE_MAX, xREPTYPE_MIN, xREPTYPE_MAX, xREPTYPE_MIN, xREPTYPE_MAX, xREPTYPE_MIN,
+	xREPTYPE_MAX, xREPTYPE_MIN, xREPTYPE_POS, xREPTYPE_POS, xREPTYPE_POS, xREPTYPE_POS}
 
 // Public options permitted at match time (pcre2_match.c:73).
-const PUBLIC_MATCH_OPTIONS = PCRE2_ANCHORED | PCRE2_ENDANCHORED | PCRE2_NOTBOL | PCRE2_NOTEOL | PCRE2_NOTEMPTY |
+const xPUBLIC_MATCH_OPTIONS = PCRE2_ANCHORED | PCRE2_ENDANCHORED | PCRE2_NOTBOL | PCRE2_NOTEOL | PCRE2_NOTEMPTY |
 	PCRE2_NOTEMPTY_ATSTART | PCRE2_NO_UTF_CHECK | PCRE2_PARTIAL_HARD |
 	PCRE2_PARTIAL_SOFT | PCRE2_NO_JIT | PCRE2_COPY_MATCHED_SUBJECT |
 	PCRE2_DISABLE_RECURSELOOP_CHECK
@@ -171,7 +171,7 @@ type matchBlock struct {
 
 // isNewline is IS_NEWLINE(p) (pcre2_internal.h:496); it may set mb.nllen.
 func (mb *matchBlock) isNewline(p int) bool {
-	if mb.nltype != NLTYPE_FIXED {
+	if mb.nltype != xNLTYPE_FIXED {
 		if p < mb.endSubject {
 			ok, n := is_newline(mb.subject, p, mb.nltype, mb.endSubject, mb.utf)
 			if ok {
@@ -187,7 +187,7 @@ func (mb *matchBlock) isNewline(p int) bool {
 
 // wasNewline is WAS_NEWLINE(p) (pcre2_internal.h:510); it may set mb.nllen.
 func (mb *matchBlock) wasNewline(p int) bool {
-	if mb.nltype != NLTYPE_FIXED {
+	if mb.nltype != xNLTYPE_FIXED {
 		if p > 0 {
 			ok, n := was_newline(mb.subject, p, mb.nltype, 0, mb.utf)
 			if ok {
@@ -217,7 +217,7 @@ func (mb *matchBlock) scheck(eptr int) bool {
 // newline that ends the subject": it sets hitend and reports true when a hard
 // partial match must be returned.
 func (mb *matchBlock) crlfPartial(isLast bool, b byte) bool {
-	if mb.partial != 0 && isLast && mb.nltype == NLTYPE_FIXED && mb.nllen == 2 && b == mb.nl[0] {
+	if mb.partial != 0 && isLast && mb.nltype == xNLTYPE_FIXED && mb.nllen == 2 && b == mb.nl[0] {
 		mb.hitend = true
 		if mb.partial > 1 {
 			return true
@@ -265,34 +265,34 @@ func isVspace(c uint32) bool {
 // forms (pcre2_match.c:2493 and following) before the "notmatch" inversion.
 // ok is false for an unknown property type (PCRE2_ERROR_INTERNAL).
 func propTest(proptype int, fc uint32, val uint32) (res bool, ok bool) {
-	prop := GET_UCD(fc)
+	prop := xGET_UCD(fc)
 	switch proptype {
-	case PT_ANY:
+	case xPT_ANY:
 		return true, true
-	case PT_LAMP:
+	case xPT_LAMP:
 		ct := uint32(prop.chartype)
 		return ct == ucp_Lu || ct == ucp_Ll || ct == ucp_Lt, true
-	case PT_GC:
+	case xPT_GC:
 		return val == ucp_gentype[prop.chartype], true
-	case PT_PC:
+	case xPT_PC:
 		return val == uint32(prop.chartype), true
-	case PT_SC:
+	case xPT_SC:
 		return val == uint32(prop.script), true
-	case PT_SCX:
-		return val == uint32(prop.script) || MAPBIT(ucd_script_sets[UCD_SCRIPTX_PROP(prop):], val), true
-	case PT_ALNUM:
+	case xPT_SCX:
+		return val == uint32(prop.script) || xMAPBIT(ucd_script_sets[xUCD_SCRIPTX_PROP(prop):], val), true
+	case xPT_ALNUM:
 		g := ucp_gentype[prop.chartype]
 		return g == ucp_L || g == ucp_N, true
-	case PT_SPACE, PT_PXSPACE:
+	case xPT_SPACE, xPT_PXSPACE:
 		if isHspace(fc) || isVspace(fc) {
 			return true, true
 		}
 		return ucp_gentype[prop.chartype] == ucp_Z, true
-	case PT_WORD:
+	case xPT_WORD:
 		ct := uint32(prop.chartype)
 		g := ucp_gentype[ct]
 		return g == ucp_L || g == ucp_N || ct == ucp_Mn || ct == ucp_Pc, true
-	case PT_CLIST:
+	case xPT_CLIST:
 		cp := ucd_caseless_sets[val:]
 		for i := 0; ; i++ {
 			if fc < cp[i] {
@@ -302,13 +302,13 @@ func propTest(proptype int, fc uint32, val uint32) (res bool, ok bool) {
 				return true, true
 			}
 		}
-	case PT_UCNC:
-		return fc == CHAR_DOLLAR_SIGN || fc == CHAR_COMMERCIAL_AT || fc == CHAR_GRAVE_ACCENT ||
+	case xPT_UCNC:
+		return fc == xCHAR_DOLLAR_SIGN || fc == xCHAR_COMMERCIAL_AT || fc == xCHAR_GRAVE_ACCENT ||
 			(fc >= 0xa0 && fc <= 0xd7ff) || fc >= 0xe000, true
-	case PT_BIDICL:
-		return UCD_BIDICLASS_PROP(prop) == val, true
-	case PT_BOOL:
-		return MAPBIT(ucd_boolprop_sets[UCD_BPROPS_PROP(prop):], val), true
+	case xPT_BIDICL:
+		return xUCD_BIDICLASS_PROP(prop) == val, true
+	case xPT_BOOL:
+		return xMAPBIT(ucd_boolprop_sets[xUCD_BPROPS_PROP(prop):], val), true
 	}
 	return false, false
 }
