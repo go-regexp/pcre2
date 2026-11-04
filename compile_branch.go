@@ -1509,21 +1509,22 @@ mainloop:
 						copy(code[cc:cc+rlen], code[previous:previous+rlen])
 						cc += rlen
 					}
+				}
 
-					for bralink >= 0 {
-						linkoffset := cc - bralink + 1
-						bra := cc - linkoffset
-						oldlinkoffset := GET(code, bra+1)
-						if oldlinkoffset == 0 {
-							bralink = -1
-						} else {
-							bralink -= oldlinkoffset
-						}
-						code[cc] = OP_KET
-						cc++
-						cc = PUTINC(code, cc, linkoffset)
-						PUT(code, bra+1, linkoffset)
+				// pcre2_compile.c:7639: runs in both phases.
+				for bralink >= 0 {
+					linkoffset := cc - bralink + 1
+					bra := cc - linkoffset
+					oldlinkoffset := GET(code, bra+1)
+					if oldlinkoffset == 0 {
+						bralink = -1
+					} else {
+						bralink -= oldlinkoffset
 					}
+					code[cc] = OP_KET
+					cc++
+					cc = PUTINC(code, cc, linkoffset)
+					PUT(code, bra+1, linkoffset)
 				}
 			} else {
 				// Unlimited maximum: set a repeater in the final copy. (7678)

@@ -53,6 +53,9 @@ func (c *richCode) Extra() pcre2testgo.CodeExtra {
 	return e
 }
 
+// PrintInt makes the code a pcre2testgo.CodeDumper (/B, /D).
+func (c *richCode) PrintInt(full bool) string { return c.C.PrintInt(full) }
+
 func (c *richCode) NewMatchData(n uint32) pcre2testgo.MatchData {
 	return &richMD{c.Code.NewMatchData(n).(*libpcre2.MatchData)}
 }
