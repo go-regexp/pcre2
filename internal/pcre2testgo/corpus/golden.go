@@ -78,7 +78,7 @@ func Plan() []ManifestEntry {
 	}
 	p := []ManifestEntry{
 		inc(1, "testoutput1", "RunTest test 1: main non-UTF functionality, always run"),
-		inc(2, "testoutput2", "RunTest test 2: API, errors, internals, always run; RunTest appends 'pcre2test -error' output", "serialize-none"),
+		inc(2, "testoutput2", "RunTest test 2: API, errors, internals, always run; RunTest appends 'pcre2test -error' output"),
 		skip(3, "RunTest test 3 needs a French locale (fr_FR, french, fr or fr_CA) and accepts one of three alternative outputs (testoutput3, 3A, 3B); outputs depend on the host's locale tables, so it is not a stable oracle"),
 		inc(4, "testoutput4", "RunTest test 4: UTF and Unicode property support (Unicode build)"),
 		inc(5, "testoutput5", "RunTest test 5: API and internals for UTF/UCP (Unicode build)"),

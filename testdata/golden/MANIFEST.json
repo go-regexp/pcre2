@@ -23,9 +23,6 @@
    "golden": "testinput2.json",
    "cases": 1848,
    "counted": 1844,
-   "features": [
-    "serialize-none"
-   ],
    "extra_args": [
     [
      "-error",
