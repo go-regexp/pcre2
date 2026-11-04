@@ -14,8 +14,7 @@ package pcre2
 // Offsets that C's sizeof/offsetof give for the 64-bit heapframe (see
 // pcre2_intmodedep.h:790): the ovector follows 136 bytes of fixed fields.
 const (
-	heapframeOvectorOffset = 136
-	heapframeAlignment     = 8 // HEAPFRAME_ALIGNMENT
+	heapframeAlignment = 8 // HEAPFRAME_ALIGNMENT
 )
 
 // heapframe is the backtracking frame (pcre2_intmodedep.h:790). The fields up
@@ -77,10 +76,10 @@ func (fs *frameStore) grow(n int) {
 
 // Group frame type values (pcre2_match.c:111).
 const (
-	GF_CAPTURE   uint32 = 0x00010000
-	GF_NOCAPTURE uint32 = 0x00020000
+	GF_CAPTURE    uint32 = 0x00010000
+	GF_NOCAPTURE  uint32 = 0x00020000
 	GF_CONDASSERT uint32 = 0x00030000
-	GF_RECURSE   uint32 = 0x00040000
+	GF_RECURSE    uint32 = 0x00040000
 )
 
 func GF_IDMASK(a uint32) uint32   { return a & 0xffff0000 }
@@ -127,47 +126,47 @@ const PUBLIC_MATCH_OPTIONS = PCRE2_ANCHORED | PCRE2_ENDANCHORED | PCRE2_NOTBOL |
 // matchBlock is match_block (pcre2_intmodedep.h:864): the "static" data of one
 // pcre2_match() call.
 type matchBlock struct {
-	heapLimit        uint32
-	matchLimit       uint32
-	matchLimitDepth  uint32
-	matchCallCount   uint32
-	hitend           bool
-	hasthen          bool
-	allowemptypartial bool
-	lcc, fcc, ctypes []byte
-	startOffset      int
-	endOffsetTop     int
-	partial          uint16
-	bsrConvention    uint16
-	nameCount        uint16
-	nameEntrySize    uint16
-	nameTable        []byte
-	startCode        []byte
-	subject          []byte // start_subject is index 0
-	checkSubject     int
-	endSubject       int
-	trueEndSubject   int
-	endMatchPtr      int
-	startUsedPtr     int
-	lastUsedPtr      int
-	mark             int // code offset of the mark name, -1: NULL
-	nomatchMark      int
-	verbEcodePtr     int // code offset
-	verbSkipPtr      int // subject offset (from OP_SKIP)
-	verbSkipCode     int // code offset (from OP_SKIP_ARG)
+	heapLimit          uint32
+	matchLimit         uint32
+	matchLimitDepth    uint32
+	matchCallCount     uint32
+	hitend             bool
+	hasthen            bool
+	allowemptypartial  bool
+	lcc, fcc, ctypes   []byte
+	startOffset        int
+	endOffsetTop       int
+	partial            uint16
+	bsrConvention      uint16
+	nameCount          uint16
+	nameEntrySize      uint16
+	nameTable          []byte
+	startCode          []byte
+	subject            []byte // start_subject is index 0
+	checkSubject       int
+	endSubject         int
+	trueEndSubject     int
+	endMatchPtr        int
+	startUsedPtr       int
+	lastUsedPtr        int
+	mark               int // code offset of the mark name, -1: NULL
+	nomatchMark        int
+	verbEcodePtr       int // code offset
+	verbSkipPtr        int // subject offset (from OP_SKIP)
+	verbSkipCode       int // code offset (from OP_SKIP_ARG)
 	verbCurrentRecurse uint32
-	moptions         uint32
-	poptions         uint32
-	skipArgCount     uint32
-	ignoreSkipArg    uint32
-	nltype           uint32
-	nllen            uint32
-	nl               [4]byte
-	utf              bool
-	cb               *CalloutBlock
-	cbvec            []uint64 // scratch for the callout's offset vector
-	calloutData      any
-	callout          func(cb *CalloutBlock, data any) int
+	moptions           uint32
+	poptions           uint32
+	skipArgCount       uint32
+	ignoreSkipArg      uint32
+	nltype             uint32
+	nllen              uint32
+	nl                 [4]byte
+	utf                bool
+	cb                 *CalloutBlock
+	cbvec              []uint64 // scratch for the callout's offset vector
+	calloutData        any
+	callout            func(cb *CalloutBlock, data any) int
 }
 
 // isNewline is IS_NEWLINE(p) (pcre2_internal.h:496); it may set mb.nllen.
