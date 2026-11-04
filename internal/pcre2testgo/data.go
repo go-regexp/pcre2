@@ -8,6 +8,10 @@ import (
 	"github.com/go-regexp/pcre2/internal/pcre2testgo/mods"
 )
 
+// copyBufUnits is sizeof(copybuffer)/code_unit_size in pcre2test.c:
+// uint32_t copybuffer[256] holds 1024 8-bit code units.
+const copyBufUnits = 1024
+
 // Match option bits used by the global loop.
 const (
 	optNotEmptyAtStart = mods.NOTEMPTY_ATSTART
@@ -629,7 +633,7 @@ func (r *Runner) copyAndGet(md MatchData, dat *mods.DatCtl, utf bool, capcount i
 	out := r.out
 	for i := 0; i < mods.MaxCpyGet && dat.CopyNumbers[i] >= 0; i++ {
 		n := uint32(dat.CopyNumbers[i])
-		buf, rc := md.CopyByNumber(n, 256)
+		buf, rc := md.CopyByNumber(n, copyBufUnits)
 		if rc == Unsupported {
 			r.unsup("substring copy")
 			continue
@@ -661,7 +665,7 @@ func (r *Runner) copyAndGet(md MatchData, dat *mods.DatCtl, utf bool, capcount i
 		if groupnumber < 0 && groupnumber != errNoUniqueSubstr {
 			r.printf("Number not found for group '%s'\n", name)
 		}
-		buf, rc := md.CopyByName(name, 256)
+		buf, rc := md.CopyByName(name, copyBufUnits)
 		if rc == Unsupported {
 			r.unsup("substring copy by name")
 			continue

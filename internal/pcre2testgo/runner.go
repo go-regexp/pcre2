@@ -378,7 +378,7 @@ func (r *Runner) processPattern(first []byte) int {
 		p++
 	}
 	// buf[1:p] is the pattern; the modifiers start after buf[p].
-	pat := append([]byte(nil), buf[1:p]...)
+	pat := append([]byte{}, buf[1:p]...) // never nil: nil means null_pattern
 	mod := buf[p+1:]
 
 	st := r.newState(mods.CtxPat)
@@ -502,6 +502,9 @@ func (r *Runner) processPattern(first []byte) int {
 		}
 	}
 	_ = patlen
+	if pat == nil {
+		pat = []byte{}
+	}
 
 	// Character tables.
 	if pc.Locale != "" {
