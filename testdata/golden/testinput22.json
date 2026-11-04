@@ -1,0 +1,159 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput22",
+ "testoutput": "testoutput22-8",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "22:0001",
+   "kind": "pattern",
+   "line": 1,
+   "input": "# Tests of \\C when Unicode support is available. Note that \\C is not supported\n# for DFA matching in UTF mode, so this test is not run with -dfa. The output\n# of this test is different in 8-, 16-, and 32-bit modes. Some tests may match\n# in some widths and not in others.\n\n/ab\\Cde/utf,info\n    abXde\n\n",
+   "expected": "# Tests of \\C when Unicode support is available. Note that \\C is not supported\n# for DFA matching in UTF mode, so this test is not run with -dfa. The output\n# of this test is different in 8-, 16-, and 32-bit modes. Some tests may match\n# in some widths and not in others.\n\n/ab\\Cde/utf,info\nCapture group count = 0\nContains \\C\nOptions: utf\nFirst code unit = 'a'\nLast code unit = 'e'\nSubject length lower bound = 2\n    abXde\n 0: abXde\n\n"
+  },
+  {
+   "id": "22:0002",
+   "kind": "pattern",
+   "line": 9,
+   "input": "# This should produce an error diagnostic (\\C in UTF lookbehind) in 8-bit and\n# 16-bit modes, but not in 32-bit mode.\n\n/(?<=ab\\Cde)X/utf\n    ab!deXYZ\n\n",
+   "expected": "# This should produce an error diagnostic (\\C in UTF lookbehind) in 8-bit and\n# 16-bit modes, but not in 32-bit mode.\n\n/(?<=ab\\Cde)X/utf\nFailed: error 136 at offset 0: \\C is not allowed in a lookbehind assertion in UTF-8 mode\n    ab!deXYZ\n\n"
+  },
+  {
+   "id": "22:0003",
+   "kind": "pattern",
+   "line": 15,
+   "input": "# Autopossessification tests\n\n/\\C+\\X \\X+\\C/Bx\n\n",
+   "expected": "# Autopossessification tests\n\n/\\C+\\X \\X+\\C/Bx\n------------------------------------------------------------------\n        Bra\n        AllAny+\n        extuni\n        extuni+\n        AllAny\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "22:0004",
+   "kind": "pattern",
+   "line": 19,
+   "input": "/\\C+\\X \\X+\\C/Bx,utf\n\n",
+   "expected": "/\\C+\\X \\X+\\C/Bx,utf\n------------------------------------------------------------------\n        Bra\n        Anybyte+\n        extuni\n        extuni+\n        Anybyte\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "22:0005",
+   "kind": "pattern",
+   "line": 21,
+   "input": "/\\C\\X*TӅ;\r\n{0,6}\\v+\rF\n/utf\n\\= Expect no match\n    Ӆ\\x0a\n\n",
+   "expected": "/\\C\\X*TӅ;\r\n{0,6}\\v+\rF\n/utf\n\\= Expect no match\n    Ӆ\\x0a\nNo match\n\n"
+  },
+  {
+   "id": "22:0006",
+   "kind": "pattern",
+   "line": 27,
+   "input": "/\\C(\\W?ſ)'?{{/utf\n\\= Expect no match\n    \\\\C(\\\\W?ſ)'?{{\n\n",
+   "expected": "/\\C(\\W?ſ)'?{{/utf\n\\= Expect no match\n    \\\\C(\\\\W?ſ)'?{{\nNo match\n\n"
+  },
+  {
+   "id": "22:0007",
+   "kind": "pattern",
+   "line": 31,
+   "input": "/X(\\C{3})/utf\n    X\\x{1234}\n    X\\x{11234}Y\n    X\\x{11234}YZ\n\n",
+   "expected": "/X(\\C{3})/utf\n    X\\x{1234}\n 0: X\\x{1234}\n 1: \\x{1234}\n    X\\x{11234}Y\n 0: X\\x{f0}\\x{91}\\x{88}\n 1: \\x{f0}\\x{91}\\x{88}\n    X\\x{11234}YZ\n 0: X\\x{f0}\\x{91}\\x{88}\n 1: \\x{f0}\\x{91}\\x{88}\n\n"
+  },
+  {
+   "id": "22:0008",
+   "kind": "pattern",
+   "line": 36,
+   "input": "/X(\\C{4})/utf\n    X\\x{1234}YZ\n    X\\x{11234}YZ\n    X\\x{11234}YZW\n\n",
+   "expected": "/X(\\C{4})/utf\n    X\\x{1234}YZ\n 0: X\\x{1234}Y\n 1: \\x{1234}Y\n    X\\x{11234}YZ\n 0: X\\x{11234}\n 1: \\x{11234}\n    X\\x{11234}YZW\n 0: X\\x{11234}\n 1: \\x{11234}\n\n"
+  },
+  {
+   "id": "22:0009",
+   "kind": "pattern",
+   "line": 41,
+   "input": "/X\\C*/utf\n    XYZabcdce\n\n",
+   "expected": "/X\\C*/utf\n    XYZabcdce\n 0: XYZabcdce\n\n"
+  },
+  {
+   "id": "22:0010",
+   "kind": "pattern",
+   "line": 44,
+   "input": "/X\\C*?/utf\n    XYZabcde\n\n",
+   "expected": "/X\\C*?/utf\n    XYZabcde\n 0: X\n\n"
+  },
+  {
+   "id": "22:0011",
+   "kind": "pattern",
+   "line": 47,
+   "input": "/X\\C{3,5}/utf\n    Xabcdefg\n    X\\x{1234}\n    X\\x{1234}YZ\n    X\\x{1234}\\x{512}\n    X\\x{1234}\\x{512}YZ\n    X\\x{11234}Y\n    X\\x{11234}YZ\n    X\\x{11234}\\x{512}\n    X\\x{11234}\\x{512}YZ\n    X\\x{11234}\\x{512}\\x{11234}Z\n\n",
+   "expected": "/X\\C{3,5}/utf\n    Xabcdefg\n 0: Xabcde\n    X\\x{1234}\n 0: X\\x{1234}\n    X\\x{1234}YZ\n 0: X\\x{1234}YZ\n    X\\x{1234}\\x{512}\n 0: X\\x{1234}\\x{512}\n    X\\x{1234}\\x{512}YZ\n 0: X\\x{1234}\\x{512}\n    X\\x{11234}Y\n 0: X\\x{11234}Y\n    X\\x{11234}YZ\n 0: X\\x{11234}Y\n    X\\x{11234}\\x{512}\n 0: X\\x{11234}\\x{d4}\n    X\\x{11234}\\x{512}YZ\n 0: X\\x{11234}\\x{d4}\n    X\\x{11234}\\x{512}\\x{11234}Z\n 0: X\\x{11234}\\x{d4}\n\n"
+  },
+  {
+   "id": "22:0012",
+   "kind": "pattern",
+   "line": 59,
+   "input": "/X\\C{3,5}?/utf\n    Xabcdefg\n    X\\x{1234}\n    X\\x{1234}YZ\n    X\\x{1234}\\x{512}\n    X\\x{11234}Y\n    X\\x{11234}YZ\n    X\\x{11234}\\x{512}YZ\n    X\\x{11234}\n\n",
+   "expected": "/X\\C{3,5}?/utf\n    Xabcdefg\n 0: Xabc\n    X\\x{1234}\n 0: X\\x{1234}\n    X\\x{1234}YZ\n 0: X\\x{1234}\n    X\\x{1234}\\x{512}\n 0: X\\x{1234}\n    X\\x{11234}Y\n 0: X\\x{f0}\\x{91}\\x{88}\n    X\\x{11234}YZ\n 0: X\\x{f0}\\x{91}\\x{88}\n    X\\x{11234}\\x{512}YZ\n 0: X\\x{f0}\\x{91}\\x{88}\n    X\\x{11234}\n 0: X\\x{f0}\\x{91}\\x{88}\n\n"
+  },
+  {
+   "id": "22:0013",
+   "kind": "pattern",
+   "line": 69,
+   "input": "/a\\Cb/utf\n    aXb\n    a\\nb\n    a\\x{100}b\n\n",
+   "expected": "/a\\Cb/utf\n    aXb\n 0: aXb\n    a\\nb\n 0: a\\x{0a}b\n    a\\x{100}b\nNo match\n\n"
+  },
+  {
+   "id": "22:0014",
+   "kind": "pattern",
+   "line": 74,
+   "input": "/a\\C\\Cb/utf\n    a\\x{100}b\n    a\\x{12257}b\n    a\\x{12257}\\x{11234}b\n\n",
+   "expected": "/a\\C\\Cb/utf\n    a\\x{100}b\n 0: a\\x{100}b\n    a\\x{12257}b\nNo match\n    a\\x{12257}\\x{11234}b\nNo match\n\n"
+  },
+  {
+   "id": "22:0015",
+   "kind": "pattern",
+   "line": 79,
+   "input": "/ab\\Cde/utf\n    abXde\n\n",
+   "expected": "/ab\\Cde/utf\n    abXde\n 0: abXde\n\n"
+  },
+  {
+   "id": "22:0016",
+   "kind": "pattern",
+   "line": 82,
+   "input": "# This one is here not because it's different to Perl, but because the way\n# the captured single code unit is displayed. (In Perl it becomes a character,\n# and you can't tell the difference.)\n\n/X(\\C)(.*)/utf\n    X\\x{1234}\n    X\\nabc\n\n",
+   "expected": "# This one is here not because it's different to Perl, but because the way\n# the captured single code unit is displayed. (In Perl it becomes a character,\n# and you can't tell the difference.)\n\n/X(\\C)(.*)/utf\n    X\\x{1234}\n 0: X\\x{1234}\n 1: \\x{e1}\n 2: \\x{88}\\x{b4}\n    X\\nabc\n 0: X\\x{0a}abc\n 1: \\x{0a}\n 2: abc\n\n"
+  },
+  {
+   "id": "22:0017",
+   "kind": "pattern",
+   "line": 90,
+   "input": "# This one is here because Perl gives out a grumbly error message (quite\n# correctly, but that messes up comparisons).\n\n/a\\Cb/utf\n\\= Expect no match in 8-bit mode\n    a\\x{100}b\n\n",
+   "expected": "# This one is here because Perl gives out a grumbly error message (quite\n# correctly, but that messes up comparisons).\n\n/a\\Cb/utf\n\\= Expect no match in 8-bit mode\n    a\\x{100}b\nNo match\n\n"
+  },
+  {
+   "id": "22:0018",
+   "kind": "pattern",
+   "line": 97,
+   "input": "/^ab\\C/utf,no_start_optimize\n\\= Expect no match - tests \\C at end of subject\n    ab\n\n",
+   "expected": "/^ab\\C/utf,no_start_optimize\n\\= Expect no match - tests \\C at end of subject\n    ab\nNo match\n\n"
+  },
+  {
+   "id": "22:0019",
+   "kind": "pattern",
+   "line": 101,
+   "input": "/\\C[^\\v]+\\x80/utf\n    [AΏBŀC]\n\n",
+   "expected": "/\\C[^\\v]+\\x80/utf\n    [AΏBŀC]\nNo match\n\n"
+  },
+  {
+   "id": "22:0020",
+   "kind": "pattern",
+   "line": 104,
+   "input": "/\\C[^\\d]+\\x80/utf\n    [AΏBŀC]\n\n",
+   "expected": "/\\C[^\\d]+\\x80/utf\n    [AΏBŀC]\nNo match\n\n"
+  },
+  {
+   "id": "22:0021",
+   "kind": "command",
+   "line": 107,
+   "input": "# End of testinput22\n",
+   "expected": "# End of testinput22\n"
+  }
+ ]
+}

@@ -1,0 +1,4 @@
+# Cases of the golden corpus that do not pass yet (one id per line).
+# A listed case that fails is reported as skipped; a case that is not listed and
+# fails is a regression. Regenerate with:
+#   PCRE2_CONFORMANCE_UPDATE_KNOWN_FAIL=1 go test -run TestConformance .

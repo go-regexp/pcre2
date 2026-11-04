@@ -1,0 +1,54 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput21",
+ "testoutput": "testoutput21",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "21:0001",
+   "kind": "pattern",
+   "line": 1,
+   "input": "# These are tests of \\C that do not involve UTF. They are not run when \\C is\n# disabled by compiling with --enable-never-backslash-C.\n\n/\\C+\\D \\C+\\d \\C+\\S \\C+\\s \\C+\\W \\C+\\w \\C+. \\C+\\R \\C+\\H \\C+\\h \\C+\\V \\C+\\v \\C+\\Z \\C+\\z \\C+$/Bx\n\n",
+   "expected": "# These are tests of \\C that do not involve UTF. They are not run when \\C is\n# disabled by compiling with --enable-never-backslash-C.\n\n/\\C+\\D \\C+\\d \\C+\\S \\C+\\s \\C+\\W \\C+\\w \\C+. \\C+\\R \\C+\\H \\C+\\h \\C+\\V \\C+\\v \\C+\\Z \\C+\\z \\C+$/Bx\n------------------------------------------------------------------\n        Bra\n        AllAny+\n        \\D\n        AllAny+\n        \\d\n        AllAny+\n        \\S\n        AllAny+\n        \\s\n        AllAny+\n        \\W\n        AllAny+\n        \\w\n        AllAny+\n        Any\n        AllAny+\n        \\R\n        AllAny+\n        \\H\n        AllAny+\n        \\h\n        AllAny+\n        \\V\n        AllAny+\n        \\v\n        AllAny+\n        \\Z\n        AllAny++\n        \\z\n        AllAny+\n        $\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "21:0002",
+   "kind": "pattern",
+   "line": 6,
+   "input": "/\\D+\\C \\d+\\C \\S+\\C \\s+\\C \\W+\\C \\w+\\C .+\\C \\R+\\C \\H+\\C \\h+\\C \\V+\\C \\v+\\C a+\\C \\n+\\C \\C+\\C/Bx\n\n",
+   "expected": "/\\D+\\C \\d+\\C \\S+\\C \\s+\\C \\W+\\C \\w+\\C .+\\C \\R+\\C \\H+\\C \\h+\\C \\V+\\C \\v+\\C a+\\C \\n+\\C \\C+\\C/Bx\n------------------------------------------------------------------\n        Bra\n        \\D+\n        AllAny\n        \\d+\n        AllAny\n        \\S+\n        AllAny\n        \\s+\n        AllAny\n        \\W+\n        AllAny\n        \\w+\n        AllAny\n        Any+\n        AllAny\n        \\R+\n        AllAny\n        \\H+\n        AllAny\n        \\h+\n        AllAny\n        \\V+\n        AllAny\n        \\v+\n        AllAny\n        a+\n        AllAny\n        \\x0a+\n        AllAny\n        AllAny+\n        AllAny\n        Ket\n        End\n------------------------------------------------------------------\n\n"
+  },
+  {
+   "id": "21:0003",
+   "kind": "pattern",
+   "line": 8,
+   "input": "/ab\\Cde/never_backslash_c\n\n",
+   "expected": "/ab\\Cde/never_backslash_c\nFailed: error 183 at offset 4: using \\C is disabled by the application\n\n"
+  },
+  {
+   "id": "21:0004",
+   "kind": "pattern",
+   "line": 10,
+   "input": "/ab\\Cde/info\n    abXde\n    \n",
+   "expected": "/ab\\Cde/info\nCapture group count = 0\nContains \\C\nFirst code unit = 'a'\nLast code unit = 'e'\nSubject length lower bound = 5\n    abXde\n 0: abXde\n    \n"
+  },
+  {
+   "id": "21:0005",
+   "kind": "pattern",
+   "line": 13,
+   "input": "/(?<=ab\\Cde)X/\n    abZdeX\n\n",
+   "expected": "/(?<=ab\\Cde)X/\n    abZdeX\n 0: X\n\n"
+  },
+  {
+   "id": "21:0006",
+   "kind": "command",
+   "line": 16,
+   "input": "# End of testinput21\n",
+   "expected": "# End of testinput21\n"
+  }
+ ]
+}

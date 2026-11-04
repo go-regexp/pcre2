@@ -1,0 +1,299 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput20",
+ "testoutput": "testoutput20",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "20:0001",
+   "kind": "command",
+   "line": 1,
+   "input": "# This set of tests exercises the serialization/deserialization and code copy\n# functions in the library. It does not use UTF or JIT.\n\n#forbid_utf\n",
+   "expected": "# This set of tests exercises the serialization/deserialization and code copy\n# functions in the library. It does not use UTF or JIT.\n\n#forbid_utf\n"
+  },
+  {
+   "id": "20:0002",
+   "kind": "command",
+   "line": 5,
+   "input": "\n# Compile several patterns, push them onto the stack, and then write them\n# all to a file.\n\n#pattern push\n",
+   "expected": "\n# Compile several patterns, push them onto the stack, and then write them\n# all to a file.\n\n#pattern push\n"
+  },
+  {
+   "id": "20:0003",
+   "kind": "pattern",
+   "line": 10,
+   "input": "\n/(?<NAME>(?&NAME_PAT))\\s+(?<ADDR>(?&ADDRESS_PAT))\n  (?(DEFINE)\n  (?<NAME_PAT>[a-z]+)\n  (?<ADDRESS_PAT>\\d+)\n  )/x\n",
+   "expected": "\n/(?<NAME>(?&NAME_PAT))\\s+(?<ADDR>(?&ADDRESS_PAT))\n  (?(DEFINE)\n  (?<NAME_PAT>[a-z]+)\n  (?<ADDRESS_PAT>\\d+)\n  )/x\n"
+  },
+  {
+   "id": "20:0004",
+   "kind": "pattern",
+   "line": 16,
+   "input": "/^(?:((.)(?1)\\2|)|((.)(?3)\\4|.))$/i\n",
+   "expected": "/^(?:((.)(?1)\\2|)|((.)(?3)\\4|.))$/i\n"
+  },
+  {
+   "id": "20:0005",
+   "kind": "command",
+   "line": 17,
+   "input": "\n#save testsaved1\n",
+   "expected": "\n#save testsaved1\n"
+  },
+  {
+   "id": "20:0006",
+   "kind": "pattern",
+   "line": 19,
+   "input": "\n# Do it again for some more patterns.\n\n/(*MARK:A)(*SKIP:B)(C|X)/mark\n",
+   "expected": "\n# Do it again for some more patterns.\n\n/(*MARK:A)(*SKIP:B)(C|X)/mark\n** Ignored when compiled pattern is stacked with 'push': mark\n"
+  },
+  {
+   "id": "20:0007",
+   "kind": "pattern",
+   "line": 23,
+   "input": "/(?:(?<n>foo)|(?<n>bar))\\k<n>/dupnames\n",
+   "expected": "/(?:(?<n>foo)|(?<n>bar))\\k<n>/dupnames\n"
+  },
+  {
+   "id": "20:0008",
+   "kind": "command",
+   "line": 24,
+   "input": "\n#save testsaved2\n",
+   "expected": "\n#save testsaved2\n"
+  },
+  {
+   "id": "20:0009",
+   "kind": "command",
+   "line": 26,
+   "input": "#pattern -push\n",
+   "expected": "#pattern -push\n"
+  },
+  {
+   "id": "20:0010",
+   "kind": "command",
+   "line": 27,
+   "input": "\n# Reload the patterns, then pop them one by one and check them.\n\n#load testsaved1\n",
+   "expected": "\n# Reload the patterns, then pop them one by one and check them.\n\n#load testsaved1\n"
+  },
+  {
+   "id": "20:0011",
+   "kind": "command",
+   "line": 31,
+   "input": "#load testsaved2\n",
+   "expected": "#load testsaved2\n"
+  },
+  {
+   "id": "20:0012",
+   "kind": "pop",
+   "line": 32,
+   "input": "\n#pop info\n    foofoo\n    barbar\n\n",
+   "expected": "\n#pop info\nCapture group count = 2\nMax back reference = 2\nNamed capture groups:\n  n   1\n  n   2\nOptions: dupnames\nStarting code units: b f \nSubject length lower bound = 6\n    foofoo\n 0: foofoo\n 1: foo\n    barbar\n 0: barbar\n 1: <unset>\n 2: bar\n\n"
+  },
+  {
+   "id": "20:0013",
+   "kind": "pop",
+   "line": 37,
+   "input": "#pop mark\n    C\n\\= Expect no match\n    D\n\n",
+   "expected": "#pop mark\n    C\n 0: C\n 1: C\nMK: A\n\\= Expect no match\n    D\nNo match, mark = A\n\n"
+  },
+  {
+   "id": "20:0014",
+   "kind": "pop",
+   "line": 42,
+   "input": "#pop\n    AmanaplanacanalPanama\n\n",
+   "expected": "#pop\n    AmanaplanacanalPanama\n 0: AmanaplanacanalPanama\n 1: <unset>\n 2: <unset>\n 3: AmanaplanacanalPanama\n 4: A\n\n"
+  },
+  {
+   "id": "20:0015",
+   "kind": "pop",
+   "line": 45,
+   "input": "#pop info\n    metcalfe 33\n\n",
+   "expected": "#pop info\nCapture group count = 4\nNamed capture groups:\n  ADDR          2\n  ADDRESS_PAT   4\n  NAME          1\n  NAME_PAT      3\nOptions: extended\nSubject length lower bound = 3\n    metcalfe 33\n 0: metcalfe 33\n 1: metcalfe\n 2: 33\n\n"
+  },
+  {
+   "id": "20:0016",
+   "kind": "pattern",
+   "line": 48,
+   "input": "# Check for an error when different tables are used.\n\n/abc/push,tables=1\n",
+   "expected": "# Check for an error when different tables are used.\n\n/abc/push,tables=1\n"
+  },
+  {
+   "id": "20:0017",
+   "kind": "pattern",
+   "line": 51,
+   "input": "/xyz/push,tables=2\n",
+   "expected": "/xyz/push,tables=2\n"
+  },
+  {
+   "id": "20:0018",
+   "kind": "command",
+   "line": 52,
+   "input": "#save testsaved1\n",
+   "expected": "#save testsaved1\nSerialization failed: error -30: patterns do not all use the same character tables\n"
+  },
+  {
+   "id": "20:0019",
+   "kind": "pop",
+   "line": 53,
+   "input": "\n#pop\n    xyz\n\n",
+   "expected": "\n#pop\n    xyz\n 0: xyz\n\n"
+  },
+  {
+   "id": "20:0020",
+   "kind": "pop",
+   "line": 57,
+   "input": "#pop\n    abc\n\n",
+   "expected": "#pop\n    abc\n 0: abc\n\n"
+  },
+  {
+   "id": "20:0021",
+   "kind": "pop",
+   "line": 60,
+   "input": "#pop should give an error\n    pqr\n\n",
+   "expected": "#pop should give an error\n** Can't pop off an empty stack\n    pqr\n\n"
+  },
+  {
+   "id": "20:0022",
+   "kind": "pattern",
+   "line": 63,
+   "input": "/abcd/pushcopy\n    abcd\n\n",
+   "expected": "/abcd/pushcopy\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0023",
+   "kind": "pop",
+   "line": 66,
+   "input": "#pop\n    abcd\n\n",
+   "expected": "#pop\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0024",
+   "kind": "pop",
+   "line": 69,
+   "input": "#pop should give an error\n\n",
+   "expected": "#pop should give an error\n** Can't pop off an empty stack\n\n"
+  },
+  {
+   "id": "20:0025",
+   "kind": "pattern",
+   "line": 71,
+   "input": "/abcd/push\n",
+   "expected": "/abcd/push\n"
+  },
+  {
+   "id": "20:0026",
+   "kind": "pop",
+   "line": 72,
+   "input": "#popcopy\n    abcd\n\n",
+   "expected": "#popcopy\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0027",
+   "kind": "pop",
+   "line": 75,
+   "input": "#pop\n    abcd\n\n",
+   "expected": "#pop\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0028",
+   "kind": "pattern",
+   "line": 78,
+   "input": "/abcd/push\n",
+   "expected": "/abcd/push\n"
+  },
+  {
+   "id": "20:0029",
+   "kind": "command",
+   "line": 79,
+   "input": "#save testsaved1\n",
+   "expected": "#save testsaved1\n"
+  },
+  {
+   "id": "20:0030",
+   "kind": "pop",
+   "line": 80,
+   "input": "#pop should give an error\n\n",
+   "expected": "#pop should give an error\n** Can't pop off an empty stack\n\n"
+  },
+  {
+   "id": "20:0031",
+   "kind": "command",
+   "line": 82,
+   "input": "#load testsaved1\n",
+   "expected": "#load testsaved1\n"
+  },
+  {
+   "id": "20:0032",
+   "kind": "pop",
+   "line": 83,
+   "input": "#popcopy\n    abcd\n\n",
+   "expected": "#popcopy\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0033",
+   "kind": "pop",
+   "line": 86,
+   "input": "#pop\n    abcd\n\n",
+   "expected": "#pop\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0034",
+   "kind": "pop",
+   "line": 89,
+   "input": "#pop should give an error\n\n",
+   "expected": "#pop should give an error\n** Can't pop off an empty stack\n\n"
+  },
+  {
+   "id": "20:0035",
+   "kind": "pattern",
+   "line": 91,
+   "input": "/abcd/pushtablescopy\n    abcd\n\n",
+   "expected": "/abcd/pushtablescopy\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0036",
+   "kind": "pop",
+   "line": 94,
+   "input": "#popcopy\n    abcd\n\n",
+   "expected": "#popcopy\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0037",
+   "kind": "pop",
+   "line": 97,
+   "input": "#pop\n    abcd\n\n",
+   "expected": "#pop\n    abcd\n 0: abcd\n\n"
+  },
+  {
+   "id": "20:0038",
+   "kind": "pattern",
+   "line": 100,
+   "input": "# Must only specify one of these\n\n//push,pushcopy\n\n",
+   "expected": "# Must only specify one of these\n\n//push,pushcopy\n** Not allowed together: push pushcopy\n\n"
+  },
+  {
+   "id": "20:0039",
+   "kind": "pattern",
+   "line": 104,
+   "input": "//push,pushtablescopy\n\n",
+   "expected": "//push,pushtablescopy\n** Not allowed together: push pushtablescopy\n\n"
+  },
+  {
+   "id": "20:0040",
+   "kind": "pattern",
+   "line": 106,
+   "input": "//pushcopy,pushtablescopy\n\n",
+   "expected": "//pushcopy,pushtablescopy\n** Not allowed together: pushcopy pushtablescopy\n\n"
+  },
+  {
+   "id": "20:0041",
+   "kind": "command",
+   "line": 108,
+   "input": "# End of testinput20\n",
+   "expected": "# End of testinput20\n"
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "schema": 1,
+ "pcre2_version": "10.44",
+ "testinput": "testinput16",
+ "testoutput": "testoutput16",
+ "oracle": {
+  "checked": true,
+  "identical": true
+ },
+ "cases": [
+  {
+   "id": "16:0001",
+   "kind": "pattern",
+   "line": 1,
+   "input": "# This test is run only when JIT support is not available. It checks that an\n# attempt to use it has the expected behaviour. It also tests things that\n# are different without JIT.\n\n/abc/I,jit,jitverify\n\n",
+   "expected": "# This test is run only when JIT support is not available. It checks that an\n# attempt to use it has the expected behaviour. It also tests things that\n# are different without JIT.\n\n/abc/I,jit,jitverify\nJIT compilation was not successful (bad JIT option)\nCapture group count = 0\nFirst code unit = 'a'\nLast code unit = 'c'\nSubject length lower bound = 3\nJIT support is not available in this version of PCRE2\n\n"
+  },
+  {
+   "id": "16:0002",
+   "kind": "pattern",
+   "line": 7,
+   "input": "/a*/I\n\n",
+   "expected": "/a*/I\nCapture group count = 0\nMay match empty string\nSubject length lower bound = 0\n\n"
+  },
+  {
+   "id": "16:0003",
+   "kind": "command",
+   "line": 9,
+   "input": "# End of testinput16\n",
+   "expected": "# End of testinput16\n"
+  }
+ ]
+}
