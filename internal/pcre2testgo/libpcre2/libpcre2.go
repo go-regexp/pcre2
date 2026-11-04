@@ -39,7 +39,7 @@ func (Lib) Compile(pattern []byte, options uint32, cs pcre2testgo.CompileSetting
 	if code == nil {
 		return nil, ec, off
 	}
-	return &Code{C: code}, ec, off
+	return &Code{C: code, Pat: pattern}, ec, off
 }
 
 // ErrorMessage implements pcre2testgo.Lib.
@@ -53,7 +53,11 @@ func (Lib) ErrorMessage(code int) (string, bool) {
 }
 
 // Code adapts *pcre2.Code.
-type Code struct{ C *pcre2.Code }
+type Code struct {
+	C *pcre2.Code
+	// Pat is the pattern text, used to find the delimiter of a callout string.
+	Pat []byte
+}
 
 // Info implements pcre2testgo.Code.
 func (c *Code) Info(what uint32) (uint64, int) { return c.C.PatternInfo(what) }
@@ -91,6 +95,9 @@ func (c *Code) Match(subject []byte, start uint64, options uint32, md pcre2testg
 		mc.SetDepthLimit(ms.DepthLimit)
 		mc.SetHeapLimit(ms.HeapLimit)
 		mc.SetOffsetLimit(ms.OffsetLimit)
+		if ms.Callout != nil {
+			mc.SetCallout(func(cb *pcre2.CalloutBlock, _ any) int { return ms.Callout(c.calloutBlock(cb)) }, nil)
+		}
 	}
 	return pcre2.Match(c.C, subject, start, options, md.(*MatchData).M, mc)
 }
@@ -157,4 +164,35 @@ func (m *MatchData) GetByName(name string) ([]byte, int) {
 func (m *MatchData) ListGet() ([][]byte, int) {
 	list, _, rc := pcre2.SubstringListGet(m.M)
 	return list, rc
+}
+
+// SupportsCallouts implements pcre2testgo.CalloutCapable.
+func (c *Code) SupportsCallouts() bool { return true }
+
+func (c *Code) delimiter(offset uint64, str []byte) byte {
+	if str != nil && offset > 0 && offset-1 < uint64(len(c.Pat)) {
+		return c.Pat[offset-1]
+	}
+	return 0
+}
+
+func (c *Code) calloutBlock(cb *pcre2.CalloutBlock) *pcre2testgo.CalloutBlock {
+	return &pcre2testgo.CalloutBlock{
+		Version: cb.Version, CalloutNumber: cb.CalloutNumber, CaptureTop: cb.CaptureTop, CaptureLast: cb.CaptureLast,
+		OffsetVector: cb.OffsetVector, Mark: cb.Mark, Subject: cb.Subject, StartMatch: cb.StartMatch,
+		CurrentPosition: cb.CurrentPosition, PatternPosition: cb.PatternPosition, NextItemLength: cb.NextItemLength,
+		CalloutStringOffset: cb.CalloutStringOffset, CalloutString: cb.CalloutString,
+		CalloutDelimiter: c.delimiter(cb.CalloutStringOffset, cb.CalloutString), CalloutFlags: cb.CalloutFlags,
+	}
+}
+
+// CalloutEnumerate implements pcre2testgo.CalloutEnumerator.
+func (c *Code) CalloutEnumerate(fn func(pcre2testgo.CalloutEnumBlock) int) int {
+	return c.C.CalloutEnumerate(func(cb *pcre2.CalloutEnumerateBlock, _ any) int {
+		return fn(pcre2testgo.CalloutEnumBlock{
+			PatternPosition: cb.PatternPosition, NextItemLength: cb.NextItemLength, CalloutNumber: cb.CalloutNumber,
+			CalloutStringOffset: cb.CalloutStringOffset, CalloutString: cb.CalloutString,
+			CalloutDelimiter: c.delimiter(cb.CalloutStringOffset, cb.CalloutString),
+		})
+	}, nil)
 }
