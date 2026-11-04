@@ -1,0 +1,5 @@
+go test fuzz v1
+uint8(87)
+[]byte("aaa")
+uint64(1)
+uint32(16)

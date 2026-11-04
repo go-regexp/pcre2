@@ -1,0 +1,5 @@
+go test fuzz v1
+uint8(76)
+[]byte("((a)(b))")
+uint64(0)
+uint32(8)
