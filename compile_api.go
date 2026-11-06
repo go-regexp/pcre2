@@ -1,7 +1,5 @@
 // Public entry points of pcre2_compile.c and pcre2_match.c. The bodies live in
-// compile.go (compileImpl) and match.go (matchImpl); until those files exist,
-// stub_compile.go and stub_match.go provide placeholders that return
-// PCRE2_ERROR_INTERNAL. The porters of compile.go / match.go delete the stubs.
+// compile.go (compileImpl) and match.go (matchImpl).
 package pcre2
 
 // Compile is pcre2_compile(): it compiles pattern (a code-unit slice; use the

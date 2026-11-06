@@ -11,13 +11,13 @@ func check_posix_syntax(pat []byte, ptr int, ptrend int, endptr *int) bool {
 	ptr++
 
 	for ; ptrend-ptr >= 2; ptr++ {
-		if pat[ptr] == CHAR_BACKSLASH &&
-			(pat[ptr+1] == CHAR_RIGHT_SQUARE_BRACKET || pat[ptr+1] == CHAR_BACKSLASH) {
+		if pat[ptr] == xCHAR_BACKSLASH &&
+			(pat[ptr+1] == xCHAR_RIGHT_SQUARE_BRACKET || pat[ptr+1] == xCHAR_BACKSLASH) {
 			ptr++
-		} else if (pat[ptr] == CHAR_LEFT_SQUARE_BRACKET && pat[ptr+1] == terminator) ||
-			pat[ptr] == CHAR_RIGHT_SQUARE_BRACKET {
+		} else if (pat[ptr] == xCHAR_LEFT_SQUARE_BRACKET && pat[ptr+1] == terminator) ||
+			pat[ptr] == xCHAR_RIGHT_SQUARE_BRACKET {
 			return false
-		} else if pat[ptr] == terminator && pat[ptr+1] == CHAR_RIGHT_SQUARE_BRACKET {
+		} else if pat[ptr] == terminator && pat[ptr+1] == xCHAR_RIGHT_SQUARE_BRACKET {
 			*endptr = ptr
 			return true
 		}
@@ -53,21 +53,21 @@ func read_name(pat []byte, ptrptr *int, ptrend int, utf bool, terminator uint32,
 	offsetptr *uint64, nameptr *int, namelenptr *uint32, errorcodeptr *int,
 	cb *compile_block) bool {
 	ptr := *ptrptr
-	is_group := pat[ptr] != CHAR_ASTERISK
+	is_group := pat[ptr] != xCHAR_ASTERISK
 	ptr++
-	is_braced := terminator == CHAR_RIGHT_CURLY_BRACKET
+	is_braced := terminator == xCHAR_RIGHT_CURLY_BRACKET
 
 	if is_braced {
-		for ptr < ptrend && (pat[ptr] == CHAR_SPACE || pat[ptr] == CHAR_HT) {
+		for ptr < ptrend && (pat[ptr] == xCHAR_SPACE || pat[ptr] == xCHAR_HT) {
 			ptr++
 		}
 	}
 
 	if ptr >= ptrend { // No characters in name
 		if is_group {
-			*errorcodeptr = ERR62 // Subpattern name expected
+			*errorcodeptr = xERR62 // Subpattern name expected
 		} else {
-			*errorcodeptr = ERR60 // Verb not recognized or malformed
+			*errorcodeptr = xERR60 // Verb not recognized or malformed
 		}
 		goto FAILED
 	}
@@ -80,32 +80,32 @@ func read_name(pat []byte, ptrptr *int, ptrend int, utf bool, terminator uint32,
 	// a digit.
 
 	if utf && is_group {
-		c := GETCHAR(pat, ptr)
-		typ := uint32(UCD_CHARTYPE(c))
+		c := xGETCHAR(pat, ptr)
+		typ := uint32(xUCD_CHARTYPE(c))
 
 		if typ == ucp_Nd {
-			*errorcodeptr = ERR44
+			*errorcodeptr = xERR44
 			goto FAILED
 		}
 
 		for {
-			if typ != ucp_Nd && ucp_gentype[typ] != ucp_L && c != CHAR_UNDERSCORE {
+			if typ != ucp_Nd && ucp_gentype[typ] != ucp_L && c != xCHAR_UNDERSCORE {
 				break
 			}
 			ptr++
-			ptr = FORWARDCHARTEST(pat, ptr, ptrend)
+			ptr = xFORWARDCHARTEST(pat, ptr, ptrend)
 			if ptr >= ptrend {
 				break
 			}
-			c = GETCHAR(pat, ptr)
-			typ = uint32(UCD_CHARTYPE(c))
+			c = xGETCHAR(pat, ptr)
+			typ = uint32(xUCD_CHARTYPE(c))
 		}
 	} else {
 		// Handle non-group names and group names in non-UTF modes. A group name
 		// must not start with a digit. If either of the others start with a
 		// digit it just won't be recognized.
-		if is_group && IS_DIGIT(uint32(pat[ptr])) {
-			*errorcodeptr = ERR44
+		if is_group && xIS_DIGIT(uint32(pat[ptr])) {
+			*errorcodeptr = xERR44
 			goto FAILED
 		}
 
@@ -116,8 +116,8 @@ func read_name(pat []byte, ptrptr *int, ptrend int, utf bool, terminator uint32,
 
 	// Check name length
 
-	if ptr > *nameptr+MAX_NAME_SIZE {
-		*errorcodeptr = ERR48
+	if ptr > *nameptr+xMAX_NAME_SIZE {
+		*errorcodeptr = xERR48
 		goto FAILED
 	}
 	*namelenptr = uint32(ptr - *nameptr)
@@ -126,16 +126,16 @@ func read_name(pat []byte, ptrptr *int, ptrend int, utf bool, terminator uint32,
 
 	if is_group {
 		if ptr == *nameptr {
-			*errorcodeptr = ERR62 // Subpattern name expected
+			*errorcodeptr = xERR62 // Subpattern name expected
 			goto FAILED
 		}
 		if is_braced {
-			for ptr < ptrend && (pat[ptr] == CHAR_SPACE || pat[ptr] == CHAR_HT) {
+			for ptr < ptrend && (pat[ptr] == xCHAR_SPACE || pat[ptr] == xCHAR_HT) {
 				ptr++
 			}
 		}
 		if ptr >= ptrend || pat[ptr] != byte(terminator) {
-			*errorcodeptr = ERR42
+			*errorcodeptr = xERR42
 			goto FAILED
 		}
 		ptr++
@@ -171,7 +171,7 @@ func manage_callouts(ptr int, pcalloutptr *int, auto_callout bool,
 			pp[previous_callout+3] != 255 {
 			previous_callout = parsed_pattern // Set up new automatic callout
 			parsed_pattern += 4
-			pp[previous_callout] = META_CALLOUT_NUMBER
+			pp[previous_callout] = xMETA_CALLOUT_NUMBER
 			pp[previous_callout+2] = 0
 			pp[previous_callout+3] = 255
 		}
@@ -189,45 +189,45 @@ func manage_callouts(ptr int, pcalloutptr *int, auto_callout bool,
 func handle_escdsw(escape int, pp []uint32, parsed_pattern int, options uint32,
 	xoptions uint32) int {
 	var ascii_option uint32
-	prop := uint32(ESC_p)
+	prop := uint32(xESC_p)
 
 	switch escape {
-	case ESC_D:
-		prop = ESC_P
+	case xESC_D:
+		prop = xESC_P
 		ascii_option = PCRE2_EXTRA_ASCII_BSD
-	case ESC_d:
+	case xESC_d:
 		ascii_option = PCRE2_EXTRA_ASCII_BSD
 
-	case ESC_S:
-		prop = ESC_P
+	case xESC_S:
+		prop = xESC_P
 		ascii_option = PCRE2_EXTRA_ASCII_BSS
-	case ESC_s:
+	case xESC_s:
 		ascii_option = PCRE2_EXTRA_ASCII_BSS
 
-	case ESC_W:
-		prop = ESC_P
+	case xESC_W:
+		prop = xESC_P
 		ascii_option = PCRE2_EXTRA_ASCII_BSW
-	case ESC_w:
+	case xESC_w:
 		ascii_option = PCRE2_EXTRA_ASCII_BSW
 	}
 
 	if (options&PCRE2_UCP) == 0 || (xoptions&ascii_option) != 0 {
-		pp[parsed_pattern] = META_ESCAPE + uint32(escape)
+		pp[parsed_pattern] = xMETA_ESCAPE + uint32(escape)
 		parsed_pattern++
 	} else {
-		pp[parsed_pattern] = META_ESCAPE + prop
+		pp[parsed_pattern] = xMETA_ESCAPE + prop
 		parsed_pattern++
 		switch escape {
-		case ESC_d, ESC_D:
-			pp[parsed_pattern] = (PT_PC << 16) | ucp_Nd
+		case xESC_d, xESC_D:
+			pp[parsed_pattern] = (xPT_PC << 16) | ucp_Nd
 			parsed_pattern++
 
-		case ESC_s, ESC_S:
-			pp[parsed_pattern] = PT_SPACE << 16
+		case xESC_s, xESC_S:
+			pp[parsed_pattern] = xPT_SPACE << 16
 			parsed_pattern++
 
-		case ESC_w, ESC_W:
-			pp[parsed_pattern] = PT_WORD << 16
+		case xESC_w, xESC_W:
+			pp[parsed_pattern] = xPT_WORD << 16
 			parsed_pattern++
 		}
 	}

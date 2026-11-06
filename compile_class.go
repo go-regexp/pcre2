@@ -12,42 +12,42 @@ package pcre2
 func first_significant_code(code []byte, cc int, skipassert bool) int {
 	for {
 		switch int(code[cc]) {
-		case OP_ASSERT_NOT, OP_ASSERTBACK, OP_ASSERTBACK_NOT, OP_ASSERTBACK_NA:
+		case xOP_ASSERT_NOT, xOP_ASSERTBACK, xOP_ASSERTBACK_NOT, xOP_ASSERTBACK_NA:
 			if !skipassert {
 				return cc
 			}
 			for {
-				cc += GET(code, cc+1)
-				if code[cc] != OP_ALT {
+				cc += xGET(code, cc+1)
+				if code[cc] != xOP_ALT {
 					break
 				}
 			}
-			cc += int(OP_lengths[code[cc]])
+			cc += int(xOP_lengths[code[cc]])
 
-		case OP_WORD_BOUNDARY, OP_NOT_WORD_BOUNDARY, OP_UCP_WORD_BOUNDARY, OP_NOT_UCP_WORD_BOUNDARY:
+		case xOP_WORD_BOUNDARY, xOP_NOT_WORD_BOUNDARY, xOP_UCP_WORD_BOUNDARY, xOP_NOT_UCP_WORD_BOUNDARY:
 			if !skipassert {
 				return cc
 			}
-			cc += int(OP_lengths[code[cc]])
+			cc += int(xOP_lengths[code[cc]])
 
-		case OP_CALLOUT, OP_CREF, OP_DNCREF, OP_RREF, OP_DNRREF, OP_FALSE, OP_TRUE:
-			cc += int(OP_lengths[code[cc]])
+		case xOP_CALLOUT, xOP_CREF, xOP_DNCREF, xOP_RREF, xOP_DNRREF, xOP_FALSE, xOP_TRUE:
+			cc += int(xOP_lengths[code[cc]])
 
-		case OP_CALLOUT_STR:
-			cc += GET(code, cc+1+2*LINK_SIZE)
+		case xOP_CALLOUT_STR:
+			cc += xGET(code, cc+1+2*xLINK_SIZE)
 
-		case OP_SKIPZERO:
-			cc += 2 + GET(code, cc+2) + LINK_SIZE
+		case xOP_SKIPZERO:
+			cc += 2 + xGET(code, cc+2) + xLINK_SIZE
 
-		case OP_COND, OP_SCOND:
-			if code[cc+1+LINK_SIZE] != OP_FALSE || // Not DEFINE
-				code[cc+GET(code, cc+1)] != OP_KET { // More than one branch
+		case xOP_COND, xOP_SCOND:
+			if code[cc+1+xLINK_SIZE] != xOP_FALSE || // Not DEFINE
+				code[cc+xGET(code, cc+1)] != xOP_KET { // More than one branch
 				return cc
 			}
-			cc += GET(code, cc+1) + 1 + LINK_SIZE
+			cc += xGET(code, cc+1) + 1 + xLINK_SIZE
 
-		case OP_MARK, OP_COMMIT_ARG, OP_PRUNE_ARG, OP_SKIP_ARG, OP_THEN_ARG:
-			cc += int(code[cc+1]) + int(OP_lengths[code[cc]])
+		case xOP_MARK, xOP_COMMIT_ARG, xOP_PRUNE_ARG, xOP_SKIP_ARG, xOP_THEN_ARG:
+			cc += int(code[cc+1]) + int(xOP_lengths[code[cc]])
 
 		default:
 			return cc
@@ -64,7 +64,7 @@ func get_othercase_range(cptr *uint32, d uint32, ocptr *uint32, odptr *uint32, r
 	var co uint32
 
 	for c = *cptr; c <= d; c++ {
-		co = uint32(UCD_CASESET(c))
+		co = uint32(xUCD_CASESET(c))
 		if co != 0 && (!restricted || ucd_caseless_sets[co] > 127) {
 			*ocptr = c // Character that has the set
 			c++
@@ -72,7 +72,7 @@ func get_othercase_range(cptr *uint32, d uint32, ocptr *uint32, odptr *uint32, r
 			return int(co)
 		}
 
-		othercase = UCD_OTHERCASE(c)
+		othercase = xUCD_OTHERCASE(c)
 		if othercase != c {
 			break
 		}
@@ -86,7 +86,7 @@ func get_othercase_range(cptr *uint32, d uint32, ocptr *uint32, odptr *uint32, r
 	next = othercase + 1
 
 	for c++; c <= d; c++ {
-		if UCD_CASESET(c) != 0 || UCD_OTHERCASE(c) != next {
+		if xUCD_CASESET(c) != 0 || xUCD_OTHERCASE(c) != next {
 			break
 		}
 		next++
@@ -155,8 +155,8 @@ func add_to_class_internal(classbits []byte, buf []byte, uchardptr *int, options
 	}
 
 	// Now handle the originally supplied range.
-	if options&PCRE2_UTF == 0 && end > MAX_NON_UTF_CHAR {
-		end = MAX_NON_UTF_CHAR
+	if options&PCRE2_UTF == 0 && end > xMAX_NON_UTF_CHAR {
+		end = xMAX_NON_UTF_CHAR
 	}
 
 	if start > cb.classRangeStart && end < cb.classRangeEnd {
@@ -177,12 +177,12 @@ func add_to_class_internal(classbits []byte, buf []byte, uchardptr *int, options
 		p := *uchardptr
 		if options&PCRE2_UTF != 0 {
 			if start < end {
-				buf[p] = XCL_RANGE
+				buf[p] = xXCL_RANGE
 				p++
 				p += int(ord2utf(start, buf[p:]))
 				p += int(ord2utf(end, buf[p:]))
 			} else if start == end {
-				buf[p] = XCL_SINGLE
+				buf[p] = xXCL_SINGLE
 				p++
 				p += int(ord2utf(start, buf[p:]))
 			}
@@ -199,7 +199,7 @@ func add_to_class_internal(classbits []byte, buf []byte, uchardptr *int, options
 func add_list_to_class_internal(classbits []byte, buf []byte, uchardptr *int, options uint32,
 	xoptions uint32, cb *compile_block, p []uint32, except uint) uint {
 	var n8 uint
-	for p[0] < NOTACHAR {
+	for p[0] < xNOTACHAR {
 		n := 0
 		if uint(p[0]) != except {
 			for p[n+1] == p[0]+uint32(n)+1 {
@@ -226,7 +226,7 @@ func add_to_class(classbits []byte, buf []byte, uchardptr *int, options uint32,
 func add_list_to_class(classbits []byte, buf []byte, uchardptr *int, options uint32,
 	xoptions uint32, cb *compile_block, p []uint32, except uint) uint {
 	var n8 uint
-	for p[0] < NOTACHAR {
+	for p[0] < xNOTACHAR {
 		n := 0
 		if uint(p[0]) != except {
 			for p[n+1] == p[0]+uint32(n)+1 {
@@ -250,12 +250,12 @@ func add_not_list_to_class(classbits []byte, buf []byte, uchardptr *int, options
 	if p[0] > 0 {
 		n8 += add_to_class(classbits, buf, uchardptr, options, xoptions, cb, 0, p[0]-1)
 	}
-	for p[0] < NOTACHAR {
+	for p[0] < xNOTACHAR {
 		for p[1] == p[0]+1 {
 			p = p[1:]
 		}
 		var e uint32
-		if p[1] == NOTACHAR {
+		if p[1] == xNOTACHAR {
 			if utf {
 				e = 0x10ffff
 			} else {
@@ -281,8 +281,8 @@ func find_dupname_details(pat []byte, name int, length uint32, indexptr *int,
 
 	// Find the first entry in the table
 	for i = 0; i < uint32(cb.namesFound); i++ {
-		if strncmp(pat[name:], nt[slot+IMM2_SIZE:], uint64(length)) == 0 &&
-			nt[slot+IMM2_SIZE+int(length)] == 0 {
+		if strncmp(pat[name:], nt[slot+xIMM2_SIZE:], uint64(length)) == 0 &&
+			nt[slot+xIMM2_SIZE+int(length)] == 0 {
 			break
 		}
 		slot += int(cb.nameEntrySize)
@@ -291,7 +291,7 @@ func find_dupname_details(pat []byte, name int, length uint32, indexptr *int,
 	// This should not occur, because this function is called only when we know
 	// we have duplicate names. Give an internal error.
 	if i >= uint32(cb.namesFound) {
-		*errorcodeptr = ERR53
+		*errorcodeptr = xERR53
 		cb.erroroffset = uint64(name)
 		return false
 	}
@@ -303,7 +303,7 @@ func find_dupname_details(pat []byte, name int, length uint32, indexptr *int,
 
 	for {
 		count++
-		groupnumber = uint32(GET2(nt, slot))
+		groupnumber = uint32(xGET2(nt, slot))
 		if groupnumber < 32 {
 			cb.backrefMap |= 1 << groupnumber
 		} else {
@@ -317,8 +317,8 @@ func find_dupname_details(pat []byte, name int, length uint32, indexptr *int,
 			break
 		}
 		slot += int(cb.nameEntrySize)
-		if strncmp(pat[name:], nt[slot+IMM2_SIZE:], uint64(length)) != 0 ||
-			nt[slot+IMM2_SIZE+int(length)] != 0 {
+		if strncmp(pat[name:], nt[slot+xIMM2_SIZE:], uint64(length)) != 0 ||
+			nt[slot+xIMM2_SIZE+int(length)] != 0 {
 			break
 		}
 	}

@@ -9,7 +9,7 @@ import (
 
 // OP_names is OP_NAME_LIST of pcre2_internal.h:1674-1714: textual names for all
 // the opcodes, used only for debugging.
-var OP_names = [...]string{
+var xOP_names = [...]string{
 	"End", "\\A", "\\G", "\\K", "\\B", "\\b", "\\D", "\\d",
 	"\\S", "\\s", "\\W", "\\w", "Any", "AllAny", "Anybyte",
 	"notprop", "prop", "\\R", "\\H", "\\h", "\\V", "\\v",
@@ -135,8 +135,8 @@ func get_ucpname(ptype, pvalue uint32) string {
 	yield := "??"
 	length := 0
 	ptypex := ptype
-	if ptype == PT_SC {
-		ptypex = PT_SCX
+	if ptype == xPT_SC {
+		ptypex = xPT_SCX
 	}
 
 	for i := utt_size - 1; i >= 0; i-- {
@@ -147,7 +147,7 @@ func get_ucpname(ptype, pvalue uint32) string {
 			s = s[:strings.IndexByte(s, 0)]
 			sl := len(s)
 
-			if sl == 3 && (u.typ == PT_SC || u.typ == PT_SCX) {
+			if sl == 3 && (u.typ == xPT_SC || u.typ == xPT_SCX) {
 				yield = s
 				break
 			}
@@ -182,21 +182,21 @@ func upperFirst(s string) string {
 // print_prop prints a Unicode property value; code[0] is the OP_PROP or
 // OP_NOTPROP opcode. (pcre2_printint.c:301-317)
 func print_prop(f *strings.Builder, code []byte, before, after string) {
-	if code[1] != PT_CLIST {
+	if code[1] != xPT_CLIST {
 		sc := ""
-		if code[1] == PT_SC {
+		if code[1] == xPT_SC {
 			sc = "script:"
 		}
 		s := get_ucpname(uint32(code[1]), uint32(code[2]))
-		fmt.Fprintf(f, "%s%s %s%s%s", before, OP_names[code[0]], sc, upperFirst(s), after)
+		fmt.Fprintf(f, "%s%s %s%s%s", before, xOP_names[code[0]], sc, upperFirst(s), after)
 	} else {
 		p := int(code[2])
 		not := "not "
-		if code[0] == OP_PROP {
+		if code[0] == xOP_PROP {
 			not = ""
 		}
 		fmt.Fprintf(f, "%s%sclist", before, not)
-		for ucd_caseless_sets[p] < NOTACHAR {
+		for ucd_caseless_sets[p] < xNOTACHAR {
 			fmt.Fprintf(f, " %04x", ucd_caseless_sets[p])
 			p++
 		}
@@ -240,278 +240,278 @@ func pcre2_printint(re *Code, f *strings.Builder, print_lengths bool) {
 		// classRefRepeat is the CLASS_REF_REPEAT label.
 		classRefRepeat := func() {
 			switch code[ccode] {
-			case OP_CRSTAR, OP_CRMINSTAR, OP_CRPLUS, OP_CRMINPLUS, OP_CRQUERY,
-				OP_CRMINQUERY, OP_CRPOSSTAR, OP_CRPOSPLUS, OP_CRPOSQUERY:
-				fmt.Fprintf(f, "%s", OP_names[code[ccode]])
-				extra += int(OP_lengths[code[ccode]])
+			case xOP_CRSTAR, xOP_CRMINSTAR, xOP_CRPLUS, xOP_CRMINPLUS, xOP_CRQUERY,
+				xOP_CRMINQUERY, xOP_CRPOSSTAR, xOP_CRPOSPLUS, xOP_CRPOSQUERY:
+				fmt.Fprintf(f, "%s", xOP_names[code[ccode]])
+				extra += int(xOP_lengths[code[ccode]])
 
-			case OP_CRRANGE, OP_CRMINRANGE, OP_CRPOSRANGE:
-				min := GET2(code, ccode+1)
-				max := GET2(code, ccode+1+IMM2_SIZE)
+			case xOP_CRRANGE, xOP_CRMINRANGE, xOP_CRPOSRANGE:
+				min := xGET2(code, ccode+1)
+				max := xGET2(code, ccode+1+xIMM2_SIZE)
 				if max == 0 {
 					fmt.Fprintf(f, "{%d,}", min)
 				} else {
 					fmt.Fprintf(f, "{%d,%d}", min, max)
 				}
-				if code[ccode] == OP_CRMINRANGE {
+				if code[ccode] == xOP_CRMINRANGE {
 					fmt.Fprintf(f, "?")
-				} else if code[ccode] == OP_CRPOSRANGE {
+				} else if code[ccode] == xOP_CRPOSRANGE {
 					fmt.Fprintf(f, "+")
 				}
-				extra += int(OP_lengths[code[ccode]])
+				extra += int(xOP_lengths[code[ccode]])
 			}
 		}
 
 		switch op {
-		case OP_END:
-			fmt.Fprintf(f, "    %s\n", OP_names[op])
+		case xOP_END:
+			fmt.Fprintf(f, "    %s\n", xOP_names[op])
 			fmt.Fprintf(f, "------------------------------------------------------------------\n")
 			return
 
-		case OP_CHAR:
+		case xOP_CHAR:
 			fmt.Fprintf(f, "    ")
 			for {
 				pos++
 				pos += 1 + print_char(f, code[pos:], utf)
-				if code[pos] != OP_CHAR {
+				if code[pos] != xOP_CHAR {
 					break
 				}
 			}
 			fmt.Fprintf(f, "\n")
 			continue
 
-		case OP_CHARI:
+		case xOP_CHARI:
 			fmt.Fprintf(f, " /i ")
 			for {
 				pos++
 				pos += 1 + print_char(f, code[pos:], utf)
-				if code[pos] != OP_CHARI {
+				if code[pos] != xOP_CHARI {
 					break
 				}
 			}
 			fmt.Fprintf(f, "\n")
 			continue
 
-		case OP_CBRA, OP_CBRAPOS, OP_SCBRA, OP_SCBRAPOS:
+		case xOP_CBRA, xOP_CBRAPOS, xOP_SCBRA, xOP_SCBRAPOS:
 			if print_lengths {
-				fmt.Fprintf(f, "%3d ", GET(c, 1))
+				fmt.Fprintf(f, "%3d ", xGET(c, 1))
 			} else {
 				fmt.Fprintf(f, "    ")
 			}
-			fmt.Fprintf(f, "%s %d", OP_names[op], GET2(c, 1+LINK_SIZE))
+			fmt.Fprintf(f, "%s %d", xOP_names[op], xGET2(c, 1+xLINK_SIZE))
 
-		case OP_BRA, OP_BRAPOS, OP_SBRA, OP_SBRAPOS, OP_KETRMAX, OP_KETRMIN,
-			OP_KETRPOS, OP_ALT, OP_KET, OP_ASSERT, OP_ASSERT_NOT, OP_ASSERTBACK,
-			OP_ASSERTBACK_NOT, OP_ASSERT_NA, OP_ASSERTBACK_NA, OP_ONCE,
-			OP_SCRIPT_RUN, OP_COND, OP_SCOND:
+		case xOP_BRA, xOP_BRAPOS, xOP_SBRA, xOP_SBRAPOS, xOP_KETRMAX, xOP_KETRMIN,
+			xOP_KETRPOS, xOP_ALT, xOP_KET, xOP_ASSERT, xOP_ASSERT_NOT, xOP_ASSERTBACK,
+			xOP_ASSERTBACK_NOT, xOP_ASSERT_NA, xOP_ASSERTBACK_NA, xOP_ONCE,
+			xOP_SCRIPT_RUN, xOP_COND, xOP_SCOND:
 			if print_lengths {
-				fmt.Fprintf(f, "%3d ", GET(c, 1))
+				fmt.Fprintf(f, "%3d ", xGET(c, 1))
 			} else {
 				fmt.Fprintf(f, "    ")
 			}
-			fmt.Fprintf(f, "%s", OP_names[op])
+			fmt.Fprintf(f, "%s", xOP_names[op])
 
-		case OP_REVERSE:
+		case xOP_REVERSE:
 			if print_lengths {
-				fmt.Fprintf(f, "%3d ", GET2(c, 1))
+				fmt.Fprintf(f, "%3d ", xGET2(c, 1))
 			} else {
 				fmt.Fprintf(f, "    ")
 			}
-			fmt.Fprintf(f, "%s", OP_names[op])
+			fmt.Fprintf(f, "%s", xOP_names[op])
 
-		case OP_VREVERSE:
+		case xOP_VREVERSE:
 			if print_lengths {
-				fmt.Fprintf(f, "%3d %d ", GET2(c, 1), GET2(c, 1+IMM2_SIZE))
+				fmt.Fprintf(f, "%3d %d ", xGET2(c, 1), xGET2(c, 1+xIMM2_SIZE))
 			} else {
 				fmt.Fprintf(f, "    ")
 			}
-			fmt.Fprintf(f, "%s", OP_names[op])
+			fmt.Fprintf(f, "%s", xOP_names[op])
 
-		case OP_CLOSE:
-			fmt.Fprintf(f, "    %s %d", OP_names[op], GET2(c, 1))
+		case xOP_CLOSE:
+			fmt.Fprintf(f, "    %s %d", xOP_names[op], xGET2(c, 1))
 
-		case OP_CREF:
-			fmt.Fprintf(f, "%3d %s", GET2(c, 1), OP_names[op])
+		case xOP_CREF:
+			fmt.Fprintf(f, "%3d %s", xGET2(c, 1), xOP_names[op])
 
-		case OP_DNCREF:
-			entry := nametable[GET2(c, 1)*nesize+IMM2_SIZE:]
+		case xOP_DNCREF:
+			entry := nametable[xGET2(c, 1)*nesize+xIMM2_SIZE:]
 			fmt.Fprintf(f, " %s Cond ref <", flag)
 			print_custring(f, entry)
-			fmt.Fprintf(f, ">%d", GET2(c, 1+IMM2_SIZE))
+			fmt.Fprintf(f, ">%d", xGET2(c, 1+xIMM2_SIZE))
 
-		case OP_RREF:
-			cc := GET2(c, 1)
-			if cc == RREF_ANY {
+		case xOP_RREF:
+			cc := xGET2(c, 1)
+			if cc == xRREF_ANY {
 				fmt.Fprintf(f, "    Cond recurse any")
 			} else {
 				fmt.Fprintf(f, "    Cond recurse %d", cc)
 			}
 
-		case OP_DNRREF:
-			entry := nametable[GET2(c, 1)*nesize+IMM2_SIZE:]
+		case xOP_DNRREF:
+			entry := nametable[xGET2(c, 1)*nesize+xIMM2_SIZE:]
 			fmt.Fprintf(f, " %s Cond recurse <", flag)
 			print_custring(f, entry)
-			fmt.Fprintf(f, ">%d", GET2(c, 1+IMM2_SIZE))
+			fmt.Fprintf(f, ">%d", xGET2(c, 1+xIMM2_SIZE))
 
-		case OP_FALSE:
+		case xOP_FALSE:
 			fmt.Fprintf(f, "    Cond false")
 
-		case OP_TRUE:
+		case xOP_TRUE:
 			fmt.Fprintf(f, "    Cond true")
 
-		case OP_STARI, OP_MINSTARI, OP_POSSTARI, OP_PLUSI, OP_MINPLUSI,
-			OP_POSPLUSI, OP_QUERYI, OP_MINQUERYI, OP_POSQUERYI,
-			OP_STAR, OP_MINSTAR, OP_POSSTAR, OP_PLUS, OP_MINPLUS, OP_POSPLUS,
-			OP_QUERY, OP_MINQUERY, OP_POSQUERY, OP_TYPESTAR, OP_TYPEMINSTAR,
-			OP_TYPEPOSSTAR, OP_TYPEPLUS, OP_TYPEMINPLUS, OP_TYPEPOSPLUS,
-			OP_TYPEQUERY, OP_TYPEMINQUERY, OP_TYPEPOSQUERY:
+		case xOP_STARI, xOP_MINSTARI, xOP_POSSTARI, xOP_PLUSI, xOP_MINPLUSI,
+			xOP_POSPLUSI, xOP_QUERYI, xOP_MINQUERYI, xOP_POSQUERYI,
+			xOP_STAR, xOP_MINSTAR, xOP_POSSTAR, xOP_PLUS, xOP_MINPLUS, xOP_POSPLUS,
+			xOP_QUERY, xOP_MINQUERY, xOP_POSQUERY, xOP_TYPESTAR, xOP_TYPEMINSTAR,
+			xOP_TYPEPOSSTAR, xOP_TYPEPLUS, xOP_TYPEMINPLUS, xOP_TYPEPOSPLUS,
+			xOP_TYPEQUERY, xOP_TYPEMINQUERY, xOP_TYPEPOSQUERY:
 			switch op {
-			case OP_STARI, OP_MINSTARI, OP_POSSTARI, OP_PLUSI, OP_MINPLUSI,
-				OP_POSPLUSI, OP_QUERYI, OP_MINQUERYI, OP_POSQUERYI:
+			case xOP_STARI, xOP_MINSTARI, xOP_POSSTARI, xOP_PLUSI, xOP_MINPLUSI,
+				xOP_POSPLUSI, xOP_QUERYI, xOP_MINQUERYI, xOP_POSQUERYI:
 				flag = "/i"
 			}
 			fmt.Fprintf(f, " %s ", flag)
 
-			if op >= OP_TYPESTAR {
-				if c[1] == OP_PROP || c[1] == OP_NOTPROP {
+			if op >= xOP_TYPESTAR {
+				if c[1] == xOP_PROP || c[1] == xOP_NOTPROP {
 					print_prop(f, c[1:], "", " ")
 					extra = 2
 				} else {
-					fmt.Fprintf(f, "%s", OP_names[c[1]])
+					fmt.Fprintf(f, "%s", xOP_names[c[1]])
 				}
 			} else {
 				extra = print_char(f, c[1:], utf)
 			}
-			fmt.Fprintf(f, "%s", OP_names[op])
+			fmt.Fprintf(f, "%s", xOP_names[op])
 
-		case OP_EXACTI, OP_UPTOI, OP_MINUPTOI, OP_POSUPTOI,
-			OP_EXACT, OP_UPTO, OP_MINUPTO, OP_POSUPTO:
+		case xOP_EXACTI, xOP_UPTOI, xOP_MINUPTOI, xOP_POSUPTOI,
+			xOP_EXACT, xOP_UPTO, xOP_MINUPTO, xOP_POSUPTO:
 			switch op {
-			case OP_EXACTI, OP_UPTOI, OP_MINUPTOI, OP_POSUPTOI:
+			case xOP_EXACTI, xOP_UPTOI, xOP_MINUPTOI, xOP_POSUPTOI:
 				flag = "/i"
 			}
 			fmt.Fprintf(f, " %s ", flag)
-			extra = print_char(f, c[1+IMM2_SIZE:], utf)
+			extra = print_char(f, c[1+xIMM2_SIZE:], utf)
 			fmt.Fprintf(f, "{")
-			if op != OP_EXACT && op != OP_EXACTI {
+			if op != xOP_EXACT && op != xOP_EXACTI {
 				fmt.Fprintf(f, "0,")
 			}
-			fmt.Fprintf(f, "%d}", GET2(c, 1))
-			if op == OP_MINUPTO || op == OP_MINUPTOI {
+			fmt.Fprintf(f, "%d}", xGET2(c, 1))
+			if op == xOP_MINUPTO || op == xOP_MINUPTOI {
 				fmt.Fprintf(f, "?")
-			} else if op == OP_POSUPTO || op == OP_POSUPTOI {
+			} else if op == xOP_POSUPTO || op == xOP_POSUPTOI {
 				fmt.Fprintf(f, "+")
 			}
 
-		case OP_TYPEEXACT, OP_TYPEUPTO, OP_TYPEMINUPTO, OP_TYPEPOSUPTO:
-			if c[1+IMM2_SIZE] == OP_PROP || c[1+IMM2_SIZE] == OP_NOTPROP {
-				print_prop(f, c[IMM2_SIZE+1:], "    ", " ")
+		case xOP_TYPEEXACT, xOP_TYPEUPTO, xOP_TYPEMINUPTO, xOP_TYPEPOSUPTO:
+			if c[1+xIMM2_SIZE] == xOP_PROP || c[1+xIMM2_SIZE] == xOP_NOTPROP {
+				print_prop(f, c[xIMM2_SIZE+1:], "    ", " ")
 				extra = 2
 			} else {
-				fmt.Fprintf(f, "    %s", OP_names[c[1+IMM2_SIZE]])
+				fmt.Fprintf(f, "    %s", xOP_names[c[1+xIMM2_SIZE]])
 			}
 			fmt.Fprintf(f, "{")
-			if op != OP_TYPEEXACT {
+			if op != xOP_TYPEEXACT {
 				fmt.Fprintf(f, "0,")
 			}
-			fmt.Fprintf(f, "%d}", GET2(c, 1))
-			if op == OP_TYPEMINUPTO {
+			fmt.Fprintf(f, "%d}", xGET2(c, 1))
+			if op == xOP_TYPEMINUPTO {
 				fmt.Fprintf(f, "?")
-			} else if op == OP_TYPEPOSUPTO {
+			} else if op == xOP_TYPEPOSUPTO {
 				fmt.Fprintf(f, "+")
 			}
 
-		case OP_NOTI, OP_NOT:
-			if op == OP_NOTI {
+		case xOP_NOTI, xOP_NOT:
+			if op == xOP_NOTI {
 				flag = "/i"
 			}
 			fmt.Fprintf(f, " %s [^", flag)
 			extra = print_char(f, c[1:], utf)
 			fmt.Fprintf(f, "]")
 
-		case OP_NOTSTARI, OP_NOTMINSTARI, OP_NOTPOSSTARI, OP_NOTPLUSI,
-			OP_NOTMINPLUSI, OP_NOTPOSPLUSI, OP_NOTQUERYI, OP_NOTMINQUERYI,
-			OP_NOTPOSQUERYI,
-			OP_NOTSTAR, OP_NOTMINSTAR, OP_NOTPOSSTAR, OP_NOTPLUS, OP_NOTMINPLUS,
-			OP_NOTPOSPLUS, OP_NOTQUERY, OP_NOTMINQUERY, OP_NOTPOSQUERY:
+		case xOP_NOTSTARI, xOP_NOTMINSTARI, xOP_NOTPOSSTARI, xOP_NOTPLUSI,
+			xOP_NOTMINPLUSI, xOP_NOTPOSPLUSI, xOP_NOTQUERYI, xOP_NOTMINQUERYI,
+			xOP_NOTPOSQUERYI,
+			xOP_NOTSTAR, xOP_NOTMINSTAR, xOP_NOTPOSSTAR, xOP_NOTPLUS, xOP_NOTMINPLUS,
+			xOP_NOTPOSPLUS, xOP_NOTQUERY, xOP_NOTMINQUERY, xOP_NOTPOSQUERY:
 			switch op {
-			case OP_NOTSTARI, OP_NOTMINSTARI, OP_NOTPOSSTARI, OP_NOTPLUSI,
-				OP_NOTMINPLUSI, OP_NOTPOSPLUSI, OP_NOTQUERYI, OP_NOTMINQUERYI,
-				OP_NOTPOSQUERYI:
+			case xOP_NOTSTARI, xOP_NOTMINSTARI, xOP_NOTPOSSTARI, xOP_NOTPLUSI,
+				xOP_NOTMINPLUSI, xOP_NOTPOSPLUSI, xOP_NOTQUERYI, xOP_NOTMINQUERYI,
+				xOP_NOTPOSQUERYI:
 				flag = "/i"
 			}
 			fmt.Fprintf(f, " %s [^", flag)
 			extra = print_char(f, c[1:], utf)
-			fmt.Fprintf(f, "]%s", OP_names[op])
+			fmt.Fprintf(f, "]%s", xOP_names[op])
 
-		case OP_NOTEXACTI, OP_NOTUPTOI, OP_NOTMINUPTOI, OP_NOTPOSUPTOI,
-			OP_NOTEXACT, OP_NOTUPTO, OP_NOTMINUPTO, OP_NOTPOSUPTO:
+		case xOP_NOTEXACTI, xOP_NOTUPTOI, xOP_NOTMINUPTOI, xOP_NOTPOSUPTOI,
+			xOP_NOTEXACT, xOP_NOTUPTO, xOP_NOTMINUPTO, xOP_NOTPOSUPTO:
 			switch op {
-			case OP_NOTEXACTI, OP_NOTUPTOI, OP_NOTMINUPTOI, OP_NOTPOSUPTOI:
+			case xOP_NOTEXACTI, xOP_NOTUPTOI, xOP_NOTMINUPTOI, xOP_NOTPOSUPTOI:
 				flag = "/i"
 			}
 			fmt.Fprintf(f, " %s [^", flag)
-			extra = print_char(f, c[1+IMM2_SIZE:], utf)
+			extra = print_char(f, c[1+xIMM2_SIZE:], utf)
 			fmt.Fprintf(f, "]{")
-			if op != OP_NOTEXACT && op != OP_NOTEXACTI {
+			if op != xOP_NOTEXACT && op != xOP_NOTEXACTI {
 				fmt.Fprintf(f, "0,")
 			}
-			fmt.Fprintf(f, "%d}", GET2(c, 1))
-			if op == OP_NOTMINUPTO || op == OP_NOTMINUPTOI {
+			fmt.Fprintf(f, "%d}", xGET2(c, 1))
+			if op == xOP_NOTMINUPTO || op == xOP_NOTMINUPTOI {
 				fmt.Fprintf(f, "?")
-			} else if op == OP_NOTPOSUPTO || op == OP_NOTPOSUPTOI {
+			} else if op == xOP_NOTPOSUPTO || op == xOP_NOTPOSUPTOI {
 				fmt.Fprintf(f, "+")
 			}
 
-		case OP_RECURSE:
+		case xOP_RECURSE:
 			if print_lengths {
-				fmt.Fprintf(f, "%3d ", GET(c, 1))
+				fmt.Fprintf(f, "%3d ", xGET(c, 1))
 			} else {
 				fmt.Fprintf(f, "    ")
 			}
-			fmt.Fprintf(f, "%s", OP_names[op])
+			fmt.Fprintf(f, "%s", xOP_names[op])
 
-		case OP_REFI, OP_REF:
-			if op == OP_REFI {
+		case xOP_REFI, xOP_REF:
+			if op == xOP_REFI {
 				flag = "/i"
 			}
-			fmt.Fprintf(f, " %s \\%d", flag, GET2(c, 1))
-			ccode = pos + int(OP_lengths[op])
+			fmt.Fprintf(f, " %s \\%d", flag, xGET2(c, 1))
+			ccode = pos + int(xOP_lengths[op])
 			classRefRepeat()
 
-		case OP_DNREFI, OP_DNREF:
-			if op == OP_DNREFI {
+		case xOP_DNREFI, xOP_DNREF:
+			if op == xOP_DNREFI {
 				flag = "/i"
 			}
-			entry := nametable[GET2(c, 1)*nesize+IMM2_SIZE:]
+			entry := nametable[xGET2(c, 1)*nesize+xIMM2_SIZE:]
 			fmt.Fprintf(f, " %s \\k<", flag)
 			print_custring(f, entry)
-			fmt.Fprintf(f, ">%d", GET2(c, 1+IMM2_SIZE))
-			ccode = pos + int(OP_lengths[op])
+			fmt.Fprintf(f, ">%d", xGET2(c, 1+xIMM2_SIZE))
+			ccode = pos + int(xOP_lengths[op])
 			classRefRepeat()
 
-		case OP_CALLOUT:
-			fmt.Fprintf(f, "    %s %d %d %d", OP_names[op], c[1+2*LINK_SIZE],
-				GET(c, 1), GET(c, 1+LINK_SIZE))
+		case xOP_CALLOUT:
+			fmt.Fprintf(f, "    %s %d %d %d", xOP_names[op], c[1+2*xLINK_SIZE],
+				xGET(c, 1), xGET(c, 1+xLINK_SIZE))
 
-		case OP_CALLOUT_STR:
-			cc := uint32(c[1+4*LINK_SIZE])
-			fmt.Fprintf(f, "    %s %c", OP_names[op], rune(cc))
-			extra = GET(c, 1+2*LINK_SIZE)
-			print_custring_bylen(f, c[2+4*LINK_SIZE:], extra-3-4*LINK_SIZE)
+		case xOP_CALLOUT_STR:
+			cc := uint32(c[1+4*xLINK_SIZE])
+			fmt.Fprintf(f, "    %s %c", xOP_names[op], rune(cc))
+			extra = xGET(c, 1+2*xLINK_SIZE)
+			print_custring_bylen(f, c[2+4*xLINK_SIZE:], extra-3-4*xLINK_SIZE)
 			for i := 0; callout_start_delims[i] != 0; i++ {
 				if cc == callout_start_delims[i] {
 					cc = callout_end_delims[i]
 					break
 				}
 			}
-			fmt.Fprintf(f, "%c %d %d %d", rune(cc), GET(c, 1+3*LINK_SIZE), GET(c, 1),
-				GET(c, 1+LINK_SIZE))
+			fmt.Fprintf(f, "%c %d %d %d", rune(cc), xGET(c, 1+3*xLINK_SIZE), xGET(c, 1),
+				xGET(c, 1+xLINK_SIZE))
 
-		case OP_PROP, OP_NOTPROP:
+		case xOP_PROP, xOP_NOTPROP:
 			print_prop(f, c, "    ", "")
 
-		case OP_CLASS, OP_NCLASS, OP_XCLASS:
+		case xOP_CLASS, xOP_NCLASS, xOP_XCLASS:
 			var printmap, invertmap bool
 
 			fmt.Fprintf(f, "    [")
@@ -520,12 +520,12 @@ func pcre2_printint(re *Code, f *strings.Builder, print_lengths bool) {
 			// have already done the inversion.
 
 			invertmap = false
-			if op == OP_XCLASS {
-				extra = GET(c, 1)
-				ccode = pos + LINK_SIZE + 1
-				printmap = code[ccode]&XCL_MAP != 0
-				if code[ccode]&XCL_NOT != 0 {
-					invertmap = code[ccode]&XCL_HASPROP == 0
+			if op == xOP_XCLASS {
+				extra = xGET(c, 1)
+				ccode = pos + xLINK_SIZE + 1
+				printmap = code[ccode]&xXCL_MAP != 0
+				if code[ccode]&xXCL_NOT != 0 {
+					invertmap = code[ccode]&xXCL_HASPROP == 0
 					fmt.Fprintf(f, "^")
 				}
 				ccode++
@@ -585,18 +585,18 @@ func pcre2_printint(re *Code, f *strings.Builder, print_lengths bool) {
 
 			// For an XCLASS there is always some additional data
 
-			if op == OP_XCLASS {
+			if op == xOP_XCLASS {
 				for {
 					ch := code[ccode]
 					ccode++
-					if ch == XCL_END {
+					if ch == xXCL_END {
 						break
 					}
 					notch := ""
 
 					switch ch {
-					case XCL_NOTPROP, XCL_PROP:
-						if ch == XCL_NOTPROP {
+					case xXCL_NOTPROP, xXCL_PROP:
+						if ch == xXCL_NOTPROP {
 							notch = "^"
 						}
 						ptype := uint32(code[ccode])
@@ -605,13 +605,13 @@ func pcre2_printint(re *Code, f *strings.Builder, print_lengths bool) {
 						ccode++
 
 						switch ptype {
-						case PT_PXGRAPH:
+						case xPT_PXGRAPH:
 							fmt.Fprintf(f, "[:%sgraph:]", notch)
-						case PT_PXPRINT:
+						case xPT_PXPRINT:
 							fmt.Fprintf(f, "[:%sprint:]", notch)
-						case PT_PXPUNCT:
+						case xPT_PXPUNCT:
 							fmt.Fprintf(f, "[:%spunct:]", notch)
-						case PT_PXXDIGIT:
+						case xPT_PXXDIGIT:
 							fmt.Fprintf(f, "[:%sxdigit:]", notch)
 						default:
 							s := get_ucpname(ptype, pvalue)
@@ -624,7 +624,7 @@ func pcre2_printint(re *Code, f *strings.Builder, print_lengths bool) {
 
 					default:
 						ccode += 1 + print_char(f, code[ccode:], utf)
-						if ch == XCL_RANGE {
+						if ch == xXCL_RANGE {
 							fmt.Fprintf(f, "-")
 							ccode += 1 + print_char(f, code[ccode:], utf)
 						}
@@ -634,7 +634,7 @@ func pcre2_printint(re *Code, f *strings.Builder, print_lengths bool) {
 
 			// Indicate a non-UTF class which was created by negation
 
-			if op == OP_NCLASS {
+			if op == xOP_NCLASS {
 				fmt.Fprintf(f, "] (neg)")
 			} else {
 				fmt.Fprintf(f, "]")
@@ -643,25 +643,25 @@ func pcre2_printint(re *Code, f *strings.Builder, print_lengths bool) {
 			// Handle repeats after a class or a back reference
 			classRefRepeat()
 
-		case OP_MARK, OP_COMMIT_ARG, OP_PRUNE_ARG, OP_SKIP_ARG, OP_THEN_ARG:
-			fmt.Fprintf(f, "    %s ", OP_names[op])
+		case xOP_MARK, xOP_COMMIT_ARG, xOP_PRUNE_ARG, xOP_SKIP_ARG, xOP_THEN_ARG:
+			fmt.Fprintf(f, "    %s ", xOP_names[op])
 			print_custring_bylen(f, c[2:], int(c[1]))
 			extra += int(c[1])
 
-		case OP_THEN:
-			fmt.Fprintf(f, "    %s", OP_names[op])
+		case xOP_THEN:
+			fmt.Fprintf(f, "    %s", xOP_names[op])
 
-		case OP_CIRCM, OP_DOLLM:
+		case xOP_CIRCM, xOP_DOLLM:
 			flag = "/m"
-			fmt.Fprintf(f, " %s %s", flag, OP_names[op])
+			fmt.Fprintf(f, " %s %s", flag, xOP_names[op])
 
 		// Anything else is just an item with no data, but possibly a flag.
 
 		default:
-			fmt.Fprintf(f, " %s %s", flag, OP_names[op])
+			fmt.Fprintf(f, " %s %s", flag, xOP_names[op])
 		}
 
-		pos += int(OP_lengths[op]) + extra
+		pos += int(xOP_lengths[op]) + extra
 		fmt.Fprintf(f, "\n")
 	}
 }

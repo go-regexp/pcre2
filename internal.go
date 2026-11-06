@@ -25,9 +25,9 @@ const (
 // Values pcre2_internal.h computes with sizeof or limits.h.
 const (
 	// MAX_NON_UTF_CHAR is 0xffffffffU >> (32 - PCRE2_CODE_UNIT_WIDTH).
-	MAX_NON_UTF_CHAR = 0xff
+	xMAX_NON_UTF_CHAR = 0xff
 	// LOOKBEHIND_MAX is UINT16_MAX (pcre2_intmodedep.h:618).
-	LOOKBEHIND_MAX = 0xffff
+	xLOOKBEHIND_MAX = 0xffff
 	// PCRE2_VERSION_STRING is what pcre2_config(PCRE2_CONFIG_VERSION) gives.
 	PCRE2_VERSION_STRING = "10.44 2024-06-07"
 	// PCRE2_DATE of pcre2.h.
@@ -38,22 +38,22 @@ const (
 // Link and immediate values (pcre2_intmodedep.h:102-201, LINK_SIZE 2, 8 bit).
 
 // GET reads a LINK_SIZE (2 byte, big endian) value at a[n]. (GET)
-func GET(a []byte, n int) int { return int(a[n])<<8 | int(a[n+1]) }
+func xGET(a []byte, n int) int { return int(a[n])<<8 | int(a[n+1]) }
 
 // PUT stores a LINK_SIZE value at a[n]. (PUT)
-func PUT(a []byte, n int, d int) { a[n] = byte(d >> 8); a[n+1] = byte(d) }
+func xPUT(a []byte, n int, d int) { a[n] = byte(d >> 8); a[n+1] = byte(d) }
 
 // GET2 reads an IMM2_SIZE value at a[n]. (GET2)
-func GET2(a []byte, n int) int { return int(a[n])<<8 | int(a[n+1]) }
+func xGET2(a []byte, n int) int { return int(a[n])<<8 | int(a[n+1]) }
 
 // PUT2 stores an IMM2_SIZE value at a[n]. (PUT2)
-func PUT2(a []byte, n int, d int) { a[n] = byte(d >> 8); a[n+1] = byte(d) }
+func xPUT2(a []byte, n int, d int) { a[n] = byte(d >> 8); a[n+1] = byte(d) }
 
 // PUTINC stores a link value at a[n] and returns n+LINK_SIZE. (PUTINC)
-func PUTINC(a []byte, n int, d int) int { PUT(a, n, d); return n + LINK_SIZE }
+func xPUTINC(a []byte, n int, d int) int { xPUT(a, n, d); return n + xLINK_SIZE }
 
 // PUT2INC stores an IMM2 value at a[n] and returns n+IMM2_SIZE. (PUT2INC)
-func PUT2INC(a []byte, n int, d int) int { PUT2(a, n, d); return n + IMM2_SIZE }
+func xPUT2INC(a []byte, n int, d int) int { xPUT2(a, n, d); return n + xIMM2_SIZE }
 
 // ---------------------------------------------------------------------------
 // UTF-8 character macros (pcre2_internal.h:272-340, pcre2_intmodedep.h:277-365).
@@ -64,16 +64,16 @@ func PUT2INC(a []byte, n int, d int) int { PUT2(a, n, d); return n + IMM2_SIZE }
 // (the generated constant of the same name is that value in UTF-8 mode)
 
 // HASUTF8EXTRALEN reports whether a first byte needs extra bytes.
-func HASUTF8EXTRALEN(c uint32) bool { return c >= 0xc0 }
+func xHASUTF8EXTRALEN(c uint32) bool { return c >= 0xc0 }
 
 // HAS_EXTRALEN (8-bit).
-func HAS_EXTRALEN(c uint32) bool { return HASUTF8EXTRALEN(c) }
+func xHAS_EXTRALEN(c uint32) bool { return xHASUTF8EXTRALEN(c) }
 
 // GET_EXTRALEN is the number of extra bytes of a UTF-8 first byte.
-func GET_EXTRALEN(c uint32) int { return int(utf8_table4[c&0x3f]) }
+func xGET_EXTRALEN(c uint32) int { return int(utf8_table4[c&0x3f]) }
 
 // NOT_FIRSTCU reports whether c is a UTF-8 continuation byte.
-func NOT_FIRSTCU(c uint32) bool { return c&0xc0 == 0x80 }
+func xNOT_FIRSTCU(c uint32) bool { return c&0xc0 == 0x80 }
 
 // getUTF8 decodes the remaining bytes of the character whose first byte c is
 // at s[i] (GETUTF8: the pointer is not advanced).
@@ -94,7 +94,7 @@ func getUTF8(c uint32, s []byte, i int) uint32 {
 }
 
 // GETCHAR returns the character at s[i] without advancing. (GETCHAR)
-func GETCHAR(s []byte, i int) uint32 {
+func xGETCHAR(s []byte, i int) uint32 {
 	c := uint32(s[i])
 	if c >= 0xc0 {
 		c = getUTF8(c, s, i)
@@ -103,19 +103,19 @@ func GETCHAR(s []byte, i int) uint32 {
 }
 
 // GETCHARTEST is GETCHAR that decodes only when utf is true.
-func GETCHARTEST(utf bool, s []byte, i int) uint32 {
+func xGETCHARTEST(utf bool, s []byte, i int) uint32 {
 	if !utf {
 		return uint32(s[i])
 	}
-	return GETCHAR(s, i)
+	return xGETCHAR(s, i)
 }
 
 // GETCHARINC returns the character at s[i] and the index after it. (GETCHARINC)
-func GETCHARINC(s []byte, i int) (uint32, int) {
+func xGETCHARINC(s []byte, i int) (uint32, int) {
 	c := uint32(s[i])
 	i++
 	if c >= 0xc0 {
-		n := GET_EXTRALEN(c)
+		n := xGET_EXTRALEN(c)
 		c = getUTF8(c, s, i-1)
 		i += n
 	}
@@ -123,34 +123,34 @@ func GETCHARINC(s []byte, i int) (uint32, int) {
 }
 
 // GETCHARINCTEST is GETCHARINC that decodes only when utf is true.
-func GETCHARINCTEST(utf bool, s []byte, i int) (uint32, int) {
+func xGETCHARINCTEST(utf bool, s []byte, i int) (uint32, int) {
 	if !utf {
 		return uint32(s[i]), i + 1
 	}
-	return GETCHARINC(s, i)
+	return xGETCHARINC(s, i)
 }
 
 // GETCHARLEN returns the character at s[i] and its number of extra bytes.
-func GETCHARLEN(s []byte, i int) (uint32, int) {
+func xGETCHARLEN(s []byte, i int) (uint32, int) {
 	c := uint32(s[i])
 	n := 0
 	if c >= 0xc0 {
-		n = GET_EXTRALEN(c)
+		n = xGET_EXTRALEN(c)
 		c = getUTF8(c, s, i)
 	}
 	return c, n
 }
 
 // GETCHARLENTEST is GETCHARLEN that decodes only when utf is true.
-func GETCHARLENTEST(utf bool, s []byte, i int) (uint32, int) {
+func xGETCHARLENTEST(utf bool, s []byte, i int) (uint32, int) {
 	if !utf {
 		return uint32(s[i]), 0
 	}
-	return GETCHARLEN(s, i)
+	return xGETCHARLEN(s, i)
 }
 
 // BACKCHAR moves i back to the first byte of the character. (BACKCHAR)
-func BACKCHAR(s []byte, i int) int {
+func xBACKCHAR(s []byte, i int) int {
 	for s[i]&0xc0 == 0x80 {
 		i--
 	}
@@ -158,7 +158,7 @@ func BACKCHAR(s []byte, i int) int {
 }
 
 // FORWARDCHAR moves i forward over continuation bytes. (FORWARDCHAR)
-func FORWARDCHAR(s []byte, i int) int {
+func xFORWARDCHAR(s []byte, i int) int {
 	for s[i]&0xc0 == 0x80 {
 		i++
 	}
@@ -166,7 +166,7 @@ func FORWARDCHAR(s []byte, i int) int {
 }
 
 // FORWARDCHARTEST is FORWARDCHAR bounded by end. (FORWARDCHARTEST)
-func FORWARDCHARTEST(s []byte, i, end int) int {
+func xFORWARDCHARTEST(s []byte, i, end int) int {
 	for i < end && s[i]&0xc0 == 0x80 {
 		i++
 	}
@@ -175,8 +175,8 @@ func FORWARDCHARTEST(s []byte, i, end int) int {
 
 // PUTCHAR writes c at p[0:] (UTF-8 encoded when utf and c > 127) and returns
 // the number of bytes written. (PUTCHAR)
-func PUTCHAR(utf bool, c uint32, p []byte) int {
-	if utf && c > MAX_UTF_SINGLE_CU {
+func xPUTCHAR(utf bool, c uint32, p []byte) int {
+	if utf && c > xMAX_UTF_SINGLE_CU {
 		return int(ord2utf(c, p))
 	}
 	p[0] = byte(c)
@@ -184,10 +184,10 @@ func PUTCHAR(utf bool, c uint32, p []byte) int {
 }
 
 // MAPBIT and MAPSET test or set bit n of a vector of 32-bit words.
-func MAPBIT(m []uint32, n uint32) bool { return m[n/32]&(1<<(n%32)) != 0 }
+func xMAPBIT(m []uint32, n uint32) bool { return m[n/32]&(1<<(n%32)) != 0 }
 
 // MAPSET sets bit n.
-func MAPSET(m []uint32, n uint32) { m[n/32] |= 1 << (n % 32) }
+func xMAPSET(m []uint32, n uint32) { m[n/32] |= 1 << (n % 32) }
 
 // ---------------------------------------------------------------------------
 // Unicode character database record (pcre2_internal.h:1852-1891).

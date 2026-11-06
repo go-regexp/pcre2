@@ -16,21 +16,21 @@ func read_number(pat []byte, ptrptr *int, ptrend int, allow_sign int32,
 	*errorcodeptr = 0
 
 	if allow_sign >= 0 && ptr < ptrend {
-		if pat[ptr] == CHAR_PLUS {
+		if pat[ptr] == xCHAR_PLUS {
 			sign = +1
 			max_value -= uint32(allow_sign)
 			ptr++
-		} else if pat[ptr] == CHAR_MINUS {
+		} else if pat[ptr] == xCHAR_MINUS {
 			sign = -1
 			ptr++
 		}
 	}
 
-	if ptr >= ptrend || !IS_DIGIT(uint32(pat[ptr])) {
+	if ptr >= ptrend || !xIS_DIGIT(uint32(pat[ptr])) {
 		return false
 	}
-	for ptr < ptrend && IS_DIGIT(uint32(pat[ptr])) {
-		n = n*10 + uint32(pat[ptr]) - CHAR_0
+	for ptr < ptrend && xIS_DIGIT(uint32(pat[ptr])) {
+		n = n*10 + uint32(pat[ptr]) - xCHAR_0
 		ptr++
 		if n > max_value {
 			*errorcodeptr = int(max_error)
@@ -40,14 +40,14 @@ func read_number(pat []byte, ptrptr *int, ptrend int, allow_sign int32,
 
 	if allow_sign >= 0 && sign != 0 {
 		if n == 0 {
-			*errorcodeptr = ERR26 // +0 and -0 are not allowed
+			*errorcodeptr = xERR26 // +0 and -0 are not allowed
 			goto EXIT
 		}
 
 		if sign > 0 {
 			n += uint32(allow_sign)
 		} else if int32(n) > allow_sign {
-			*errorcodeptr = ERR15 // Non-existent subpattern
+			*errorcodeptr = xERR15 // Non-existent subpattern
 			goto EXIT
 		} else {
 			n = uint32(allow_sign) + 1 - n
@@ -73,102 +73,102 @@ func read_repeat_counts(pat []byte, ptrptr *int, ptrend int, minp, maxp *uint32,
 	yield := false
 	had_minimum := false
 	min := 0
-	max := int(REPEAT_UNLIMITED) // This value is larger than MAX_REPEAT_COUNT
+	max := int(xREPEAT_UNLIMITED) // This value is larger than MAX_REPEAT_COUNT
 
 	*errorcodeptr = 0
-	for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+	for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 		p++
 	}
 
 	// Check the syntax before interpreting.
 
 	pp = p
-	if pp < ptrend && IS_DIGIT(uint32(pat[pp])) {
+	if pp < ptrend && xIS_DIGIT(uint32(pat[pp])) {
 		had_minimum = true
 		for {
 			pp++
-			if !(pp < ptrend && IS_DIGIT(uint32(pat[pp]))) {
+			if !(pp < ptrend && xIS_DIGIT(uint32(pat[pp]))) {
 				break
 			}
 		}
 	}
 
-	for pp < ptrend && (pat[pp] == CHAR_SPACE || pat[pp] == CHAR_HT) {
+	for pp < ptrend && (pat[pp] == xCHAR_SPACE || pat[pp] == xCHAR_HT) {
 		pp++
 	}
 	if pp >= ptrend {
 		return false
 	}
 
-	if pat[pp] == CHAR_RIGHT_CURLY_BRACKET {
+	if pat[pp] == xCHAR_RIGHT_CURLY_BRACKET {
 		if !had_minimum {
 			return false
 		}
 	} else {
 		c := pat[pp]
 		pp++
-		if c != CHAR_COMMA {
+		if c != xCHAR_COMMA {
 			return false
 		}
-		for pp < ptrend && (pat[pp] == CHAR_SPACE || pat[pp] == CHAR_HT) {
+		for pp < ptrend && (pat[pp] == xCHAR_SPACE || pat[pp] == xCHAR_HT) {
 			pp++
 		}
 		if pp >= ptrend {
 			return false
 		}
-		if IS_DIGIT(uint32(pat[pp])) {
+		if xIS_DIGIT(uint32(pat[pp])) {
 			for {
 				pp++
-				if !(pp < ptrend && IS_DIGIT(uint32(pat[pp]))) {
+				if !(pp < ptrend && xIS_DIGIT(uint32(pat[pp]))) {
 					break
 				}
 			}
 		} else if !had_minimum {
 			return false
 		}
-		for pp < ptrend && (pat[pp] == CHAR_SPACE || pat[pp] == CHAR_HT) {
+		for pp < ptrend && (pat[pp] == xCHAR_SPACE || pat[pp] == xCHAR_HT) {
 			pp++
 		}
-		if pp >= ptrend || pat[pp] != CHAR_RIGHT_CURLY_BRACKET {
+		if pp >= ptrend || pat[pp] != xCHAR_RIGHT_CURLY_BRACKET {
 			return false
 		}
 	}
 
 	// Now process the quantifier for real.
 
-	if !read_number(pat, &p, ptrend, -1, MAX_REPEAT_COUNT, ERR5, &min, errorcodeptr) {
+	if !read_number(pat, &p, ptrend, -1, xMAX_REPEAT_COUNT, xERR5, &min, errorcodeptr) {
 		if *errorcodeptr != 0 {
 			goto EXIT // n too big
 		}
 		p++ // Skip comma and subsequent spaces
-		for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+		for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 			p++
 		}
-		if !read_number(pat, &p, ptrend, -1, MAX_REPEAT_COUNT, ERR5, &max, errorcodeptr) {
+		if !read_number(pat, &p, ptrend, -1, xMAX_REPEAT_COUNT, xERR5, &max, errorcodeptr) {
 			if *errorcodeptr != 0 {
 				goto EXIT // m too big
 			}
 		}
 	} else {
 		// Have read one number. Deal with {n} or {n,} or {n,m}
-		for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+		for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 			p++
 		}
-		if pat[p] == CHAR_RIGHT_CURLY_BRACKET {
+		if pat[p] == xCHAR_RIGHT_CURLY_BRACKET {
 			max = min
 		} else { // Handle {n,} or {n,m}
 			p++ // Skip comma and subsequent spaces
-			for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+			for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 				p++
 			}
-			if !read_number(pat, &p, ptrend, -1, MAX_REPEAT_COUNT, ERR5, &max, errorcodeptr) {
+			if !read_number(pat, &p, ptrend, -1, xMAX_REPEAT_COUNT, xERR5, &max, errorcodeptr) {
 				if *errorcodeptr != 0 {
 					goto EXIT // m too big
 				}
 			}
 
 			if max < min {
-				*errorcodeptr = ERR4
+				*errorcodeptr = xERR4
 				goto EXIT
 			}
 		}
@@ -176,7 +176,7 @@ func read_repeat_counts(pat []byte, ptrptr *int, ptrend int, minp, maxp *uint32,
 
 	// Valid quantifier exists
 
-	for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+	for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 		p++
 	}
 	p++
@@ -213,26 +213,26 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 	// If backslash is at the end of the string, it's an error.
 
 	if ptr >= ptrend {
-		*errorcodeptr = ERR1
+		*errorcodeptr = xERR1
 		return 0
 	}
 
-	c, ptr = GETCHARINCTEST(utf, pat, ptr) // Get character value, increment pointer
-	*errorcodeptr = 0                      // Be optimistic
+	c, ptr = xGETCHARINCTEST(utf, pat, ptr) // Get character value, increment pointer
+	*errorcodeptr = 0                       // Be optimistic
 
 	// handleHexBrace is the code of "COME_FROM_NU" (pcre2_compile.c:1995): the
 	// processing of \x{...} after the opening brace and optional spaces. It
 	// returns when the C code executes "break" or runs off its end.
 	handleHexBrace := func() {
-		if ptr >= ptrend || pat[ptr] == CHAR_RIGHT_CURLY_BRACKET {
-			*errorcodeptr = ERR78
+		if ptr >= ptrend || pat[ptr] == xCHAR_RIGHT_CURLY_BRACKET {
+			*errorcodeptr = xERR78
 			return
 		}
 		c = 0
 		overflow := false
 
 		for ptr < ptrend {
-			cc = XDIGIT(pat[ptr])
+			cc = xXDIGIT(pat[ptr])
 			if cc == 0xff {
 				break
 			}
@@ -241,7 +241,7 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 				continue // Leading zeroes
 			}
 			c = (c << 4) | cc
-			if (utf && c > 0x10ffff) || (!utf && c > MAX_NON_UTF_CHAR) {
+			if (utf && c > 0x10ffff) || (!utf && c > xMAX_NON_UTF_CHAR) {
 				overflow = true
 				break
 			}
@@ -249,23 +249,23 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 
 		// Perl ignores spaces and tabs before }
 
-		for ptr < ptrend && (pat[ptr] == CHAR_SPACE || pat[ptr] == CHAR_HT) {
+		for ptr < ptrend && (pat[ptr] == xCHAR_SPACE || pat[ptr] == xCHAR_HT) {
 			ptr++
 		}
 
 		// On overflow, skip remaining hex digits
 
 		if overflow {
-			for ptr < ptrend && XDIGIT(pat[ptr]) != 0xff {
+			for ptr < ptrend && xXDIGIT(pat[ptr]) != 0xff {
 				ptr++
 			}
-			*errorcodeptr = ERR34
-		} else if ptr < ptrend && pat[ptr] == CHAR_RIGHT_CURLY_BRACKET {
+			*errorcodeptr = xERR34
+		} else if ptr < ptrend && pat[ptr] == xCHAR_RIGHT_CURLY_BRACKET {
 			ptr++
 			if utf && c >= 0xd800 && c <= 0xdfff &&
 				(xoptions&PCRE2_EXTRA_ALLOW_SURROGATE_ESCAPES) == 0 {
 				ptr--
-				*errorcodeptr = ERR73
+				*errorcodeptr = xERR73
 			}
 		} else {
 			// C: "*ptr++ == }" is short-circuited at the end of input, so only
@@ -273,41 +273,41 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 			if ptr >= ptrend {
 				ptr--
 			}
-			*errorcodeptr = ERR67
+			*errorcodeptr = xERR67
 		}
 	}
 
 	// Non-alphanumerics are literals, so we just leave the value in c.
 
-	if c < ESCAPES_FIRST || c > ESCAPES_LAST {
+	if c < xESCAPES_FIRST || c > xESCAPES_LAST {
 		// Definitely literal
-	} else if i = int(escapes[c-ESCAPES_FIRST]); i != 0 {
+	} else if i = int(escapes[c-xESCAPES_FIRST]); i != 0 {
 		if i > 0 {
 			c = uint32(i)
-			if c == CHAR_CR && (xoptions&PCRE2_EXTRA_ESCAPED_CR_IS_LF) != 0 {
-				c = CHAR_LF
+			if c == xCHAR_CR && (xoptions&PCRE2_EXTRA_ESCAPED_CR_IS_LF) != 0 {
+				c = xCHAR_LF
 			}
 		} else { // Negative table entry
 			escape = -i // Else return a special escape
-			if cb != nil && (escape == ESC_P || escape == ESC_p || escape == ESC_X) {
+			if cb != nil && (escape == xESC_P || escape == xESC_p || escape == xESC_X) {
 				cb.externalFlags |= PCRE2_HASBKPORX // Note \P, \p, or \X
 			}
 
 			// Perl supports \N{name} ... PCRE does not support \N{name}, but it
 			// does support quantification such as \N{2,3}.
 
-			if escape == ESC_N && ptr < ptrend && pat[ptr] == CHAR_LEFT_CURLY_BRACKET {
+			if escape == xESC_N && ptr < ptrend && pat[ptr] == xCHAR_LEFT_CURLY_BRACKET {
 				p := ptr + 1
 
 				// Perl ignores spaces and tabs after {
 
-				for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+				for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 					p++
 				}
 
 				// \N{U+ can be handled by the \x{ code.
 
-				if ptrend-p > 1 && pat[p] == CHAR_U && pat[p+1] == CHAR_PLUS {
+				if ptrend-p > 1 && pat[p] == xCHAR_U && pat[p+1] == xCHAR_PLUS {
 					if utf {
 						ptr = p + 2
 						escape = 0 // Not a fancy escape after all
@@ -316,13 +316,13 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 						*chptr = c
 						return escape
 					}
-					*errorcodeptr = ERR93
+					*errorcodeptr = xERR93
 				} else {
 					// Give an error if what follows is not a quantifier, but don't
 					// override an error set by the quantifier reader.
 					if !read_repeat_counts(pat, &p, ptrend, nil, nil, errorcodeptr) &&
 						*errorcodeptr == 0 {
-						*errorcodeptr = ERR37
+						*errorcodeptr = xERR37
 					}
 				}
 			}
@@ -337,8 +337,8 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 		// Filter calls from pcre2_substitute().
 
 		if cb == nil {
-			if c != CHAR_c && c != CHAR_o && c != CHAR_x {
-				*errorcodeptr = ERR3
+			if c != xCHAR_c && c != xCHAR_o && c != xCHAR_x {
+				*errorcodeptr = xERR3
 				return 0
 			}
 			alt_bsux = false // Do not modify \x handling
@@ -347,32 +347,32 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 	sw:
 		switch c {
 		// A number of Perl escapes are not handled by PCRE.
-		case CHAR_F, CHAR_l, CHAR_L:
-			*errorcodeptr = ERR37
+		case xCHAR_F, xCHAR_l, xCHAR_L:
+			*errorcodeptr = xERR37
 
 		// \u is unrecognized when neither PCRE2_ALT_BSUX nor
 		// PCRE2_EXTRA_ALT_BSUX is set.
-		case CHAR_u:
+		case xCHAR_u:
 			if !alt_bsux {
-				*errorcodeptr = ERR37
+				*errorcodeptr = xERR37
 			} else {
 				var xc uint32
 
 				if ptr >= ptrend {
 					break sw
 				}
-				if pat[ptr] == CHAR_LEFT_CURLY_BRACKET &&
+				if pat[ptr] == xCHAR_LEFT_CURLY_BRACKET &&
 					(xoptions&PCRE2_EXTRA_ALT_BSUX) != 0 {
 					hptr := ptr + 1
 
 					cc = 0
 					for hptr < ptrend {
-						xc = XDIGIT(pat[hptr])
+						xc = xXDIGIT(pat[hptr])
 						if xc == 0xff {
 							break
 						}
 						if (cc & 0xf0000000) != 0 { // Test for 32-bit overflow
-							*errorcodeptr = ERR77
+							*errorcodeptr = xERR77
 							ptr = hptr // Show where
 							break      // *hptr != } will cause another break below
 						}
@@ -382,10 +382,10 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 
 					if hptr == ptr+1 || // No hex digits
 						hptr >= ptrend || // Hit end of input
-						pat[hptr] != CHAR_RIGHT_CURLY_BRACKET { // No } terminator
-						escape = ESC_ub // Special return
-						ptr++           // Skip {
-						break sw        // Hex escape not recognized
+						pat[hptr] != xCHAR_RIGHT_CURLY_BRACKET { // No } terminator
+						escape = xESC_ub // Special return
+						ptr++            // Skip {
+						break sw         // Hex escape not recognized
 					}
 
 					c = cc // Accept the code point
@@ -394,18 +394,18 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 					if ptrend-ptr < 4 {
 						break sw // Less than 4 chars
 					}
-					if cc = XDIGIT(pat[ptr]); cc == 0xff {
+					if cc = xXDIGIT(pat[ptr]); cc == 0xff {
 						break sw // Not a hex digit
 					}
-					if xc = XDIGIT(pat[ptr+1]); xc == 0xff {
-						break sw // Not a hex digit
-					}
-					cc = (cc << 4) | xc
-					if xc = XDIGIT(pat[ptr+2]); xc == 0xff {
+					if xc = xXDIGIT(pat[ptr+1]); xc == 0xff {
 						break sw // Not a hex digit
 					}
 					cc = (cc << 4) | xc
-					if xc = XDIGIT(pat[ptr+3]); xc == 0xff {
+					if xc = xXDIGIT(pat[ptr+2]); xc == 0xff {
+						break sw // Not a hex digit
+					}
+					cc = (cc << 4) | xc
+					if xc = xXDIGIT(pat[ptr+3]); xc == 0xff {
 						break sw // Not a hex digit
 					}
 					c = (cc << 4) | xc
@@ -414,78 +414,78 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 
 				if utf {
 					if c > 0x10ffff {
-						*errorcodeptr = ERR77
+						*errorcodeptr = xERR77
 					} else if c >= 0xd800 && c <= 0xdfff &&
 						(xoptions&PCRE2_EXTRA_ALLOW_SURROGATE_ESCAPES) == 0 {
-						*errorcodeptr = ERR73
+						*errorcodeptr = xERR73
 					}
-				} else if c > MAX_NON_UTF_CHAR {
-					*errorcodeptr = ERR77
+				} else if c > xMAX_NON_UTF_CHAR {
+					*errorcodeptr = xERR77
 				}
 			}
 
 		// \U is unrecognized unless PCRE2_ALT_BSUX or PCRE2_EXTRA_ALT_BSUX is
 		// set, in which case it is an upper case letter.
-		case CHAR_U:
+		case xCHAR_U:
 			if !alt_bsux {
-				*errorcodeptr = ERR37
+				*errorcodeptr = xERR37
 			}
 
 		// In a character class, \g is just a literal "g". Outside a character
 		// class, \g must be followed by a number, a braced name/number, or a
 		// delimited name/number for a subroutine call.
-		case CHAR_g:
+		case xCHAR_g:
 			if isclass {
 				break sw
 			}
 
 			if ptr >= ptrend {
-				*errorcodeptr = ERR57
+				*errorcodeptr = xERR57
 				break sw
 			}
 
-			if pat[ptr] == CHAR_LESS_THAN_SIGN || pat[ptr] == CHAR_APOSTROPHE {
-				escape = ESC_g
+			if pat[ptr] == xCHAR_LESS_THAN_SIGN || pat[ptr] == xCHAR_APOSTROPHE {
+				escape = xESC_g
 				break sw
 			}
 
 			// If there is a brace delimiter, try to read a numerical reference.
 			// If there isn't one, assume we have a name and treat it as \k.
 
-			if pat[ptr] == CHAR_LEFT_CURLY_BRACKET {
+			if pat[ptr] == xCHAR_LEFT_CURLY_BRACKET {
 				p := ptr + 1
 
-				for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+				for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 					p++
 				}
-				if !read_number(pat, &p, ptrend, int32(cb.bracount), MAX_GROUP_NUMBER, ERR61,
+				if !read_number(pat, &p, ptrend, int32(cb.bracount), xMAX_GROUP_NUMBER, xERR61,
 					&s, errorcodeptr) {
 					if *errorcodeptr == 0 {
-						escape = ESC_k // No number found
+						escape = xESC_k // No number found
 					}
 					break sw
 				}
-				for p < ptrend && (pat[p] == CHAR_SPACE || pat[p] == CHAR_HT) {
+				for p < ptrend && (pat[p] == xCHAR_SPACE || pat[p] == xCHAR_HT) {
 					p++
 				}
 
-				if p >= ptrend || pat[p] != CHAR_RIGHT_CURLY_BRACKET {
-					*errorcodeptr = ERR57
+				if p >= ptrend || pat[p] != xCHAR_RIGHT_CURLY_BRACKET {
+					*errorcodeptr = xERR57
 					break sw
 				}
 				ptr = p + 1
 			} else { // Read an undelimited number
-				if !read_number(pat, &ptr, ptrend, int32(cb.bracount), MAX_GROUP_NUMBER, ERR61,
+				if !read_number(pat, &ptr, ptrend, int32(cb.bracount), xMAX_GROUP_NUMBER, xERR61,
 					&s, errorcodeptr) {
 					if *errorcodeptr == 0 {
-						*errorcodeptr = ERR57 // No number found
+						*errorcodeptr = xERR57 // No number found
 					}
 					break sw
 				}
 			}
 
 			if s <= 0 {
-				*errorcodeptr = ERR15
+				*errorcodeptr = xERR15
 				break sw
 			}
 
@@ -493,7 +493,7 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 
 		// The handling of escape sequences consisting of a string of digits
 		// starting with one that is not zero (pcre2_compile.c:1840).
-		case CHAR_1, CHAR_2, CHAR_3, CHAR_4, CHAR_5, CHAR_6, CHAR_7, CHAR_8, CHAR_9:
+		case xCHAR_1, xCHAR_2, xCHAR_3, xCHAR_4, xCHAR_5, xCHAR_6, xCHAR_7, xCHAR_8, xCHAR_9:
 			if !isclass {
 				oldptr = ptr
 				ptr-- // Back to the digit
@@ -503,9 +503,9 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 				// number.
 
 				if read_number(pat, &ptr, ptrend, -1, 0x7fffffff/10-1, 0, &s, errorcodeptr) &&
-					(s < 10 || uint32(pat[oldptr-1]) >= CHAR_8 || s <= int(int32(cb.bracount))) {
-					if s > int(MAX_GROUP_NUMBER) {
-						*errorcodeptr = ERR61
+					(s < 10 || uint32(pat[oldptr-1]) >= xCHAR_8 || s <= int(int32(cb.bracount))) {
+					if s > int(xMAX_GROUP_NUMBER) {
+						*errorcodeptr = xERR61
 					} else {
 						escape = -s // Indicates a back reference
 					}
@@ -518,67 +518,67 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 			// Handle a digit following \ when the number is not a back reference,
 			// or we are within a character class.
 
-			if c >= CHAR_8 {
+			if c >= xCHAR_8 {
 				break sw
 			}
 
 			// Fall through
-			c -= CHAR_0
+			c -= xCHAR_0
 			for {
 				i++
-				if !(i-1 < 2 && ptr < ptrend && uint32(pat[ptr]) >= CHAR_0 && uint32(pat[ptr]) <= CHAR_7) {
+				if !(i-1 < 2 && ptr < ptrend && uint32(pat[ptr]) >= xCHAR_0 && uint32(pat[ptr]) <= xCHAR_7) {
 					break
 				}
-				c = c*8 + uint32(pat[ptr]) - CHAR_0
+				c = c*8 + uint32(pat[ptr]) - xCHAR_0
 				ptr++
 			}
 			if !utf && c > 0xff {
-				*errorcodeptr = ERR51
+				*errorcodeptr = xERR51
 			}
 
 		// \0 always starts an octal number (up to three octal digits).
-		case CHAR_0:
-			c -= CHAR_0
+		case xCHAR_0:
+			c -= xCHAR_0
 			for {
 				i++
-				if !(i-1 < 2 && ptr < ptrend && uint32(pat[ptr]) >= CHAR_0 && uint32(pat[ptr]) <= CHAR_7) {
+				if !(i-1 < 2 && ptr < ptrend && uint32(pat[ptr]) >= xCHAR_0 && uint32(pat[ptr]) <= xCHAR_7) {
 					break
 				}
-				c = c*8 + uint32(pat[ptr]) - CHAR_0
+				c = c*8 + uint32(pat[ptr]) - xCHAR_0
 				ptr++
 			}
 			if !utf && c > 0xff {
-				*errorcodeptr = ERR51
+				*errorcodeptr = xERR51
 			}
 
 		// \o{ddd}, with optional spaces or tabs after { and before }.
-		case CHAR_o:
-			if ptr >= ptrend || pat[ptr] != CHAR_LEFT_CURLY_BRACKET {
+		case xCHAR_o:
+			if ptr >= ptrend || pat[ptr] != xCHAR_LEFT_CURLY_BRACKET {
 				if ptr >= ptrend { // C: "*ptr++" is short-circuited here
 					ptr--
 				}
-				*errorcodeptr = ERR55
+				*errorcodeptr = xERR55
 				break sw
 			}
 			ptr++
 
-			for ptr < ptrend && (pat[ptr] == CHAR_SPACE || pat[ptr] == CHAR_HT) {
+			for ptr < ptrend && (pat[ptr] == xCHAR_SPACE || pat[ptr] == xCHAR_HT) {
 				ptr++
 			}
-			if ptr >= ptrend || pat[ptr] == CHAR_RIGHT_CURLY_BRACKET {
-				*errorcodeptr = ERR78
+			if ptr >= ptrend || pat[ptr] == xCHAR_RIGHT_CURLY_BRACKET {
+				*errorcodeptr = xERR78
 				break sw
 			}
 
 			c = 0
 			overflow = false
-			for ptr < ptrend && uint32(pat[ptr]) >= CHAR_0 && uint32(pat[ptr]) <= CHAR_7 {
+			for ptr < ptrend && uint32(pat[ptr]) >= xCHAR_0 && uint32(pat[ptr]) <= xCHAR_7 {
 				cc = uint32(pat[ptr])
 				ptr++
-				if c == 0 && cc == CHAR_0 {
+				if c == 0 && cc == xCHAR_0 {
 					continue // Leading zeroes
 				}
-				c = (c << 3) + (cc - CHAR_0)
+				c = (c << 3) + (cc - xCHAR_0)
 				lim := uint32(0xff)
 				if utf {
 					lim = 0x10ffff
@@ -589,50 +589,50 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 				}
 			}
 
-			for ptr < ptrend && (pat[ptr] == CHAR_SPACE || pat[ptr] == CHAR_HT) {
+			for ptr < ptrend && (pat[ptr] == xCHAR_SPACE || pat[ptr] == xCHAR_HT) {
 				ptr++
 			}
 
 			if overflow {
-				for ptr < ptrend && uint32(pat[ptr]) >= CHAR_0 && uint32(pat[ptr]) <= CHAR_7 {
+				for ptr < ptrend && uint32(pat[ptr]) >= xCHAR_0 && uint32(pat[ptr]) <= xCHAR_7 {
 					ptr++
 				}
-				*errorcodeptr = ERR34
-			} else if ptr < ptrend && pat[ptr] == CHAR_RIGHT_CURLY_BRACKET {
+				*errorcodeptr = xERR34
+			} else if ptr < ptrend && pat[ptr] == xCHAR_RIGHT_CURLY_BRACKET {
 				ptr++
 				if utf && c >= 0xd800 && c <= 0xdfff &&
 					(xoptions&PCRE2_EXTRA_ALLOW_SURROGATE_ESCAPES) == 0 {
 					ptr--
-					*errorcodeptr = ERR73
+					*errorcodeptr = xERR73
 				}
 			} else {
 				if ptr >= ptrend {
 					ptr--
 				}
-				*errorcodeptr = ERR64
+				*errorcodeptr = xERR64
 			}
 
 		// When PCRE2_ALT_BSUX or PCRE2_EXTRA_ALT_BSUX is set, \x must be
 		// followed by two hexadecimal digits. Otherwise it is a lowercase x.
-		case CHAR_x:
+		case xCHAR_x:
 			if alt_bsux {
 				var xc uint32
 				if ptrend-ptr < 2 {
 					break sw // Less than 2 characters
 				}
-				if cc = XDIGIT(pat[ptr]); cc == 0xff {
+				if cc = xXDIGIT(pat[ptr]); cc == 0xff {
 					break sw // Not a hex digit
 				}
-				if xc = XDIGIT(pat[ptr+1]); xc == 0xff {
+				if xc = xXDIGIT(pat[ptr+1]); xc == 0xff {
 					break sw // Not a hex digit
 				}
 				c = (cc << 4) | xc
 				ptr += 2
 			} else {
 				// Handle \x in Perl's style.
-				if ptr < ptrend && pat[ptr] == CHAR_LEFT_CURLY_BRACKET {
+				if ptr < ptrend && pat[ptr] == xCHAR_LEFT_CURLY_BRACKET {
 					ptr++
-					for ptr < ptrend && (pat[ptr] == CHAR_SPACE || pat[ptr] == CHAR_HT) {
+					for ptr < ptrend && (pat[ptr] == xCHAR_SPACE || pat[ptr] == xCHAR_HT) {
 						ptr++
 					}
 					handleHexBrace()
@@ -641,7 +641,7 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 					if ptr >= ptrend {
 						break sw
 					}
-					if cc = XDIGIT(pat[ptr]); cc == 0xff {
+					if cc = xXDIGIT(pat[ptr]); cc == 0xff {
 						break sw // Not a hex digit
 					}
 					ptr++
@@ -649,7 +649,7 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 					if ptr >= ptrend {
 						break sw
 					}
-					if cc = XDIGIT(pat[ptr]); cc == 0xff {
+					if cc = xXDIGIT(pat[ptr]); cc == 0xff {
 						break sw // Not a hex digit
 					}
 					ptr++
@@ -659,18 +659,18 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 
 		// In an ASCII (or Unicode) environment, an error is given if the
 		// character following \c is not a printable ASCII character.
-		case CHAR_c:
+		case xCHAR_c:
 			if ptr >= ptrend {
-				*errorcodeptr = ERR2
+				*errorcodeptr = xERR2
 				break sw
 			}
 			c = uint32(pat[ptr])
-			if c >= CHAR_a && c <= CHAR_z {
-				c = UPPER_CASE(c)
+			if c >= xCHAR_a && c <= xCHAR_z {
+				c = xUPPER_CASE(c)
 			}
 
 			if c < 32 || c > 126 { // Excludes all non-printable ASCII
-				*errorcodeptr = ERR68
+				*errorcodeptr = xERR68
 				break sw
 			}
 			c ^= 0x40
@@ -679,7 +679,7 @@ func check_escape(pat []byte, ptrptr *int, ptrend int, chptr *uint32,
 
 		// Any other alphanumeric following \ is an error.
 		default:
-			*errorcodeptr = ERR3
+			*errorcodeptr = xERR3
 			*ptrptr = ptr - 1 // Point to the character at fault
 			return 0
 		}
@@ -702,7 +702,7 @@ func get_ucp(pat []byte, ptrptr *int, negptr *bool, ptypeptr *uint16,
 	ptr := *ptrptr
 	var name [50]byte
 	vptr := -1 // index in name, or -1 for NULL
-	ptscript := uint16(PT_NOTSCRIPT)
+	ptscript := uint16(xPT_NOTSCRIPT)
 	end_pattern := cb.endPattern
 
 	if ptr >= end_pattern {
@@ -715,12 +715,12 @@ func get_ucp(pat []byte, ptrptr *int, negptr *bool, ptypeptr *uint16,
 	// \P or \p can be followed by a name in {}, optionally preceded by ^ for
 	// negation.
 
-	if c == CHAR_LEFT_CURLY_BRACKET {
+	if c == xCHAR_LEFT_CURLY_BRACKET {
 		if ptr >= end_pattern {
 			goto ERROR_RETURN
 		}
 
-		if pat[ptr] == CHAR_CIRCUMFLEX_ACCENT {
+		if pat[ptr] == xCHAR_CIRCUMFLEX_ACCENT {
 			*negptr = true
 			ptr++
 		}
@@ -738,10 +738,10 @@ func get_ucp(pat []byte, ptrptr *int, negptr *bool, ptypeptr *uint16,
 				c = pat[ptr]
 				ptr++
 			}
-			if c == CHAR_NUL {
+			if c == xCHAR_NUL {
 				goto ERROR_RETURN
 			}
-			if c == CHAR_RIGHT_CURLY_BRACKET {
+			if c == xCHAR_RIGHT_CURLY_BRACKET {
 				break
 			}
 			name[i] = byte(cToLower(int(c)))
@@ -750,7 +750,7 @@ func get_ucp(pat []byte, ptrptr *int, negptr *bool, ptypeptr *uint16,
 			}
 		}
 
-		if c != CHAR_RIGHT_CURLY_BRACKET {
+		if c != xCHAR_RIGHT_CURLY_BRACKET {
 			goto ERROR_RETURN
 		}
 		name[i] = 0
@@ -775,16 +775,16 @@ func get_ucp(pat []byte, ptrptr *int, negptr *bool, ptypeptr *uint16,
 		name[vptr] = 0 // Terminate property name
 		if strcmp_c8(name[:], "bidiclass") == 0 || strcmp_c8(name[:], "bc") == 0 {
 			offset = 4
-			sname[0] = CHAR_b
-			sname[1] = CHAR_i // There is no strcpy_c8 function
-			sname[2] = CHAR_d
-			sname[3] = CHAR_i
+			sname[0] = xCHAR_b
+			sname[1] = xCHAR_i // There is no strcpy_c8 function
+			sname[2] = xCHAR_d
+			sname[3] = xCHAR_i
 		} else if strcmp_c8(name[:], "script") == 0 || strcmp_c8(name[:], "sc") == 0 {
-			ptscript = PT_SC
+			ptscript = xPT_SC
 		} else if strcmp_c8(name[:], "scriptextensions") == 0 || strcmp_c8(name[:], "scx") == 0 {
-			ptscript = PT_SCX
+			ptscript = xPT_SCX
 		} else {
-			*errorcodeptr = ERR47
+			*errorcodeptr = xERR47
 			return false
 		}
 
@@ -810,17 +810,17 @@ func get_ucp(pat []byte, ptrptr *int, negptr *bool, ptypeptr *uint16,
 
 		if r == 0 {
 			*pdataptr = utt[i].value
-			if vptr < 0 || ptscript == PT_NOTSCRIPT {
+			if vptr < 0 || ptscript == xPT_NOTSCRIPT {
 				*ptypeptr = utt[i].typ
 				return true
 			}
 
 			switch utt[i].typ {
-			case PT_SC:
-				*ptypeptr = PT_SC
+			case xPT_SC:
+				*ptypeptr = xPT_SC
 				return true
 
-			case PT_SCX:
+			case xPT_SCX:
 				*ptypeptr = ptscript
 				return true
 			}
@@ -835,11 +835,11 @@ func get_ucp(pat []byte, ptrptr *int, negptr *bool, ptypeptr *uint16,
 		}
 	}
 
-	*errorcodeptr = ERR47 // Unrecognized property
+	*errorcodeptr = xERR47 // Unrecognized property
 	return false
 
 ERROR_RETURN: // Malformed \P or \p
-	*errorcodeptr = ERR46
+	*errorcodeptr = xERR46
 	*ptrptr = ptr
 	return false
 }

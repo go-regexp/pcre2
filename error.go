@@ -63,8 +63,8 @@ var compile_error_texts = "no error\x00" +
 	"this version of PCRE2 does not have support for \\P, \\p, or \\X\x00" +
 	"malformed \\P or \\p sequence\x00" +
 	"unknown property after \\P or \\p\x00" +
-	"subpattern name is too long (maximum " + strconv.Itoa(MAX_NAME_SIZE) + " code units)\x00" +
-	"too many named subpatterns (maximum " + strconv.Itoa(MAX_NAME_COUNT) + ")\x00" +
+	"subpattern name is too long (maximum " + strconv.Itoa(xMAX_NAME_SIZE) + " code units)\x00" +
+	"too many named subpatterns (maximum " + strconv.Itoa(xMAX_NAME_COUNT) + ")\x00" +
 	/* 50 */
 	"invalid range in character class\x00" +
 	"octal value is greater than \\377 in 8-bit non-UTF-8 mode\x00" +
@@ -224,9 +224,9 @@ func GetErrorMessageBuf(enumber int, buffer []byte) int {
 	}
 	var message string
 	var n int
-	if enumber >= COMPILE_ERROR_BASE { // Compile error
+	if enumber >= xCOMPILE_ERROR_BASE { // Compile error
 		message = compile_error_texts
-		n = enumber - COMPILE_ERROR_BASE
+		n = enumber - xCOMPILE_ERROR_BASE
 	} else if enumber < 0 { // Match or UTF error
 		message = match_error_texts
 		n = -enumber

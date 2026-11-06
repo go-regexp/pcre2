@@ -22,10 +22,10 @@ func defaultCompileContext() CompileContext {
 		maxPatternLength:         PCRE2_UNSET,
 		maxPatternCompiledLength: PCRE2_UNSET,
 		bsrConvention:            PCRE2_BSR_UNICODE, // BSR_DEFAULT
-		newlineConvention:        NEWLINE_DEFAULT,
-		parensNestLimit:          PARENS_NEST_LIMIT,
+		newlineConvention:        xNEWLINE_DEFAULT,
+		parensNestLimit:          xPARENS_NEST_LIMIT,
 		extraOptions:             0,
-		maxVarlookbehind:         MAX_VARLOOKBEHIND,
+		maxVarlookbehind:         xMAX_VARLOOKBEHIND,
 	}
 }
 
@@ -48,9 +48,9 @@ func (c *CompileContext) Free() {}
 func defaultMatchContext() MatchContext {
 	return MatchContext{
 		offsetLimit: PCRE2_UNSET,
-		heapLimit:   HEAP_LIMIT,
-		matchLimit:  MATCH_LIMIT,
-		depthLimit:  MATCH_LIMIT_DEPTH,
+		heapLimit:   xHEAP_LIMIT,
+		matchLimit:  xMATCH_LIMIT,
+		depthLimit:  xMATCH_LIMIT_DEPTH,
 	}
 }
 
@@ -71,7 +71,7 @@ func (m *MatchContext) Free() {}
 
 // defaultConvertContext returns PRIV(default_convert_context) (non-Windows).
 func defaultConvertContext() ConvertContext {
-	return ConvertContext{globSeparator: CHAR_SLASH, globEscape: CHAR_BACKSLASH}
+	return ConvertContext{globSeparator: xCHAR_SLASH, globEscape: xCHAR_BACKSLASH}
 }
 
 // NewConvertContext is pcre2_convert_context_create(NULL).
@@ -192,7 +192,7 @@ func (m *MatchContext) SetRecursionLimit(limit uint32) int { return m.SetDepthLi
 
 // SetGlobSeparator is pcre2_set_glob_separator().
 func (c *ConvertContext) SetGlobSeparator(separator uint32) int {
-	if separator != CHAR_SLASH && separator != CHAR_BACKSLASH && separator != CHAR_DOT {
+	if separator != xCHAR_SLASH && separator != xCHAR_BACKSLASH && separator != xCHAR_DOT {
 		return PCRE2_ERROR_BADDATA
 	}
 	c.globSeparator = separator

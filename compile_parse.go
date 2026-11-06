@@ -23,28 +23,28 @@ type nest_save struct {
 
 // Nest save flags (pcre2_compile.c:2734-2736).
 const (
-	NSF_RESET      = 0x0001
-	NSF_CONDASSERT = 0x0002
-	NSF_ATOMICSR   = 0x0004
+	xNSF_RESET      = 0x0001
+	xNSF_CONDASSERT = 0x0002
+	xNSF_ATOMICSR   = 0x0004
 )
 
 // Options that are tracked during parsing (pcre2_compile.c:2743-2749).
 const (
-	PARSE_TRACKED_OPTIONS = PCRE2_CASELESS | PCRE2_DOTALL | PCRE2_DUPNAMES |
+	xPARSE_TRACKED_OPTIONS = PCRE2_CASELESS | PCRE2_DOTALL | PCRE2_DUPNAMES |
 		PCRE2_EXTENDED | PCRE2_EXTENDED_MORE | PCRE2_MULTILINE | PCRE2_NO_AUTO_CAPTURE |
 		PCRE2_UNGREEDY
 
-	PARSE_TRACKED_EXTRA_OPTIONS = PCRE2_EXTRA_CASELESS_RESTRICT |
+	xPARSE_TRACKED_EXTRA_OPTIONS = PCRE2_EXTRA_CASELESS_RESTRICT |
 		PCRE2_EXTRA_ASCII_BSD | PCRE2_EXTRA_ASCII_BSS | PCRE2_EXTRA_ASCII_BSW |
 		PCRE2_EXTRA_ASCII_DIGIT | PCRE2_EXTRA_ASCII_POSIX
 )
 
 // States used for analyzing ranges in character classes (pcre2_compile.c:2754).
 const (
-	RANGE_NO = iota
-	RANGE_STARTED
-	RANGE_OK_ESCAPED
-	RANGE_OK_LITERAL
+	xRANGE_NO = iota
+	xRANGE_STARTED
+	xRANGE_OK_ESCAPED
+	xRANGE_OK_LITERAL
 )
 
 // parse_putoffset is PUTOFFSET (64-bit PCRE2_SIZE: two elements,
@@ -72,7 +72,7 @@ func parse_manage_callouts(ptr int, pcalloutptr *int, autoCallout bool, pp int, 
 		if previous < 0 || previous != pp-4 || parsed[previous+3] != 255 {
 			previous = pp
 			pp += 4
-			parsed[previous] = META_CALLOUT_NUMBER
+			parsed[previous] = xMETA_CALLOUT_NUMBER
 			parsed[previous+2] = 0
 			parsed[previous+3] = 255
 		}
@@ -86,39 +86,39 @@ func parse_manage_callouts(ptr int, pcalloutptr *int, autoCallout bool, pp int, 
 func parse_handle_escdsw(escape int, pp int, options, xoptions uint32, cb *compile_block) int {
 	parsed := cb.parsedPattern
 	var asciiOption uint32
-	prop := ESC_p
+	prop := xESC_p
 	switch escape {
-	case ESC_D:
-		prop = ESC_P
+	case xESC_D:
+		prop = xESC_P
 		asciiOption = PCRE2_EXTRA_ASCII_BSD
-	case ESC_d:
+	case xESC_d:
 		asciiOption = PCRE2_EXTRA_ASCII_BSD
-	case ESC_S:
-		prop = ESC_P
+	case xESC_S:
+		prop = xESC_P
 		asciiOption = PCRE2_EXTRA_ASCII_BSS
-	case ESC_s:
+	case xESC_s:
 		asciiOption = PCRE2_EXTRA_ASCII_BSS
-	case ESC_W:
-		prop = ESC_P
+	case xESC_W:
+		prop = xESC_P
 		asciiOption = PCRE2_EXTRA_ASCII_BSW
-	case ESC_w:
+	case xESC_w:
 		asciiOption = PCRE2_EXTRA_ASCII_BSW
 	}
 	if options&PCRE2_UCP == 0 || xoptions&asciiOption != 0 {
-		parsed[pp] = META_ESCAPE + uint32(escape)
+		parsed[pp] = xMETA_ESCAPE + uint32(escape)
 		pp++
 	} else {
-		parsed[pp] = META_ESCAPE + uint32(prop)
+		parsed[pp] = xMETA_ESCAPE + uint32(prop)
 		pp++
 		switch escape {
-		case ESC_d, ESC_D:
-			parsed[pp] = PT_PC<<16 | ucp_Nd
+		case xESC_d, xESC_D:
+			parsed[pp] = xPT_PC<<16 | ucp_Nd
 			pp++
-		case ESC_s, ESC_S:
-			parsed[pp] = PT_SPACE << 16
+		case xESC_s, xESC_S:
+			parsed[pp] = xPT_SPACE << 16
 			pp++
-		case ESC_w, ESC_W:
-			parsed[pp] = PT_WORD << 16
+		case xESC_w, xESC_W:
+			parsed[pp] = xPT_WORD << 16
 			pp++
 		}
 	}
@@ -135,7 +135,7 @@ func parse_regex(pat []byte, ptr int, options uint32, hasLookbehind *bool, cb *c
 		if r := recover(); r != nil {
 			if _, ok := r.(runtime.Error); ok {
 				cb.erroroffset = uint64(ptr)
-				rc = ERR63 // internal error (parsed pattern overflow)
+				rc = xERR63 // internal error (parsed pattern overflow)
 				return
 			}
 			panic(r)
@@ -200,7 +200,7 @@ func parse_regex(pat []byte, ptr int, options uint32, hasLookbehind *bool, cb *c
 		pp++
 	}
 	isNewline := func(p int) bool {
-		if cb.nltype != NLTYPE_FIXED {
+		if cb.nltype != xNLTYPE_FIXED {
 			if p < ptrend {
 				ok, l := is_newline(pat, p, cb.nltype, ptrend, utf)
 				if ok {
@@ -228,47 +228,47 @@ func parse_regex(pat []byte, ptr int, options uint32, hasLookbehind *bool, cb *c
 			nests = append(nests, nest_save{})
 		}
 		nests[topNest] = nest_save{nestDepth: nestDepth, flags: flags,
-			options: options & PARSE_TRACKED_OPTIONS, xoptions: xoptions & PARSE_TRACKED_EXTRA_OPTIONS}
+			options: options & xPARSE_TRACKED_OPTIONS, xoptions: xoptions & xPARSE_TRACKED_EXTRA_OPTIONS}
 		return true
 	}
 
 	// Insert leading items for word and line matching.
 	if xoptions&PCRE2_EXTRA_MATCH_LINE != 0 {
-		put(META_CIRCUMFLEX)
-		put(META_NOCAPTURE)
+		put(xMETA_CIRCUMFLEX)
+		put(xMETA_NOCAPTURE)
 	} else if xoptions&PCRE2_EXTRA_MATCH_WORD != 0 {
-		put(META_ESCAPE + ESC_b)
-		put(META_NOCAPTURE)
+		put(xMETA_ESCAPE + xESC_b)
+		put(xMETA_NOCAPTURE)
 	}
 
 	// finish is the code from PARSED_END (pcre2_compile.c:4989) on.
 	finish := func() int {
 		pp = parse_manage_callouts(ptr, &previousCallout, autoCallout, pp, cb)
 		if xoptions&PCRE2_EXTRA_MATCH_LINE != 0 {
-			put(META_KET)
-			put(META_DOLLAR)
+			put(xMETA_KET)
+			put(xMETA_DOLLAR)
 		} else if xoptions&PCRE2_EXTRA_MATCH_WORD != 0 {
-			put(META_KET)
-			put(META_ESCAPE + ESC_b)
+			put(xMETA_KET)
+			put(xMETA_ESCAPE + xESC_b)
 		}
 		if pp >= parsedPatternEnd {
-			return fail(ERR63)
+			return fail(xERR63)
 		}
-		parsed[pp] = META_END
+		parsed[pp] = xMETA_END
 		if nestDepth == 0 {
 			return 0
 		}
-		return fail(ERR14) // UNCLOSED_PARENTHESIS
+		return fail(xERR14) // UNCLOSED_PARENTHESIS
 	}
 
 	// A literal pattern is processed separately (pcre2_compile.c:2827).
 	if options&PCRE2_LITERAL != 0 {
 		for ptr < ptrend {
 			if pp >= parsedPatternEnd {
-				return fail(ERR63)
+				return fail(xERR63)
 			}
 			thisptr = ptr
-			c, ptr = GETCHARINCTEST(utf, pat, ptr)
+			c, ptr = xGETCHARINCTEST(utf, pat, ptr)
 			if autoCallout {
 				pp = parse_manage_callouts(thisptr, &previousCallout, autoCallout, pp, cb)
 			}
@@ -284,7 +284,7 @@ func parse_regex(pat []byte, ptr int, options uint32, hasLookbehind *bool, cb *c
 
 	// setRecursion is SET_RECURSION (pcre2_compile.c:4428).
 	setRecursion := func(n int) {
-		put(META_RECURSE | uint32(n))
+		put(xMETA_RECURSE | uint32(n))
 		offset := uint64(ptr)
 		ptr++
 		pp = parse_putoffset(parsed, pp, offset)
@@ -304,10 +304,10 @@ mainLoop:
 		)
 
 		if pp >= parsedPatternEnd {
-			return fail(ERR63)
+			return fail(xERR63)
 		}
 		if uint32(nestDepth) > cb.cx.parensNestLimit {
-			return fail(ERR19)
+			return fail(xERR19)
 		}
 
 		if thisParsedItem != pp {
@@ -316,17 +316,17 @@ mainLoop:
 		}
 
 		thisptr = ptr
-		c, ptr = GETCHARINCTEST(utf, pat, ptr)
+		c, ptr = xGETCHARINCTEST(utf, pat, ptr)
 
 		// Copy quoted literals until \E.
 		if inescq {
-			if c == CHAR_BACKSLASH && ptr < ptrend && pat[ptr] == CHAR_E {
+			if c == xCHAR_BACKSLASH && ptr < ptrend && pat[ptr] == xCHAR_E {
 				inescq = false
 				ptr++
 			} else {
 				if expectCondAssert > 0 {
 					ptr--
-					return fail(ERR28)
+					return fail(xERR28)
 				}
 				if inverbname {
 					put(c)
@@ -347,18 +347,18 @@ mainLoop:
 		if inverbname &&
 			(options&(PCRE2_EXTENDED|PCRE2_ALT_VERBNAMES) != (PCRE2_EXTENDED|PCRE2_ALT_VERBNAMES) ||
 				(c > 255 && (c|1) != 0x200f && (c|1) != 0x2029) ||
-				(c < 256 && c != CHAR_NUMBER_SIGN && cb.ctypes[c]&ctype_space == 0 && c != CHAR_NEL)) {
+				(c < 256 && c != xCHAR_NUMBER_SIGN && cb.ctypes[c]&ctype_space == 0 && c != xCHAR_NEL)) {
 
 			switch c {
 			default:
 				put(c)
 
-			case CHAR_RIGHT_PARENTHESIS:
+			case xCHAR_RIGHT_PARENTHESIS:
 				inverbname = false
 				verbnamelength := uint32(pp - verblengthptr - 1)
-				if ptr-verbnamestart-1 > int(MAX_MARK) {
+				if ptr-verbnamestart-1 > int(xMAX_MARK) {
 					ptr--
-					return fail(ERR76)
+					return fail(xERR76)
 				}
 				parsed[verblengthptr] = verbnamelength
 				if addAfterMark != 0 {
@@ -366,7 +366,7 @@ mainLoop:
 					addAfterMark = 0
 				}
 
-			case CHAR_BACKSLASH:
+			case xCHAR_BACKSLASH:
 				if options&PCRE2_ALT_VERBNAMES != 0 {
 					escape = check_escape(pat, &ptr, ptrend, &c, &errorcode, options, xoptions, false, cb)
 					if errorcode != 0 {
@@ -378,24 +378,24 @@ mainLoop:
 				switch escape {
 				case 0:
 					put(c)
-				case ESC_ub:
-					put(CHAR_u)
-					putLiteral(CHAR_LEFT_CURLY_BRACKET)
-				case ESC_Q:
+				case xESC_ub:
+					put(xCHAR_u)
+					putLiteral(xCHAR_LEFT_CURLY_BRACKET)
+				case xESC_Q:
 					inescq = true
-				case ESC_E:
+				case xESC_E:
 					// ignore
 				default:
-					return fail(ERR40)
+					return fail(xERR40)
 				}
 			}
 			continue
 		}
 
 		// \Q and \E are handled here so that A\Q\E+ is A+.
-		if c == CHAR_BACKSLASH && ptr < ptrend {
-			if pat[ptr] == CHAR_Q || pat[ptr] == CHAR_E {
-				inescq = pat[ptr] == CHAR_Q
+		if c == xCHAR_BACKSLASH && ptr < ptrend {
+			if pat[ptr] == xCHAR_Q || pat[ptr] == xCHAR_E {
+				inescq = pat[ptr] == xCHAR_Q
 				ptr++
 				continue
 			}
@@ -406,10 +406,10 @@ mainLoop:
 			if c < 256 && cb.ctypes[c]&ctype_space != 0 {
 				continue
 			}
-			if c == CHAR_NEL || (c|1) == 0x200f || (c|1) == 0x2029 {
+			if c == xCHAR_NEL || (c|1) == 0x200f || (c|1) == 0x2029 {
 				continue
 			}
-			if c == CHAR_NUMBER_SIGN {
+			if c == xCHAR_NUMBER_SIGN {
 				for ptr < ptrend {
 					if isNewline(ptr) {
 						ptr += int(cb.nllen)
@@ -417,7 +417,7 @@ mainLoop:
 					}
 					ptr++
 					if utf {
-						ptr = FORWARDCHARTEST(pat, ptr, ptrend)
+						ptr = xFORWARDCHARTEST(pat, ptr, ptrend)
 					}
 				}
 				continue
@@ -425,16 +425,16 @@ mainLoop:
 		}
 
 		// Skip over bracketed comments
-		if c == CHAR_LEFT_PARENTHESIS && ptrend-ptr >= 2 &&
-			pat[ptr] == CHAR_QUESTION_MARK && pat[ptr+1] == CHAR_NUMBER_SIGN {
+		if c == xCHAR_LEFT_PARENTHESIS && ptrend-ptr >= 2 &&
+			pat[ptr] == xCHAR_QUESTION_MARK && pat[ptr+1] == xCHAR_NUMBER_SIGN {
 			for {
 				ptr++
-				if !(ptr < ptrend && pat[ptr] != CHAR_RIGHT_PARENTHESIS) {
+				if !(ptr < ptrend && pat[ptr] != xCHAR_RIGHT_PARENTHESIS) {
 					break
 				}
 			}
 			if ptr >= ptrend {
-				return fail(ERR18)
+				return fail(xERR18)
 			}
 			ptr++
 			continue
@@ -442,8 +442,8 @@ mainLoop:
 
 		// If the next item is not a quantifier, fill in length of any previous
 		// callout and create an auto callout if required.
-		isQuant := c == CHAR_ASTERISK || c == CHAR_PLUS || c == CHAR_QUESTION_MARK
-		if !isQuant && c == CHAR_LEFT_CURLY_BRACKET {
+		isQuant := c == xCHAR_ASTERISK || c == xCHAR_PLUS || c == xCHAR_QUESTION_MARK
+		if !isQuant && c == xCHAR_LEFT_CURLY_BRACKET {
 			tempptr = ptr
 			isQuant = read_repeat_counts(pat, &tempptr, ptrend, nil, nil, &errorcode)
 		}
@@ -458,18 +458,18 @@ mainLoop:
 
 		// Expecting a conditional assertion?
 		if expectCondAssert > 0 {
-			ok := c == CHAR_LEFT_PARENTHESIS && ptrend-ptr >= 3 &&
-				(at(ptr) == CHAR_QUESTION_MARK || at(ptr) == CHAR_ASTERISK)
+			ok := c == xCHAR_LEFT_PARENTHESIS && ptrend-ptr >= 3 &&
+				(at(ptr) == xCHAR_QUESTION_MARK || at(ptr) == xCHAR_ASTERISK)
 			if ok {
-				if at(ptr) == CHAR_ASTERISK {
+				if at(ptr) == xCHAR_ASTERISK {
 					ok = cb.ctypes[at(ptr+1)]&ctype_lcletter != 0
 				} else {
 					switch at(ptr + 1) {
-					case CHAR_C:
+					case xCHAR_C:
 						ok = expectCondAssert == 2
-					case CHAR_EQUALS_SIGN, CHAR_EXCLAMATION_MARK:
-					case CHAR_LESS_THAN_SIGN:
-						ok = at(ptr+2) == CHAR_EQUALS_SIGN || at(ptr+2) == CHAR_EXCLAMATION_MARK
+					case xCHAR_EQUALS_SIGN, xCHAR_EXCLAMATION_MARK:
+					case xCHAR_LESS_THAN_SIGN:
+						ok = at(ptr+2) == xCHAR_EQUALS_SIGN || at(ptr+2) == xCHAR_EXCLAMATION_MARK
 					default:
 						ok = false
 					}
@@ -477,7 +477,7 @@ mainLoop:
 			}
 			if !ok {
 				ptr--
-				return fail(ERR28)
+				return fail(xERR28)
 			}
 		}
 
@@ -490,13 +490,13 @@ mainLoop:
 		metaQuantifier = 0
 
 		// A following + or ? modifies a previous quantifier.
-		if prevMetaQuantifier != 0 && (c == CHAR_QUESTION_MARK || c == CHAR_PLUS) {
+		if prevMetaQuantifier != 0 && (c == xCHAR_QUESTION_MARK || c == xCHAR_PLUS) {
 			idx := pp - 1
-			if prevMetaQuantifier == META_MINMAX {
+			if prevMetaQuantifier == xMETA_MINMAX {
 				idx = pp - 3
 			}
 			add := uint32(0x00010000)
-			if c == CHAR_QUESTION_MARK {
+			if c == xCHAR_QUESTION_MARK {
 				add = 0x00020000
 			}
 			parsed[idx] = prevMetaQuantifier + add
@@ -507,18 +507,18 @@ mainLoop:
 		// a non-zero error code (already failed) when not allowed.
 		checkQuantifier := func() int {
 			if !prevOkquantifier {
-				return failBack(ERR9)
+				return failBack(xERR9)
 			}
-			if parsed[prevParsedItem] == META_ACCEPT {
+			if parsed[prevParsedItem] == xMETA_ACCEPT {
 				for p := pp - 1; p >= verbstartptr; p-- {
 					parsed[p+1] = parsed[p]
 				}
-				parsed[verbstartptr] = META_NOCAPTURE
-				parsed[pp+1] = META_KET
+				parsed[verbstartptr] = xMETA_NOCAPTURE
+				parsed[pp+1] = xMETA_KET
 				pp += 2
 			}
 			put(metaQuantifier)
-			if c == CHAR_LEFT_CURLY_BRACKET {
+			if c == xCHAR_LEFT_CURLY_BRACKET {
 				put(minRepeat)
 				put(maxRepeat)
 			}
@@ -531,17 +531,17 @@ mainLoop:
 			if !read_name(pat, &ptr, ptrend, utf, term, &off, &name, &namelen, &errorcode, cb) {
 				return fail(errorcode)
 			}
-			if cb.bracount >= MAX_GROUP_NUMBER {
-				return fail(ERR97)
+			if cb.bracount >= xMAX_GROUP_NUMBER {
+				return fail(xERR97)
 			}
 			cb.bracount++
-			put(META_CAPTURE | cb.bracount)
+			put(xMETA_CAPTURE | cb.bracount)
 			nestDepth++
-			if int(cb.namesFound) >= MAX_NAME_COUNT {
-				return fail(ERR49)
+			if int(cb.namesFound) >= xMAX_NAME_COUNT {
+				return fail(xERR49)
 			}
-			if namelen+IMM2_SIZE+1 > uint32(cb.nameEntrySize) {
-				cb.nameEntrySize = uint16(namelen + IMM2_SIZE + 1)
+			if namelen+xIMM2_SIZE+1 > uint32(cb.nameEntrySize) {
+				cb.nameEntrySize = uint16(namelen + xIMM2_SIZE + 1)
 			}
 			isdupname = false
 			n := name
@@ -553,13 +553,13 @@ mainLoop:
 						break
 					}
 					if options&PCRE2_DUPNAMES == 0 {
-						return fail(ERR43)
+						return fail(xERR43)
 					}
 					ng.isdup = 1
 					isdupname = true
 					cb.dupnames = true
 				} else if ng.number == cb.bracount {
-					return fail(ERR65)
+					return fail(xERR65)
 				}
 			}
 			if i < int(cb.namesFound) {
@@ -589,8 +589,8 @@ mainLoop:
 		postAssertion := func() int {
 			nestDepth++
 			if prevExpectCondAssert > 0 {
-				if !pushNest(NSF_CONDASSERT) {
-					return fail(ERR84)
+				if !pushNest(xNSF_CONDASSERT) {
+					return fail(xERR84)
 				}
 			}
 			return 0
@@ -604,7 +604,7 @@ mainLoop:
 			return postAssertion()
 		}
 		atomicGroup := func() {
-			put(META_ATOMIC)
+			put(xMETA_ATOMIC)
 			nestDepth++
 			ptr++
 		}
@@ -614,7 +614,7 @@ mainLoop:
 			putLiteral(c)
 
 		// ---- Escape sequence ----
-		case CHAR_BACKSLASH:
+		case xCHAR_BACKSLASH:
 			tempptr = ptr
 			escape = check_escape(pat, &ptr, ptrend, &c, &errorcode, options, xoptions, false, cb)
 			failedEsc := errorcode != 0
@@ -627,9 +627,9 @@ mainLoop:
 					}
 					ptr = tempptr
 					if ptr >= ptrend {
-						c = CHAR_BACKSLASH
+						c = xCHAR_BACKSLASH
 					} else {
-						c, ptr = GETCHARINCTEST(utf, pat, ptr)
+						c, ptr = xGETCHARINCTEST(utf, pat, ptr)
 					}
 					escape = 0
 				}
@@ -639,7 +639,7 @@ mainLoop:
 				} else if escape < 0 {
 					off := uint64(ptr - 1)
 					escape = -escape
-					put(META_BACKREF | uint32(escape))
+					put(xMETA_BACKREF | uint32(escape))
 					if escape < 10 {
 						if cb.smallRefOffset[escape] == PCRE2_UNSET {
 							cb.smallRefOffset[escape] = off
@@ -650,28 +650,28 @@ mainLoop:
 					okquantifier = true
 				} else {
 					switch escape {
-					case ESC_C:
+					case xESC_C:
 						if options&PCRE2_NEVER_BACKSLASH_C != 0 {
-							errorcode = ERR83
+							errorcode = xERR83
 							failedEsc = true
 							continue escLoop
 						}
 						okquantifier = true
-						put(META_ESCAPE + uint32(escape))
+						put(xMETA_ESCAPE + uint32(escape))
 
-					case ESC_ub:
-						put(CHAR_u)
-						putLiteral(CHAR_LEFT_CURLY_BRACKET)
+					case xESC_ub:
+						put(xCHAR_u)
+						putLiteral(xCHAR_LEFT_CURLY_BRACKET)
 
-					case ESC_X, ESC_H, ESC_h, ESC_N, ESC_R, ESC_V, ESC_v:
+					case xESC_X, xESC_H, xESC_h, xESC_N, xESC_R, xESC_V, xESC_v:
 						okquantifier = true
-						put(META_ESCAPE + uint32(escape))
+						put(xMETA_ESCAPE + uint32(escape))
 
-					case ESC_d, ESC_D, ESC_s, ESC_S, ESC_w, ESC_W:
+					case xESC_d, xESC_D, xESC_s, xESC_S, xESC_w, xESC_W:
 						okquantifier = true
 						pp = parse_handle_escdsw(escape, pp, options, xoptions, cb)
 
-					case ESC_P, ESC_p:
+					case xESC_P, xESC_p:
 						var negated bool
 						var ptype, pdata uint16
 						if !get_ucp(pat, &ptr, &negated, &ptype, &pdata, &errorcode, cb) {
@@ -679,41 +679,41 @@ mainLoop:
 							continue escLoop
 						}
 						if negated {
-							if escape == ESC_P {
-								escape = ESC_p
+							if escape == xESC_P {
+								escape = xESC_p
 							} else {
-								escape = ESC_P
+								escape = xESC_P
 							}
 						}
-						put(META_ESCAPE + uint32(escape))
+						put(xMETA_ESCAPE + uint32(escape))
 						put(uint32(ptype)<<16 | uint32(pdata))
 						okquantifier = true
 
-					case ESC_g, ESC_k:
-						if ptr >= ptrend || (pat[ptr] != CHAR_LEFT_CURLY_BRACKET &&
-							pat[ptr] != CHAR_LESS_THAN_SIGN && pat[ptr] != CHAR_APOSTROPHE) {
-							if escape == ESC_g {
-								errorcode = ERR57
+					case xESC_g, xESC_k:
+						if ptr >= ptrend || (pat[ptr] != xCHAR_LEFT_CURLY_BRACKET &&
+							pat[ptr] != xCHAR_LESS_THAN_SIGN && pat[ptr] != xCHAR_APOSTROPHE) {
+							if escape == xESC_g {
+								errorcode = xERR57
 							} else {
-								errorcode = ERR69
+								errorcode = xERR69
 							}
 							failedEsc = true
 							continue escLoop
 						}
 						switch pat[ptr] {
-						case CHAR_LESS_THAN_SIGN:
-							terminator = CHAR_GREATER_THAN_SIGN
-						case CHAR_APOSTROPHE:
-							terminator = CHAR_APOSTROPHE
+						case xCHAR_LESS_THAN_SIGN:
+							terminator = xCHAR_GREATER_THAN_SIGN
+						case xCHAR_APOSTROPHE:
+							terminator = xCHAR_APOSTROPHE
 						default:
-							terminator = CHAR_RIGHT_CURLY_BRACKET
+							terminator = xCHAR_RIGHT_CURLY_BRACKET
 						}
 
-						if escape == ESC_g && terminator != CHAR_RIGHT_CURLY_BRACKET {
+						if escape == xESC_g && terminator != xCHAR_RIGHT_CURLY_BRACKET {
 							p := ptr + 1
-							if read_number(pat, &p, ptrend, int32(cb.bracount), MAX_GROUP_NUMBER, ERR61, &i, &errorcode) {
+							if read_number(pat, &p, ptrend, int32(cb.bracount), xMAX_GROUP_NUMBER, xERR61, &i, &errorcode) {
 								if p >= ptrend || uint32(pat[p]) != terminator {
-									errorcode = ERR57
+									errorcode = xERR57
 									failedEsc = true
 									continue escLoop
 								}
@@ -731,51 +731,51 @@ mainLoop:
 							failedEsc = true
 							continue escLoop
 						}
-						if escape == ESC_k || terminator == CHAR_RIGHT_CURLY_BRACKET {
-							put(META_BACKREF_BYNAME)
+						if escape == xESC_k || terminator == xCHAR_RIGHT_CURLY_BRACKET {
+							put(xMETA_BACKREF_BYNAME)
 						} else {
-							put(META_RECURSE_BYNAME)
+							put(xMETA_RECURSE_BYNAME)
 						}
 						put(namelen)
 						pp = parse_putoffset(parsed, pp, offset)
 						okquantifier = true
 
 					default: // \A, \B, \b, \G, \K, \Z, \z cannot be quantified.
-						put(META_ESCAPE + uint32(escape))
+						put(xMETA_ESCAPE + uint32(escape))
 					}
 				}
 				break escLoop
 			}
 
 		// ---- Single-character special items ----
-		case CHAR_CIRCUMFLEX_ACCENT:
-			put(META_CIRCUMFLEX)
+		case xCHAR_CIRCUMFLEX_ACCENT:
+			put(xMETA_CIRCUMFLEX)
 
-		case CHAR_DOLLAR_SIGN:
-			put(META_DOLLAR)
+		case xCHAR_DOLLAR_SIGN:
+			put(xMETA_DOLLAR)
 
-		case CHAR_DOT:
-			put(META_DOT)
+		case xCHAR_DOT:
+			put(xMETA_DOT)
 			okquantifier = true
 
 		// ---- Quantifiers ----
-		case CHAR_ASTERISK:
-			metaQuantifier = META_ASTERISK
+		case xCHAR_ASTERISK:
+			metaQuantifier = xMETA_ASTERISK
 			if e := checkQuantifier(); e != 0 {
 				return e
 			}
-		case CHAR_PLUS:
-			metaQuantifier = META_PLUS
+		case xCHAR_PLUS:
+			metaQuantifier = xMETA_PLUS
 			if e := checkQuantifier(); e != 0 {
 				return e
 			}
-		case CHAR_QUESTION_MARK:
-			metaQuantifier = META_QUERY
+		case xCHAR_QUESTION_MARK:
+			metaQuantifier = xMETA_QUERY
 			if e := checkQuantifier(); e != 0 {
 				return e
 			}
 
-		case CHAR_LEFT_CURLY_BRACKET:
+		case xCHAR_LEFT_CURLY_BRACKET:
 			if !read_repeat_counts(pat, &ptr, ptrend, &minRepeat, &maxRepeat, &errorcode) {
 				if errorcode != 0 {
 					return fail(errorcode)
@@ -783,83 +783,83 @@ mainLoop:
 				putLiteral(c)
 				break
 			}
-			metaQuantifier = META_MINMAX
+			metaQuantifier = xMETA_MINMAX
 			if e := checkQuantifier(); e != 0 {
 				return e
 			}
 
 		// ---- Character class ----
-		case CHAR_LEFT_SQUARE_BRACKET:
+		case xCHAR_LEFT_SQUARE_BRACKET:
 			okquantifier = true
 
 			// [[:<:]] and [[:>:]] (pcre2_compile.c:4504)
 			if ptrend-ptr >= 6 &&
 				(strncmp_c8(pat[ptr:], "[:<:]]", 6) == 0 || strncmp_c8(pat[ptr:], "[:>:]]", 6) == 0) {
-				put(META_ESCAPE + ESC_b)
-				if pat[ptr+2] == CHAR_LESS_THAN_SIGN {
-					put(META_LOOKAHEAD)
+				put(xMETA_ESCAPE + xESC_b)
+				if pat[ptr+2] == xCHAR_LESS_THAN_SIGN {
+					put(xMETA_LOOKAHEAD)
 				} else {
-					put(META_LOOKBEHIND)
+					put(xMETA_LOOKBEHIND)
 					*hasLookbehind = true
 					pp = parse_putoffset(parsed, pp, 0)
 				}
 				if options&PCRE2_UCP == 0 {
-					put(META_ESCAPE + ESC_w)
+					put(xMETA_ESCAPE + xESC_w)
 				} else {
-					put(META_ESCAPE + ESC_p)
-					put(PT_WORD << 16)
+					put(xMETA_ESCAPE + xESC_p)
+					put(xPT_WORD << 16)
 				}
-				put(META_KET)
+				put(xMETA_KET)
 				ptr += 6
 				break
 			}
 
-			if ptr < ptrend && (pat[ptr] == CHAR_COLON || pat[ptr] == CHAR_DOT ||
-				pat[ptr] == CHAR_EQUALS_SIGN) &&
+			if ptr < ptrend && (pat[ptr] == xCHAR_COLON || pat[ptr] == xCHAR_DOT ||
+				pat[ptr] == xCHAR_EQUALS_SIGN) &&
 				check_posix_syntax(pat, ptr, ptrend, &tempptr) {
 				first := pat[ptr]
 				ptr--
-				if first == CHAR_COLON {
-					return fail(ERR12)
+				if first == xCHAR_COLON {
+					return fail(xERR12)
 				}
-				return fail(ERR13)
+				return fail(xERR13)
 			}
 
 			negateClass = false
 			for ptr < ptrend {
-				c, ptr = GETCHARINCTEST(utf, pat, ptr)
-				if c == CHAR_BACKSLASH {
-					if ptr < ptrend && pat[ptr] == CHAR_E {
+				c, ptr = xGETCHARINCTEST(utf, pat, ptr)
+				if c == xCHAR_BACKSLASH {
+					if ptr < ptrend && pat[ptr] == xCHAR_E {
 						ptr++
 					} else if ptrend-ptr >= 3 && strncmp_c8(pat[ptr:], "Q\\E", 3) == 0 {
 						ptr += 3
 					} else {
 						break
 					}
-				} else if options&PCRE2_EXTENDED_MORE != 0 && (c == CHAR_SPACE || c == CHAR_HT) {
+				} else if options&PCRE2_EXTENDED_MORE != 0 && (c == xCHAR_SPACE || c == xCHAR_HT) {
 					continue
-				} else if !negateClass && c == CHAR_CIRCUMFLEX_ACCENT {
+				} else if !negateClass && c == xCHAR_CIRCUMFLEX_ACCENT {
 					negateClass = true
 				} else {
 					break
 				}
 			}
 
-			if c == CHAR_RIGHT_SQUARE_BRACKET && cb.externalOptions&PCRE2_ALLOW_EMPTY_CLASS != 0 {
+			if c == xCHAR_RIGHT_SQUARE_BRACKET && cb.externalOptions&PCRE2_ALLOW_EMPTY_CLASS != 0 {
 				if negateClass {
-					put(META_CLASS_EMPTY_NOT)
+					put(xMETA_CLASS_EMPTY_NOT)
 				} else {
-					put(META_CLASS_EMPTY)
+					put(xMETA_CLASS_EMPTY)
 				}
 				break
 			}
 
 			if negateClass {
-				put(META_CLASS_NOT)
+				put(xMETA_CLASS_NOT)
 			} else {
-				put(META_CLASS)
+				put(xMETA_CLASS)
 			}
-			classRangeState = RANGE_NO
+			classRangeState = xRANGE_NO
 
 			for {
 				charIsLiteral := true
@@ -867,80 +867,80 @@ mainLoop:
 				cont := false      // CLASS_CONTINUE
 
 				if inescq {
-					if c == CHAR_BACKSLASH && ptr < ptrend && pat[ptr] == CHAR_E {
+					if c == xCHAR_BACKSLASH && ptr < ptrend && pat[ptr] == xCHAR_E {
 						inescq = false
 						ptr++
 						cont = true
 					} else {
 						doLiteral = true
 					}
-				} else if options&PCRE2_EXTENDED_MORE != 0 && (c == CHAR_SPACE || c == CHAR_HT) {
+				} else if options&PCRE2_EXTENDED_MORE != 0 && (c == xCHAR_SPACE || c == xCHAR_HT) {
 					cont = true
-				} else if c == CHAR_LEFT_SQUARE_BRACKET && ptrend-ptr >= 3 &&
-					(pat[ptr] == CHAR_COLON || pat[ptr] == CHAR_DOT || pat[ptr] == CHAR_EQUALS_SIGN) &&
+				} else if c == xCHAR_LEFT_SQUARE_BRACKET && ptrend-ptr >= 3 &&
+					(pat[ptr] == xCHAR_COLON || pat[ptr] == xCHAR_DOT || pat[ptr] == xCHAR_EQUALS_SIGN) &&
 					check_posix_syntax(pat, ptr, ptrend, &tempptr) {
 					// POSIX class names
 					posixNegate := false
-					if classRangeState == RANGE_STARTED {
-						return fail(ERR50)
+					if classRangeState == xRANGE_STARTED {
+						return fail(xERR50)
 					}
-					if pat[ptr] != CHAR_COLON {
-						return failBack(ERR13)
+					if pat[ptr] != xCHAR_COLON {
+						return failBack(xERR13)
 					}
 					ptr++
-					if pat[ptr] == CHAR_CIRCUMFLEX_ACCENT {
+					if pat[ptr] == xCHAR_CIRCUMFLEX_ACCENT {
 						posixNegate = true
 						ptr++
 					}
 					posixClass := check_posix_name(pat, ptr, tempptr-ptr)
 					if posixClass < 0 {
-						return fail(ERR30)
+						return fail(xERR30)
 					}
 					ptr = tempptr + 2
 
-					if ptr < ptrend-1 && pat[ptr] == CHAR_MINUS && pat[ptr+1] != CHAR_RIGHT_SQUARE_BRACKET {
-						return fail(ERR50)
+					if ptr < ptrend-1 && pat[ptr] == xCHAR_MINUS && pat[ptr+1] != xCHAR_RIGHT_SQUARE_BRACKET {
+						return fail(xERR50)
 					}
-					classRangeState = RANGE_NO
+					classRangeState = xRANGE_NO
 
 					handled := false
 					if options&PCRE2_UCP != 0 && xoptions&PCRE2_EXTRA_ASCII_POSIX == 0 &&
-						!(xoptions&PCRE2_EXTRA_ASCII_DIGIT != 0 && (posixClass == PC_DIGIT || posixClass == PC_XDIGIT)) {
+						!(xoptions&PCRE2_EXTRA_ASCII_DIGIT != 0 && (posixClass == xPC_DIGIT || posixClass == xPC_XDIGIT)) {
 						ptype := int(posix_substitutes[2*posixClass])
 						pvalue := int(posix_substitutes[2*posixClass+1])
 						if ptype >= 0 {
 							if posixNegate {
-								put(META_ESCAPE + ESC_P)
+								put(xMETA_ESCAPE + xESC_P)
 							} else {
-								put(META_ESCAPE + ESC_p)
+								put(xMETA_ESCAPE + xESC_p)
 							}
 							put(uint32(ptype)<<16 | uint32(pvalue))
 							handled = true
 						} else if pvalue != 0 {
 							if posixNegate {
-								put(META_ESCAPE + ESC_H)
+								put(xMETA_ESCAPE + xESC_H)
 							} else {
-								put(META_ESCAPE + ESC_h)
+								put(xMETA_ESCAPE + xESC_h)
 							}
 							handled = true
 						}
 					}
 					if !handled {
 						if posixNegate {
-							put(META_POSIX_NEG)
+							put(xMETA_POSIX_NEG)
 						} else {
-							put(META_POSIX)
+							put(xMETA_POSIX)
 						}
 						put(uint32(posixClass))
 					}
-				} else if c == CHAR_MINUS && classRangeState >= RANGE_OK_ESCAPED {
-					if classRangeState == RANGE_OK_LITERAL {
-						put(META_RANGE_LITERAL)
+				} else if c == xCHAR_MINUS && classRangeState >= xRANGE_OK_ESCAPED {
+					if classRangeState == xRANGE_OK_LITERAL {
+						put(xMETA_RANGE_LITERAL)
 					} else {
-						put(META_RANGE_ESCAPED)
+						put(xMETA_RANGE_ESCAPED)
 					}
-					classRangeState = RANGE_STARTED
-				} else if c != CHAR_BACKSLASH {
+					classRangeState = xRANGE_STARTED
+				} else if c != xCHAR_BACKSLASH {
 					doLiteral = true
 				} else {
 					// Escapes in a class
@@ -952,9 +952,9 @@ mainLoop:
 						}
 						ptr = tempptr
 						if ptr >= ptrend {
-							c = CHAR_BACKSLASH
+							c = xCHAR_BACKSLASH
 						} else {
-							c, ptr = GETCHARINCTEST(utf, pat, ptr)
+							c, ptr = xGETCHARINCTEST(utf, pat, ptr)
 						}
 						escape = 0
 					}
@@ -963,76 +963,76 @@ mainLoop:
 					case 0:
 						charIsLiteral = false
 						doLiteral = true
-					case ESC_b:
-						c = CHAR_BS
+					case xESC_b:
+						c = xCHAR_BS
 						charIsLiteral = false
 						doLiteral = true
-					case ESC_Q:
+					case xESC_Q:
 						inescq = true
 						cont = true
-					case ESC_E:
+					case xESC_E:
 						cont = true
-					case ESC_B, ESC_R, ESC_X:
+					case xESC_B, xESC_R, xESC_X:
 						ptr--
-						return fail(ERR7)
+						return fail(xERR7)
 					}
 
 					if !doLiteral && !cont {
-						if classRangeState == RANGE_STARTED {
-							return fail(ERR50)
+						if classRangeState == xRANGE_STARTED {
+							return fail(xERR50)
 						}
-						classRangeState = RANGE_NO
+						classRangeState = xRANGE_NO
 						switch escape {
-						case ESC_N:
-							return fail(ERR71)
-						case ESC_H, ESC_h, ESC_V, ESC_v:
-							put(META_ESCAPE + uint32(escape))
-						case ESC_d, ESC_D, ESC_s, ESC_S, ESC_w, ESC_W:
+						case xESC_N:
+							return fail(xERR71)
+						case xESC_H, xESC_h, xESC_V, xESC_v:
+							put(xMETA_ESCAPE + uint32(escape))
+						case xESC_d, xESC_D, xESC_s, xESC_S, xESC_w, xESC_W:
 							pp = parse_handle_escdsw(escape, pp, options, xoptions, cb)
-						case ESC_P, ESC_p:
+						case xESC_P, xESC_p:
 							var negated bool
 							var ptype, pdata uint16
 							if !get_ucp(pat, &ptr, &negated, &ptype, &pdata, &errorcode, cb) {
 								return fail(errorcode)
 							}
 							if negated {
-								if escape == ESC_P {
-									escape = ESC_p
+								if escape == xESC_P {
+									escape = xESC_p
 								} else {
-									escape = ESC_P
+									escape = xESC_P
 								}
 							}
-							put(META_ESCAPE + uint32(escape))
+							put(xMETA_ESCAPE + uint32(escape))
 							put(uint32(ptype)<<16 | uint32(pdata))
 						default:
 							ptr--
-							return fail(ERR7)
+							return fail(xERR7)
 						}
 
-						if ptr < ptrend-1 && pat[ptr] == CHAR_MINUS && pat[ptr+1] != CHAR_RIGHT_SQUARE_BRACKET {
-							return fail(ERR50)
+						if ptr < ptrend-1 && pat[ptr] == xCHAR_MINUS && pat[ptr+1] != xCHAR_RIGHT_SQUARE_BRACKET {
+							return fail(xERR50)
 						}
 					}
 				}
 
 				if doLiteral { // CLASS_LITERAL (pcre2_compile.c:3743)
-					if classRangeState == RANGE_STARTED {
+					if classRangeState == xRANGE_STARTED {
 						if c == parsed[pp-2] { // optimize one-char range
 							pp--
 						} else if parsed[pp-2] > c {
-							return failBack(ERR8)
+							return failBack(xERR8)
 						} else {
-							if !charIsLiteral && parsed[pp-1] == META_RANGE_LITERAL {
-								parsed[pp-1] = META_RANGE_ESCAPED
+							if !charIsLiteral && parsed[pp-1] == xMETA_RANGE_LITERAL {
+								parsed[pp-1] = xMETA_RANGE_ESCAPED
 							}
 							putLiteral(c)
 						}
-						classRangeState = RANGE_NO
+						classRangeState = xRANGE_NO
 					} else {
 						if charIsLiteral {
-							classRangeState = RANGE_OK_LITERAL
+							classRangeState = xRANGE_OK_LITERAL
 						} else {
-							classRangeState = RANGE_OK_ESCAPED
+							classRangeState = xRANGE_OK_ESCAPED
 						}
 						putLiteral(c)
 					}
@@ -1040,39 +1040,39 @@ mainLoop:
 
 				// CLASS_CONTINUE
 				if ptr >= ptrend {
-					return fail(ERR6)
+					return fail(xERR6)
 				}
-				c, ptr = GETCHARINCTEST(utf, pat, ptr)
-				if c == CHAR_RIGHT_SQUARE_BRACKET && !inescq {
+				c, ptr = xGETCHARINCTEST(utf, pat, ptr)
+				if c == xCHAR_RIGHT_SQUARE_BRACKET && !inescq {
 					break
 				}
 			}
 
-			if classRangeState == RANGE_STARTED {
-				parsed[pp-1] = CHAR_MINUS
-				classRangeState = RANGE_NO
+			if classRangeState == xRANGE_STARTED {
+				parsed[pp-1] = xCHAR_MINUS
+				classRangeState = xRANGE_NO
 			}
-			put(META_CLASS_END)
+			put(xMETA_CLASS_END)
 
 		// ---- Opening parenthesis ----
-		case CHAR_LEFT_PARENTHESIS:
+		case xCHAR_LEFT_PARENTHESIS:
 			if ptr >= ptrend {
-				return fail(ERR14)
+				return fail(xERR14)
 			}
 
-			if pat[ptr] != CHAR_QUESTION_MARK {
-				if pat[ptr] != CHAR_ASTERISK {
+			if pat[ptr] != xCHAR_QUESTION_MARK {
+				if pat[ptr] != xCHAR_ASTERISK {
 					nestDepth++
 					if options&PCRE2_NO_AUTO_CAPTURE == 0 {
-						if cb.bracount >= MAX_GROUP_NUMBER {
-							return fail(ERR97)
+						if cb.bracount >= xMAX_GROUP_NUMBER {
+							return fail(xERR97)
 						}
 						cb.bracount++
-						put(META_CAPTURE | cb.bracount)
+						put(xMETA_CAPTURE | cb.bracount)
 					} else {
-						put(META_NOCAPTURE)
+						put(xMETA_NOCAPTURE)
 					}
-				} else if ptrend-ptr <= 1 || func() bool { c = uint32(pat[ptr+1]); return c == CHAR_RIGHT_PARENTHESIS }() {
+				} else if ptrend-ptr <= 1 || func() bool { c = uint32(pat[ptr+1]); return c == xCHAR_RIGHT_PARENTHESIS }() {
 					break
 				} else if c <= 255 && cb.ctypes[c]&ctype_lcletter != 0 {
 					// alpha assertions
@@ -1080,8 +1080,8 @@ mainLoop:
 					if !read_name(pat, &ptr, ptrend, utf, 0, &offset, &name, &namelen, &errorcode, cb) {
 						return fail(errorcode)
 					}
-					if ptr >= ptrend || pat[ptr] != CHAR_COLON {
-						return fail(ERR95)
+					if ptr >= ptrend || pat[ptr] != xCHAR_COLON {
+						return fail(xERR95)
 					}
 					names := string(alasnames)
 					for i = 0; i < alascount; i++ {
@@ -1092,54 +1092,54 @@ mainLoop:
 						vnOff += int(alasmeta[i].len) + 1
 					}
 					if i >= alascount {
-						return fail(ERR95)
+						return fail(xERR95)
 					}
 
 					meta := uint32(alasmeta[i].meta)
-					if prevExpectCondAssert > 0 && (meta < META_LOOKAHEAD || meta > META_LOOKBEHINDNOT) {
-						if meta == META_LOOKAHEAD_NA || meta == META_LOOKBEHIND_NA {
-							return fail(ERR98)
+					if prevExpectCondAssert > 0 && (meta < xMETA_LOOKAHEAD || meta > xMETA_LOOKBEHINDNOT) {
+						if meta == xMETA_LOOKAHEAD_NA || meta == xMETA_LOOKBEHIND_NA {
+							return fail(xERR98)
 						}
-						return fail(ERR28)
+						return fail(xERR28)
 					}
 
 					switch meta {
 					default:
-						return fail(ERR89)
-					case META_ATOMIC:
+						return fail(xERR89)
+					case xMETA_ATOMIC:
 						atomicGroup()
-					case META_LOOKAHEAD:
-						put(META_LOOKAHEAD)
+					case xMETA_LOOKAHEAD:
+						put(xMETA_LOOKAHEAD)
 						ptr++
 						if e := postAssertion(); e != 0 {
 							return e
 						}
-					case META_LOOKAHEAD_NA:
-						put(META_LOOKAHEAD_NA)
+					case xMETA_LOOKAHEAD_NA:
+						put(xMETA_LOOKAHEAD_NA)
 						ptr++
 						if e := postAssertion(); e != 0 {
 							return e
 						}
-					case META_LOOKAHEADNOT:
-						put(META_LOOKAHEADNOT)
+					case xMETA_LOOKAHEADNOT:
+						put(xMETA_LOOKAHEADNOT)
 						ptr++
 						if e := postAssertion(); e != 0 {
 							return e
 						}
-					case META_LOOKBEHIND, META_LOOKBEHINDNOT, META_LOOKBEHIND_NA:
+					case xMETA_LOOKBEHIND, xMETA_LOOKBEHINDNOT, xMETA_LOOKBEHIND_NA:
 						put(meta)
 						ptr--
 						if e := postLookbehind(); e != 0 {
 							return e
 						}
-					case META_SCRIPT_RUN, META_ATOMIC_SCRIPT_RUN:
-						put(META_SCRIPT_RUN)
+					case xMETA_SCRIPT_RUN, xMETA_ATOMIC_SCRIPT_RUN:
+						put(xMETA_SCRIPT_RUN)
 						nestDepth++
 						ptr++
-						if meta == META_ATOMIC_SCRIPT_RUN {
-							put(META_ATOMIC)
-							if !pushNest(NSF_ATOMICSR) {
-								return fail(ERR84)
+						if meta == xMETA_ATOMIC_SCRIPT_RUN {
+							put(xMETA_ATOMIC)
+							if !pushNest(xNSF_ATOMICSR) {
+								return fail(xERR84)
 							}
 						}
 					}
@@ -1149,8 +1149,8 @@ mainLoop:
 					if !read_name(pat, &ptr, ptrend, utf, 0, &offset, &name, &namelen, &errorcode, cb) {
 						return fail(errorcode)
 					}
-					if ptr >= ptrend || (pat[ptr] != CHAR_COLON && pat[ptr] != CHAR_RIGHT_PARENTHESIS) {
-						return fail(ERR60)
+					if ptr >= ptrend || (pat[ptr] != xCHAR_COLON && pat[ptr] != xCHAR_RIGHT_PARENTHESIS) {
+						return fail(xERR60)
 					}
 					names := string(verbnames)
 					for i = 0; i < verbcount; i++ {
@@ -1161,28 +1161,28 @@ mainLoop:
 						vnOff += int(verbs[i].len) + 1
 					}
 					if i >= verbcount {
-						return fail(ERR60)
+						return fail(xERR60)
 					}
 
-					if pat[ptr] == CHAR_COLON && ptr+1 < ptrend && pat[ptr+1] == CHAR_RIGHT_PARENTHESIS {
+					if pat[ptr] == xCHAR_COLON && ptr+1 < ptrend && pat[ptr+1] == xCHAR_RIGHT_PARENTHESIS {
 						ptr++
 					}
-					if verbs[i].has_arg > 0 && pat[ptr] != CHAR_COLON {
-						return fail(ERR66)
+					if verbs[i].has_arg > 0 && pat[ptr] != xCHAR_COLON {
+						return fail(xERR66)
 					}
 
 					verbstartptr = pp
-					okquantifier = uint32(verbs[i].meta) == META_ACCEPT
+					okquantifier = uint32(verbs[i].meta) == xMETA_ACCEPT
 
 					skipped := pat[ptr]
 					ptr++
-					if skipped == CHAR_COLON {
+					if skipped == xCHAR_COLON {
 						if verbs[i].has_arg < 0 {
 							addAfterMark = uint32(verbs[i].meta)
-							put(META_MARK)
+							put(xMETA_MARK)
 						} else {
 							v := uint32(verbs[i].meta)
-							if v != META_MARK {
+							if v != xMETA_MARK {
 								v += 0x00010000
 							}
 							put(v)
@@ -1201,65 +1201,65 @@ mainLoop:
 			// ---- Items starting (? ----
 			ptr++
 			if ptr >= ptrend {
-				return fail(ERR14)
+				return fail(xERR14)
 			}
 
 			switch pat[ptr] {
 			default:
-				if pat[ptr] == CHAR_MINUS && ptrend-ptr > 1 && parse_isdigit(pat[ptr+1]) {
+				if pat[ptr] == xCHAR_MINUS && ptrend-ptr > 1 && parse_isdigit(pat[ptr+1]) {
 					goto recursionByNumber
 				}
 				goto optionsOrReset
 
-			case CHAR_P:
+			case xCHAR_P:
 				ptr++
 				if ptr >= ptrend {
-					return fail(ERR14)
+					return fail(xERR14)
 				}
-				if pat[ptr] == CHAR_LESS_THAN_SIGN {
-					if e := defineName(CHAR_GREATER_THAN_SIGN); e != 0 {
+				if pat[ptr] == xCHAR_LESS_THAN_SIGN {
+					if e := defineName(xCHAR_GREATER_THAN_SIGN); e != 0 {
 						return e
 					}
 					break
 				}
-				if pat[ptr] == CHAR_GREATER_THAN_SIGN {
+				if pat[ptr] == xCHAR_GREATER_THAN_SIGN {
 					goto recurseByName
 				}
-				if pat[ptr] != CHAR_EQUALS_SIGN {
-					return fail(ERR41)
+				if pat[ptr] != xCHAR_EQUALS_SIGN {
+					return fail(xERR41)
 				}
-				if !read_name(pat, &ptr, ptrend, utf, CHAR_RIGHT_PARENTHESIS, &offset, &name, &namelen, &errorcode, cb) {
+				if !read_name(pat, &ptr, ptrend, utf, xCHAR_RIGHT_PARENTHESIS, &offset, &name, &namelen, &errorcode, cb) {
 					return fail(errorcode)
 				}
-				put(META_BACKREF_BYNAME)
+				put(xMETA_BACKREF_BYNAME)
 				put(namelen)
 				pp = parse_putoffset(parsed, pp, offset)
 				okquantifier = true
 
-			case CHAR_R:
+			case xCHAR_R:
 				i = 0
 				ptr++
-				if ptr >= ptrend || pat[ptr] != CHAR_RIGHT_PARENTHESIS {
-					return fail(ERR58)
+				if ptr >= ptrend || pat[ptr] != xCHAR_RIGHT_PARENTHESIS {
+					return fail(xERR58)
 				}
 				setRecursion(i)
 
-			case CHAR_PLUS:
+			case xCHAR_PLUS:
 				if ptrend-ptr < 2 || !parse_isdigit(pat[ptr+1]) {
-					return fail(ERR29)
+					return fail(xERR29)
 				}
 				goto recursionByNumber
 
-			case CHAR_0, CHAR_1, CHAR_2, CHAR_3, CHAR_4, CHAR_5, CHAR_6, CHAR_7, CHAR_8, CHAR_9:
+			case xCHAR_0, xCHAR_1, xCHAR_2, xCHAR_3, xCHAR_4, xCHAR_5, xCHAR_6, xCHAR_7, xCHAR_8, xCHAR_9:
 				goto recursionByNumber
 
-			case CHAR_AMPERSAND:
+			case xCHAR_AMPERSAND:
 				goto recurseByName
 
-			case CHAR_C:
+			case xCHAR_C:
 				ptr++
 				if ptr >= ptrend {
-					return fail(ERR14)
+					return fail(xERR14)
 				}
 				expectCondAssert = prevExpectCondAssert - 1
 
@@ -1271,7 +1271,7 @@ mainLoop:
 				previousCallout = pp
 				afterManual = 1
 
-				if pat[ptr] != CHAR_RIGHT_PARENTHESIS && !parse_isdigit(pat[ptr]) {
+				if pat[ptr] != xCHAR_RIGHT_PARENTHESIS && !parse_isdigit(pat[ptr]) {
 					startptr := ptr
 					delimiter = 0
 					for i = 0; callout_start_delims[i] != 0; i++ {
@@ -1281,15 +1281,15 @@ mainLoop:
 						}
 					}
 					if delimiter == 0 {
-						return fail(ERR82)
+						return fail(xERR82)
 					}
-					parsed[pp] = META_CALLOUT_STRING
+					parsed[pp] = xMETA_CALLOUT_STRING
 					pp += 3
 					for {
 						ptr++
 						if ptr >= ptrend {
 							ptr = startptr
-							return fail(ERR81)
+							return fail(xERR81)
 						}
 						if uint32(pat[ptr]) == delimiter {
 							ptr++
@@ -1300,111 +1300,111 @@ mainLoop:
 					}
 					calloutlength := uint64(ptr - startptr)
 					if calloutlength > 0xffffffff {
-						return fail(ERR72)
+						return fail(xERR72)
 					}
 					put(uint32(calloutlength))
 					pp = parse_putoffset(parsed, pp, uint64(startptr))
 				} else {
 					n := 0
-					parsed[pp] = META_CALLOUT_NUMBER
+					parsed[pp] = xMETA_CALLOUT_NUMBER
 					pp += 3
 					for ptr < ptrend && parse_isdigit(pat[ptr]) {
-						n = n*10 + int(pat[ptr]) - CHAR_0
+						n = n*10 + int(pat[ptr]) - xCHAR_0
 						ptr++
 						if n > 255 {
-							return fail(ERR38)
+							return fail(xERR38)
 						}
 					}
 					put(uint32(n))
 				}
 
-				if ptr >= ptrend || pat[ptr] != CHAR_RIGHT_PARENTHESIS {
-					return fail(ERR39)
+				if ptr >= ptrend || pat[ptr] != xCHAR_RIGHT_PARENTHESIS {
+					return fail(xERR39)
 				}
 				ptr++
 				parsed[previousCallout+1] = uint32(ptr)
 				parsed[previousCallout+2] = 0
 
-			case CHAR_LEFT_PARENTHESIS:
+			case xCHAR_LEFT_PARENTHESIS:
 				ptr++
 				if ptr >= ptrend {
-					return fail(ERR14)
+					return fail(xERR14)
 				}
 				nestDepth++
 
-				if pat[ptr] == CHAR_QUESTION_MARK || pat[ptr] == CHAR_ASTERISK {
-					put(META_COND_ASSERT)
+				if pat[ptr] == xCHAR_QUESTION_MARK || pat[ptr] == xCHAR_ASTERISK {
+					put(xMETA_COND_ASSERT)
 					ptr--
 					expectCondAssert = 2
 					break
 				}
 
-				if read_number(pat, &ptr, ptrend, int32(cb.bracount), MAX_GROUP_NUMBER, ERR61, &i, &errorcode) {
+				if read_number(pat, &ptr, ptrend, int32(cb.bracount), xMAX_GROUP_NUMBER, xERR61, &i, &errorcode) {
 					if i <= 0 {
-						return fail(ERR15)
+						return fail(xERR15)
 					}
-					put(META_COND_NUMBER)
+					put(xMETA_COND_NUMBER)
 					off := uint64(ptr - 2)
 					pp = parse_putoffset(parsed, pp, off)
 					put(uint32(i))
 				} else if errorcode != 0 {
 					return fail(errorcode)
 				} else if ptrend-ptr >= 10 && strncmp_c8(pat[ptr:], "VERSION", 7) == 0 &&
-					pat[ptr+7] != CHAR_RIGHT_PARENTHESIS {
+					pat[ptr+7] != xCHAR_RIGHT_PARENTHESIS {
 					var ge uint32
 					var major, minor int
 					ptr += 7
-					if pat[ptr] == CHAR_GREATER_THAN_SIGN {
+					if pat[ptr] == xCHAR_GREATER_THAN_SIGN {
 						ge = 1
 						ptr++
 					}
-					if pat[ptr] != CHAR_EQUALS_SIGN {
-						return fail(ERR79)
+					if pat[ptr] != xCHAR_EQUALS_SIGN {
+						return fail(xERR79)
 					}
 					ptr++
 					if !parse_isdigit(at(ptr)) {
-						return fail(ERR79)
+						return fail(xERR79)
 					}
-					if !read_number(pat, &ptr, ptrend, -1, 1000, ERR79, &major, &errorcode) {
+					if !read_number(pat, &ptr, ptrend, -1, 1000, xERR79, &major, &errorcode) {
 						return fail(errorcode)
 					}
 					if ptr >= ptrend {
-						return fail(ERR79)
+						return fail(xERR79)
 					}
-					if pat[ptr] == CHAR_DOT {
+					if pat[ptr] == xCHAR_DOT {
 						ptr++
 						if ptr >= ptrend || !parse_isdigit(pat[ptr]) {
-							return fail(ERR79)
+							return fail(xERR79)
 						}
-						minor = (int(pat[ptr]) - CHAR_0) * 10
+						minor = (int(pat[ptr]) - xCHAR_0) * 10
 						ptr++
 						if ptr >= ptrend {
-							return fail(ERR79)
+							return fail(xERR79)
 						}
 						if parse_isdigit(pat[ptr]) {
-							minor += int(pat[ptr]) - CHAR_0
+							minor += int(pat[ptr]) - xCHAR_0
 							ptr++
 						}
-						if ptr >= ptrend || pat[ptr] != CHAR_RIGHT_PARENTHESIS {
-							return fail(ERR79)
+						if ptr >= ptrend || pat[ptr] != xCHAR_RIGHT_PARENTHESIS {
+							return fail(xERR79)
 						}
 					}
-					put(META_COND_VERSION)
+					put(xMETA_COND_VERSION)
 					put(ge)
 					put(uint32(major))
 					put(uint32(minor))
 				} else {
 					wasRAmpersand := false
-					if pat[ptr] == CHAR_R && ptrend-ptr > 1 && pat[ptr+1] == CHAR_AMPERSAND {
-						terminator = CHAR_RIGHT_PARENTHESIS
+					if pat[ptr] == xCHAR_R && ptrend-ptr > 1 && pat[ptr+1] == xCHAR_AMPERSAND {
+						terminator = xCHAR_RIGHT_PARENTHESIS
 						wasRAmpersand = true
 						ptr++
-					} else if pat[ptr] == CHAR_LESS_THAN_SIGN {
-						terminator = CHAR_GREATER_THAN_SIGN
-					} else if pat[ptr] == CHAR_APOSTROPHE {
-						terminator = CHAR_APOSTROPHE
+					} else if pat[ptr] == xCHAR_LESS_THAN_SIGN {
+						terminator = xCHAR_GREATER_THAN_SIGN
+					} else if pat[ptr] == xCHAR_APOSTROPHE {
+						terminator = xCHAR_APOSTROPHE
 					} else {
-						terminator = CHAR_RIGHT_PARENTHESIS
+						terminator = xCHAR_RIGHT_PARENTHESIS
 						ptr--
 					}
 					if !read_name(pat, &ptr, ptrend, utf, terminator, &offset, &name, &namelen, &errorcode, cb) {
@@ -1413,86 +1413,86 @@ mainLoop:
 
 					var meta uint32
 					if wasRAmpersand {
-						meta = META_COND_RNAME
+						meta = xMETA_COND_RNAME
 						ptr--
-					} else if terminator == CHAR_RIGHT_PARENTHESIS {
+					} else if terminator == xCHAR_RIGHT_PARENTHESIS {
 						if namelen == 6 && strncmp_c8(pat[name:], "DEFINE", 6) == 0 {
-							meta = META_COND_DEFINE
+							meta = xMETA_COND_DEFINE
 						} else {
 							for i = 1; i < int(namelen); i++ {
 								if !parse_isdigit(pat[name+i]) {
 									break
 								}
 							}
-							if pat[name] == CHAR_R && i >= int(namelen) {
-								meta = META_COND_RNUMBER
+							if pat[name] == xCHAR_R && i >= int(namelen) {
+								meta = xMETA_COND_RNUMBER
 							} else {
-								meta = META_COND_NAME
+								meta = xMETA_COND_NAME
 							}
 						}
 						ptr--
 					} else {
-						meta = META_COND_NAME
+						meta = xMETA_COND_NAME
 					}
 					put(meta)
-					if meta != META_COND_DEFINE {
+					if meta != xMETA_COND_DEFINE {
 						put(namelen)
 					}
 					pp = parse_putoffset(parsed, pp, offset)
 				}
 
-				if ptr >= ptrend || pat[ptr] != CHAR_RIGHT_PARENTHESIS {
-					return fail(ERR24)
+				if ptr >= ptrend || pat[ptr] != xCHAR_RIGHT_PARENTHESIS {
+					return fail(xERR24)
 				}
 				ptr++
 
-			case CHAR_GREATER_THAN_SIGN:
+			case xCHAR_GREATER_THAN_SIGN:
 				atomicGroup()
 
-			case CHAR_EQUALS_SIGN:
-				put(META_LOOKAHEAD)
+			case xCHAR_EQUALS_SIGN:
+				put(xMETA_LOOKAHEAD)
 				ptr++
 				if e := postAssertion(); e != 0 {
 					return e
 				}
 
-			case CHAR_ASTERISK:
-				put(META_LOOKAHEAD_NA)
+			case xCHAR_ASTERISK:
+				put(xMETA_LOOKAHEAD_NA)
 				ptr++
 				if e := postAssertion(); e != 0 {
 					return e
 				}
 
-			case CHAR_EXCLAMATION_MARK:
-				put(META_LOOKAHEADNOT)
+			case xCHAR_EXCLAMATION_MARK:
+				put(xMETA_LOOKAHEADNOT)
 				ptr++
 				if e := postAssertion(); e != 0 {
 					return e
 				}
 
-			case CHAR_LESS_THAN_SIGN:
+			case xCHAR_LESS_THAN_SIGN:
 				if ptrend-ptr <= 1 ||
-					(pat[ptr+1] != CHAR_EQUALS_SIGN && pat[ptr+1] != CHAR_EXCLAMATION_MARK &&
-						pat[ptr+1] != CHAR_ASTERISK) {
-					if e := defineName(CHAR_GREATER_THAN_SIGN); e != 0 {
+					(pat[ptr+1] != xCHAR_EQUALS_SIGN && pat[ptr+1] != xCHAR_EXCLAMATION_MARK &&
+						pat[ptr+1] != xCHAR_ASTERISK) {
+					if e := defineName(xCHAR_GREATER_THAN_SIGN); e != 0 {
 						return e
 					}
 					break
 				}
 				switch pat[ptr+1] {
-				case CHAR_EQUALS_SIGN:
-					put(META_LOOKBEHIND)
-				case CHAR_EXCLAMATION_MARK:
-					put(META_LOOKBEHINDNOT)
+				case xCHAR_EQUALS_SIGN:
+					put(xMETA_LOOKBEHIND)
+				case xCHAR_EXCLAMATION_MARK:
+					put(xMETA_LOOKBEHINDNOT)
 				default:
-					put(META_LOOKBEHIND_NA)
+					put(xMETA_LOOKBEHIND_NA)
 				}
 				if e := postLookbehind(); e != 0 {
 					return e
 				}
 
-			case CHAR_APOSTROPHE:
-				if e := defineName(CHAR_APOSTROPHE); e != 0 {
+			case xCHAR_APOSTROPHE:
+				if e := defineName(xCHAR_APOSTROPHE); e != 0 {
 					return e
 				}
 			}
@@ -1502,14 +1502,14 @@ mainLoop:
 			// (?| or an option setting (pcre2_compile.c:4169).
 			nestDepth++
 			if !pushNest(0) {
-				return fail(ERR84)
+				return fail(xERR84)
 			}
-			if pat[ptr] == CHAR_VERTICAL_LINE {
+			if pat[ptr] == xCHAR_VERTICAL_LINE {
 				nests[topNest].resetGroup = uint16(cb.bracount)
 				nests[topNest].maxGroup = uint16(cb.bracount)
-				nests[topNest].flags |= NSF_RESET
+				nests[topNest].flags |= xNSF_RESET
 				cb.externalFlags |= PCRE2_DUPCAPUSED
-				put(META_NOCAPTURE)
+				put(xMETA_NOCAPTURE)
 				ptr++
 			} else {
 				hyphenok := true
@@ -1521,7 +1521,7 @@ mainLoop:
 				optset := &set
 				xoptset := &xset
 
-				if ptr < ptrend && pat[ptr] == CHAR_CIRCUMFLEX_ACCENT {
+				if ptr < ptrend && pat[ptr] == xCHAR_CIRCUMFLEX_ACCENT {
 					options &^= PCRE2_CASELESS | PCRE2_MULTILINE | PCRE2_NO_AUTO_CAPTURE |
 						PCRE2_DOTALL | PCRE2_EXTENDED | PCRE2_EXTENDED_MORE
 					xoptions &^= PCRE2_EXTRA_CASELESS_RESTRICT
@@ -1529,42 +1529,42 @@ mainLoop:
 					ptr++
 				}
 
-				for ptr < ptrend && pat[ptr] != CHAR_RIGHT_PARENTHESIS && pat[ptr] != CHAR_COLON {
+				for ptr < ptrend && pat[ptr] != xCHAR_RIGHT_PARENTHESIS && pat[ptr] != xCHAR_COLON {
 					ch := pat[ptr]
 					ptr++
 					switch ch {
-					case CHAR_MINUS:
+					case xCHAR_MINUS:
 						if !hyphenok {
 							ptr--
-							return fail(ERR94)
+							return fail(xERR94)
 						}
 						optset = &unset
 						xoptset = &xunset
 						hyphenok = false
 
-					case CHAR_a:
+					case xCHAR_a:
 						if ptr < ptrend {
-							if pat[ptr] == CHAR_D {
+							if pat[ptr] == xCHAR_D {
 								*xoptset |= PCRE2_EXTRA_ASCII_BSD
 								ptr++
 								break
 							}
-							if pat[ptr] == CHAR_P {
+							if pat[ptr] == xCHAR_P {
 								*xoptset |= PCRE2_EXTRA_ASCII_POSIX | PCRE2_EXTRA_ASCII_DIGIT
 								ptr++
 								break
 							}
-							if pat[ptr] == CHAR_S {
+							if pat[ptr] == xCHAR_S {
 								*xoptset |= PCRE2_EXTRA_ASCII_BSS
 								ptr++
 								break
 							}
-							if pat[ptr] == CHAR_T {
+							if pat[ptr] == xCHAR_T {
 								*xoptset |= PCRE2_EXTRA_ASCII_DIGIT
 								ptr++
 								break
 							}
-							if pat[ptr] == CHAR_W {
+							if pat[ptr] == xCHAR_W {
 								*xoptset |= PCRE2_EXTRA_ASCII_BSW
 								ptr++
 								break
@@ -1573,30 +1573,30 @@ mainLoop:
 						*xoptset |= PCRE2_EXTRA_ASCII_BSD | PCRE2_EXTRA_ASCII_BSS |
 							PCRE2_EXTRA_ASCII_BSW | PCRE2_EXTRA_ASCII_DIGIT | PCRE2_EXTRA_ASCII_POSIX
 
-					case CHAR_J:
+					case xCHAR_J:
 						*optset |= PCRE2_DUPNAMES
 						cb.externalFlags |= PCRE2_JCHANGED
-					case CHAR_i:
+					case xCHAR_i:
 						*optset |= PCRE2_CASELESS
-					case CHAR_m:
+					case xCHAR_m:
 						*optset |= PCRE2_MULTILINE
-					case CHAR_n:
+					case xCHAR_n:
 						*optset |= PCRE2_NO_AUTO_CAPTURE
-					case CHAR_r:
+					case xCHAR_r:
 						*xoptset |= PCRE2_EXTRA_CASELESS_RESTRICT
-					case CHAR_s:
+					case xCHAR_s:
 						*optset |= PCRE2_DOTALL
-					case CHAR_U:
+					case xCHAR_U:
 						*optset |= PCRE2_UNGREEDY
-					case CHAR_x:
+					case xCHAR_x:
 						*optset |= PCRE2_EXTENDED
-						if ptr < ptrend && pat[ptr] == CHAR_x {
+						if ptr < ptrend && pat[ptr] == xCHAR_x {
 							*optset |= PCRE2_EXTENDED_MORE
 							ptr++
 						}
 					default:
 						ptr--
-						return fail(ERR11)
+						return fail(xERR11)
 					}
 				}
 
@@ -1607,11 +1607,11 @@ mainLoop:
 				xoptions = (xoptions | xset) &^ xunset
 
 				if ptr >= ptrend {
-					return fail(ERR14)
+					return fail(xERR14)
 				}
 				endch := pat[ptr]
 				ptr++
-				if endch == CHAR_RIGHT_PARENTHESIS {
+				if endch == xCHAR_RIGHT_PARENTHESIS {
 					nestDepth--
 					if topNest > 0 && nests[topNest-1].nestDepth == nestDepth {
 						topNest--
@@ -1619,11 +1619,11 @@ mainLoop:
 						nests[topNest].nestDepth = nestDepth
 					}
 				} else {
-					put(META_NOCAPTURE)
+					put(xMETA_NOCAPTURE)
 				}
 
 				if options != oldoptions || xoptions != oldxoptions {
-					put(META_OPTIONS)
+					put(xMETA_OPTIONS)
 					put(options)
 					put(xoptions)
 				}
@@ -1636,52 +1636,52 @@ mainLoop:
 				if parse_isdigit(pat[ptr]) {
 					allow = -1
 				}
-				if !read_number(pat, &ptr, ptrend, allow, MAX_GROUP_NUMBER, ERR61, &i, &errorcode) {
+				if !read_number(pat, &ptr, ptrend, allow, xMAX_GROUP_NUMBER, xERR61, &i, &errorcode) {
 					return fail(errorcode)
 				}
 				if i < 0 {
-					return failBack(ERR15)
+					return failBack(xERR15)
 				}
-				if ptr >= ptrend || pat[ptr] != CHAR_RIGHT_PARENTHESIS {
-					return fail(ERR14)
+				if ptr >= ptrend || pat[ptr] != xCHAR_RIGHT_PARENTHESIS {
+					return fail(xERR14)
 				}
 				setRecursion(i)
 			}
 			break
 
 		recurseByName:
-			if !read_name(pat, &ptr, ptrend, utf, CHAR_RIGHT_PARENTHESIS, &offset, &name, &namelen, &errorcode, cb) {
+			if !read_name(pat, &ptr, ptrend, utf, xCHAR_RIGHT_PARENTHESIS, &offset, &name, &namelen, &errorcode, cb) {
 				return fail(errorcode)
 			}
-			put(META_RECURSE_BYNAME)
+			put(xMETA_RECURSE_BYNAME)
 			put(namelen)
 			pp = parse_putoffset(parsed, pp, offset)
 			okquantifier = true
 
 		// ---- Branch terminators ----
-		case CHAR_VERTICAL_LINE:
+		case xCHAR_VERTICAL_LINE:
 			if topNest >= 0 && nests[topNest].nestDepth == nestDepth &&
-				nests[topNest].flags&NSF_RESET != 0 {
+				nests[topNest].flags&xNSF_RESET != 0 {
 				if cb.bracount > uint32(nests[topNest].maxGroup) {
 					nests[topNest].maxGroup = uint16(cb.bracount)
 				}
 				cb.bracount = uint32(nests[topNest].resetGroup)
 			}
-			put(META_ALT)
+			put(xMETA_ALT)
 
-		case CHAR_RIGHT_PARENTHESIS:
+		case xCHAR_RIGHT_PARENTHESIS:
 			okquantifier = true
 			if topNest >= 0 && nests[topNest].nestDepth == nestDepth {
-				options = (options &^ PARSE_TRACKED_OPTIONS) | nests[topNest].options
-				xoptions = (xoptions &^ PARSE_TRACKED_EXTRA_OPTIONS) | nests[topNest].xoptions
-				if nests[topNest].flags&NSF_RESET != 0 && uint32(nests[topNest].maxGroup) > cb.bracount {
+				options = (options &^ xPARSE_TRACKED_OPTIONS) | nests[topNest].options
+				xoptions = (xoptions &^ xPARSE_TRACKED_EXTRA_OPTIONS) | nests[topNest].xoptions
+				if nests[topNest].flags&xNSF_RESET != 0 && uint32(nests[topNest].maxGroup) > cb.bracount {
 					cb.bracount = uint32(nests[topNest].maxGroup)
 				}
-				if nests[topNest].flags&NSF_CONDASSERT != 0 {
+				if nests[topNest].flags&xNSF_CONDASSERT != 0 {
 					okquantifier = false
 				}
-				if nests[topNest].flags&NSF_ATOMICSR != 0 {
-					put(META_KET)
+				if nests[topNest].flags&xNSF_ATOMICSR != 0 {
+					put(xMETA_KET)
 				}
 				if topNest == 0 {
 					topNest = -1
@@ -1690,17 +1690,17 @@ mainLoop:
 				}
 			}
 			if nestDepth == 0 {
-				return failBack(ERR22)
+				return failBack(xERR22)
 			}
 			nestDepth--
-			put(META_KET)
+			put(xMETA_KET)
 		}
 		continue mainLoop
 	}
 
 	// End of pattern reached. Check for missing ) at the end of a verb name.
 	if inverbname && ptr >= ptrend {
-		return fail(ERR60)
+		return fail(xERR60)
 	}
 	return finish()
 }

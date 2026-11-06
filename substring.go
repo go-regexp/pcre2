@@ -19,7 +19,7 @@ func SubstringCopyByName(md *MatchData, stringname string, buffer []byte) (uint6
 	failrc := PCRE2_ERROR_UNAVAILABLE
 	nt := md.code.nameTable()
 	for entry := first; entry <= last; entry += entrysize {
-		n := uint32(GET2(nt, entry))
+		n := uint32(xGET2(nt, entry))
 		if n < uint32(md.oveccount) {
 			if md.ovector[n*2] != PCRE2_UNSET {
 				return SubstringCopyByNumber(md, n, buffer)
@@ -68,7 +68,7 @@ func SubstringGetByName(md *MatchData, stringname string) ([]byte, int) {
 	failrc := PCRE2_ERROR_UNAVAILABLE
 	nt := md.code.nameTable()
 	for entry := first; entry <= last; entry += entrysize {
-		n := uint32(GET2(nt, entry))
+		n := uint32(xGET2(nt, entry))
 		if n < uint32(md.oveccount) {
 			if md.ovector[n*2] != PCRE2_UNSET {
 				return SubstringGetByNumber(md, n)
@@ -107,7 +107,7 @@ func SubstringLengthByName(md *MatchData, stringname string) (uint64, int) {
 	failrc := PCRE2_ERROR_UNAVAILABLE
 	nt := md.code.nameTable()
 	for entry := first; entry <= last; entry += entrysize {
-		n := uint32(GET2(nt, entry))
+		n := uint32(xGET2(nt, entry))
 		if n < uint32(md.oveccount) {
 			if md.ovector[n*2] != PCRE2_UNSET {
 				return SubstringLengthByNumber(md, n)
@@ -220,18 +220,18 @@ func nametableScan(code *Code, stringname string) (entry, first, last, rc int) {
 	for top > bot {
 		mid := (top + bot) / 2
 		entry = entrysize * int(mid)
-		c := strcmp(name, nametable[entry+IMM2_SIZE:])
+		c := strcmp(name, nametable[entry+xIMM2_SIZE:])
 		if c == 0 {
 			lastentry := entrysize * (int(code.nameCount) - 1)
 			first, last = entry, entry
 			for first > 0 {
-				if strcmp(name, nametable[first-entrysize+IMM2_SIZE:]) != 0 {
+				if strcmp(name, nametable[first-entrysize+xIMM2_SIZE:]) != 0 {
 					break
 				}
 				first -= entrysize
 			}
 			for last < lastentry {
-				if strcmp(name, nametable[last+entrysize+IMM2_SIZE:]) != 0 {
+				if strcmp(name, nametable[last+entrysize+xIMM2_SIZE:]) != 0 {
 					break
 				}
 				last += entrysize
@@ -257,7 +257,7 @@ func SubstringNumberFromName(code *Code, stringname string) int {
 		return rc
 	}
 	if first == last {
-		return GET2(code.nameTable(), entry)
+		return xGET2(code.nameTable(), entry)
 	}
 	return PCRE2_ERROR_NOUNIQUESUBSTRING
 }

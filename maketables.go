@@ -33,7 +33,7 @@ func cToUpper(i int) int {
 // general context): TABLES_LENGTH bytes, the lower casing table, the case
 // flipping table, the class bitmaps (cbits) and the character type table.
 func Maketables() []byte {
-	yield := make([]byte, TABLES_LENGTH)
+	yield := make([]byte, xTABLES_LENGTH)
 	p := 0
 
 	// First comes the lower casing table
@@ -126,7 +126,7 @@ func MaketablesFree(tables []byte) {}
 // default_tables is _pcre2_default_tables (pcre2_chartables.c): the tables of
 // the "C" locale, TABLES_LENGTH bytes. tables_test.go checks them byte for byte
 // against pcre2_chartables.c.dist.
-var default_tables = func() (t [TABLES_LENGTH]byte) {
+var default_tables = func() (t [xTABLES_LENGTH]byte) {
 	copy(t[:], Maketables())
 	return
 }()

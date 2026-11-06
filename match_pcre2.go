@@ -49,7 +49,7 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 	)
 
 	// pcre2_match.c:6595: plausibility checks.
-	if options&^PUBLIC_MATCH_OPTIONS != 0 {
+	if options&^xPUBLIC_MATCH_OPTIONS != 0 {
 		return PCRE2_ERROR_BADOPTION
 	}
 	if code == nil || md == nil {
@@ -69,7 +69,7 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 	endSubject = trueEndSubject
 
 	// pcre2_match.c:6612: magic number and code unit width.
-	if re.magicNumber != MAGIC_NUMBER {
+	if re.magicNumber != xMAGIC_NUMBER {
 		return PCRE2_ERROR_BADMAGIC
 	}
 	if re.flags&PCRE2_MODE_MASK != 8/8 {
@@ -238,25 +238,25 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 
 	// pcre2_match.c:6983: \R and newline settings.
 	mb.bsrConvention = re.bsrConvention
-	mb.nltype = NLTYPE_FIXED
+	mb.nltype = xNLTYPE_FIXED
 	switch re.newlineConvention {
 	case PCRE2_NEWLINE_CR:
 		mb.nllen = 1
-		mb.nl[0] = CHAR_CR
+		mb.nl[0] = xCHAR_CR
 	case PCRE2_NEWLINE_LF:
 		mb.nllen = 1
-		mb.nl[0] = CHAR_NL
+		mb.nl[0] = xCHAR_NL
 	case PCRE2_NEWLINE_NUL:
 		mb.nllen = 1
-		mb.nl[0] = CHAR_NUL
+		mb.nl[0] = xCHAR_NUL
 	case PCRE2_NEWLINE_CRLF:
 		mb.nllen = 2
-		mb.nl[0] = CHAR_CR
-		mb.nl[1] = CHAR_NL
+		mb.nl[0] = xCHAR_CR
+		mb.nl[1] = xCHAR_NL
 	case PCRE2_NEWLINE_ANY:
-		mb.nltype = NLTYPE_ANY
+		mb.nltype = xNLTYPE_ANY
 	case PCRE2_NEWLINE_ANYCRLF:
-		mb.nltype = NLTYPE_ANYCRLF
+		mb.nltype = xNLTYPE_ANYCRLF
 	default:
 		return PCRE2_ERROR_INTERNAL
 	}
@@ -283,8 +283,8 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 	// pcre2_match.c:7053: at least 10 frames and START_FRAMES_SIZE bytes, but
 	// no more than the heap limit (in KiB) allows.
 	heapframesSize = frameSize * 10
-	if heapframesSize < START_FRAMES_SIZE {
-		heapframesSize = START_FRAMES_SIZE
+	if heapframesSize < xSTART_FRAMES_SIZE {
+		heapframesSize = xSTART_FRAMES_SIZE
 	}
 	if heapframesSize/1024 > uint64(mb.heapLimit) {
 		maxSize := 1024 * uint64(mb.heapLimit)
@@ -339,7 +339,7 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 		if re.flags&PCRE2_FIRSTCASELESS != 0 {
 			firstCU2 = mb.fcc[firstCU]
 			if firstCU > 127 && ucp && !utf {
-				firstCU2 = byte(UCD_OTHERCASE(uint32(firstCU)))
+				firstCU2 = byte(xUCD_OTHERCASE(uint32(firstCU)))
 			}
 		}
 	} else if !startline && re.flags&PCRE2_FIRSTMAPSET != 0 {
@@ -354,7 +354,7 @@ func matchImpl(code *Code, subject []byte, startoffset uint64, options uint32, m
 		if re.flags&PCRE2_LASTCASELESS != 0 {
 			reqCU2 = mb.fcc[reqCU]
 			if reqCU > 127 && ucp && !utf {
-				reqCU2 = byte(UCD_OTHERCASE(uint32(reqCU)))
+				reqCU2 = byte(xUCD_OTHERCASE(uint32(reqCU)))
 			}
 		}
 	}
@@ -402,7 +402,7 @@ fragmentRestart:
 						}
 					}
 					if !ok {
-						rc = MATCH_NOMATCH
+						rc = xMATCH_NOMATCH
 						break
 					}
 				}
@@ -461,7 +461,7 @@ fragmentRestart:
 					// (think /(?<=abc)def/ on "abc") or when FIRSTLINE moved
 					// endSubject.
 					if mb.partial == 0 && startMatch >= mb.endSubject {
-						rc = MATCH_NOMATCH
+						rc = xMATCH_NOMATCH
 						break
 					}
 				} else if startline {
@@ -480,9 +480,9 @@ fragmentRestart:
 
 						// Just passed a CR with newline ANY/ANYCRLF and now at
 						// a LF: advance one more.
-						if subject[startMatch-1] == CHAR_CR &&
-							(mb.nltype == NLTYPE_ANY || mb.nltype == NLTYPE_ANYCRLF) &&
-							startMatch < endSubject && subject[startMatch] == CHAR_NL {
+						if subject[startMatch-1] == xCHAR_CR &&
+							(mb.nltype == xNLTYPE_ANY || mb.nltype == xNLTYPE_ANYCRLF) &&
+							startMatch < endSubject && subject[startMatch] == xCHAR_NL {
 							startMatch++
 						}
 					}
@@ -497,7 +497,7 @@ fragmentRestart:
 						startMatch++
 					}
 					if mb.partial == 0 && startMatch >= mb.endSubject {
-						rc = MATCH_NOMATCH
+						rc = xMATCH_NOMATCH
 						break
 					}
 				}
@@ -512,7 +512,7 @@ fragmentRestart:
 				// pcre2_match.c:7393: minimum matching length (a lower bound,
 				// used as code units).
 				if endSubject-startMatch < int(re.minlength) {
-					rc = MATCH_NOMATCH
+					rc = xMATCH_NOMATCH
 					break
 				}
 
@@ -527,7 +527,7 @@ fragmentRestart:
 				if hasReqCU && p > reqCUPtr {
 					checkLength := endSubject - startMatch
 
-					if checkLength < REQ_CU_MAX || (!anchored && checkLength < REQ_CU_MAX*1000) {
+					if checkLength < xREQ_CU_MAX || (!anchored && checkLength < xREQ_CU_MAX*1000) {
 						if reqCU != reqCU2 { // Caseless
 							pp := p
 							k := bytes.IndexByte(subject[pp:endSubject], reqCU)
@@ -550,7 +550,7 @@ fragmentRestart:
 
 						// Not found: break the bumpalong loop.
 						if p >= endSubject {
-							rc = MATCH_NOMATCH
+							rc = xMATCH_NOMATCH
 							break
 						}
 
@@ -564,7 +564,7 @@ fragmentRestart:
 
 		// pcre2_match.c:7485: no match if past the bumpalong limit.
 		if startMatch > bumpalongLimit {
-			rc = MATCH_NOMATCH
+			rc = xMATCH_NOMATCH
 			break
 		}
 
@@ -593,13 +593,13 @@ fragmentRestart:
 		// matching the SKIP's argument was not found; Perl ignores the SKIP
 		// entirely, so redo the match at the same point with a flag that
 		// forces SKIP with an argument to be ignored.
-		case MATCH_SKIP_ARG:
+		case xMATCH_SKIP_ARG:
 			newStartMatch = startMatch
 			mb.ignoreSkipArg = mb.skipArgCount
 
 		// pcre2_match.c:7544: SKIP passes back the next starting point, but if
 		// it is no greater than the match just done, treat it as NOMATCH.
-		case MATCH_SKIP:
+		case xMATCH_SKIP:
 			if mb.verbSkipPtr > startMatch {
 				newStartMatch = mb.verbSkipPtr
 				break
@@ -608,7 +608,7 @@ fragmentRestart:
 
 		// pcre2_match.c:7555: NOMATCH and PRUNE advance by one character; THEN
 		// at this level acts like PRUNE. Unset ignore SKIP-with-argument.
-		case MATCH_NOMATCH, MATCH_PRUNE, MATCH_THEN:
+		case xMATCH_NOMATCH, xMATCH_PRUNE, xMATCH_THEN:
 			mb.ignoreSkipArg = 0
 			newStartMatch = startMatch + 1
 			if utf {
@@ -617,8 +617,8 @@ fragmentRestart:
 
 		// pcre2_match.c:7569: COMMIT disables the bumpalong, otherwise it
 		// behaves as NOMATCH.
-		case MATCH_COMMIT:
-			rc = MATCH_NOMATCH
+		case xMATCH_COMMIT:
+			rc = xMATCH_NOMATCH
 			goto endloop
 
 		// pcre2_match.c:7575: a match or some kind of error.
@@ -627,7 +627,7 @@ fragmentRestart:
 		}
 
 		// pcre2_match.c:7582: "no match at this point" results.
-		rc = MATCH_NOMATCH
+		rc = xMATCH_NOMATCH
 
 		// pcre2_match.c:7588: with FIRSTLINE the match must start at or before
 		// the first newline, so stop after failing at a newline.
@@ -647,11 +647,11 @@ fragmentRestart:
 		// more unit. (A failed *SKIP can return at the same point, hence the
 		// first test.)
 		if startMatch > startOffset &&
-			subject[startMatch-1] == CHAR_CR &&
+			subject[startMatch-1] == xCHAR_CR &&
 			startMatch < endSubject &&
-			subject[startMatch] == CHAR_NL &&
+			subject[startMatch] == xCHAR_NL &&
 			re.flags&PCRE2_HASCRORLF == 0 &&
-			(mb.nltype == NLTYPE_ANY || mb.nltype == NLTYPE_ANYCRLF || mb.nllen == 2) {
+			(mb.nltype == xNLTYPE_ANY || mb.nltype == xNLTYPE_ANYCRLF || mb.nllen == 2) {
 			startMatch++
 		}
 
@@ -667,7 +667,7 @@ endloop:
 	// pcre2_match.c:7647: if endSubject != trueEndSubject we are handling
 	// invalid UTF and have just processed a non-terminal fragment. After no
 	// match or a partial match carry on with the next fragment.
-	if utf && endSubject != trueEndSubject && (rc == MATCH_NOMATCH || rc == PCRE2_ERROR_PARTIAL) {
+	if utf && endSubject != trueEndSubject && (rc == xMATCH_NOMATCH || rc == PCRE2_ERROR_PARTIAL) {
 		for {
 			// Advance past the first bad code unit, then skip invalid
 			// character starts.
@@ -678,7 +678,7 @@ endloop:
 
 			// At the end of the subject there is no other non-empty fragment.
 			if startMatch >= trueEndSubject {
-				rc = MATCH_NOMATCH // In case it was partial
+				rc = xMATCH_NOMATCH // In case it was partial
 				matchPartial = -1
 				break
 			}
@@ -716,7 +716,7 @@ endloop:
 	// pcre2_match.c:7714: a fully successful match. The return code is the
 	// number of captured strings, or 0 if they do not all fit in the ovector.
 	// (match() has already filled md.ovector.)
-	if rc == MATCH_MATCH {
+	if rc == xMATCH_MATCH {
 		if mb.endOffsetTop >= 2*int(md.oveccount) {
 			md.rc = 0
 		} else {
@@ -743,7 +743,7 @@ endloop:
 	// permitted start. Any mark data is in nomatchMark.
 	md.mark = mb.markName(mb.nomatchMark)
 
-	if rc != MATCH_NOMATCH && rc != PCRE2_ERROR_PARTIAL {
+	if rc != xMATCH_NOMATCH && rc != PCRE2_ERROR_PARTIAL {
 		// Anything other than nomatch or partial: just the code.
 		md.rc = rc
 	} else if matchPartial >= 0 {
